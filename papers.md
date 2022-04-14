@@ -1,0 +1,111 @@
+# Master Project
+
+> Weilue Luo April 2022 @UCL
+
+## Description
+
+#### Problem
+
+Highly labor intensive task constitute up to 50% budget.
+
+| Current Process                                              |                                                              |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| **1 Key poses / Layout**<br />Major actions & Placement<br /><img src="https://raw.githubusercontent.com/redcxx/note-images/master/2022/04/upgit_20220414_1649930306.png" alt="image-20220414105824614" style="zoom:50%;" /> | **2 Roughs / Inbetweening**<br />Timing & Frame distribution<br /><img src="https://raw.githubusercontent.com/redcxx/note-images/master/2022/04/upgit_20220414_1649931257.png" alt="image-20220414111415766" style="zoom:50%;" /> |
+| **3 Cleanup / Inking**<br />Cleanup, Styles & Motion Effects<br /><img src="https://raw.githubusercontent.com/redcxx/note-images/master/2022/04/upgit_20220414_1649931280.png" alt="image-20220414111440478" style="zoom:50%;" /> | **4 Colour / Mattes**<br />Coloring, Shadows & Highlight<br /><img src="https://raw.githubusercontent.com/redcxx/note-images/master/2022/04/upgit_20220414_1649931298.png" alt="image-20220414111458222" style="zoom:50%;" /> |
+
+Currently, lead artist gives front-loaded creative input followed by labor intensive tasks that he has little control. We want lead artist to get an accurate preview of what might be the final product. In particular, when they create the basis for character movement.
+
+#### Proposed System
+
+1. Prepare training data, ingesting from the client database.
+2. Processing stage to tag the data for use.
+
+- This requires: core model, processing block design, finetune hyperparameters to avoid local minima.
+
+3. Optimization, compactification, scaling and sacrifice for real-time output.
+
+#### Expected Workflow
+
+```mermaid
+flowchart LR
+
+lead["Lead Artist"]
+keyframes["Keyframes"]
+roughframes["Rough Frames"]
+genframes["Generate Frames\n(RNN, AE, MV)"]
+cleanup_matting["Clean Up & Matting\n(GAN, CNN, VQVAE)\nUpsampling"]
+finaloutput["Output Frames"]
+timingnotes["Timing Notes"] 
+linestyle["Overall Line Style"]
+tag["Optional Tags"]
+
+lead -->|interactive edit| roughframes
+lead -->|draw| keyframes --> genframes
+lead  -->|select| tag & linestyle & timingnotes
+roughframes --> cleanup_matting
+timingnotes --> genframes
+genframes <--> roughframes
+tag & linestyle --> cleanup_matting --> finaloutput
+
+
+subgraph  Layout
+ keyframes
+end
+
+subgraph ML Techniques
+	
+
+     subgraph In-betweening
+     genframes
+     end
+
+     subgraph CleanUp & Matting
+     cleanup_matting
+     end
+     
+end
+
+
+
+```
+
+#### Goal
+
+To build a prototype that calculates in-between frames and interactively change the style of the output.
+
+## Papers
+
+### General Inbetweening
+
+- https://developer.nvidia.com/blog/googles-ai-can-fill-in-the-missing-frames-in-a-video-sequence/
+- [From Here to There: Video Inbetweening Using Direct 3D Convolutions](https://arxiv.org/pdf/1905.10240.pdf)
+- [FLAVR: Flow-Agnostic Video Representations for Fast Frame Interpolation](https://arxiv.org/pdf/2012.08512.pdf)
+- [A Deep Learning Framework for Character Motion Synthesis and Editing](https://www.ipab.inf.ed.ac.uk/cgvu/motionsynthesis.pdf)
+- [Generative Tweening: Long-term Inbetweening of 3D Human Motions](https://arxiv.org/pdf/2005.08891.pdf)
+
+### Animation Inbetweening
+
+- [A filter based approach for inbetweening](https://arxiv.org/abs/1706.03497)
+  - https://www.animenewsnetwork.com/interest/2017-06-16/a.i-program-creates-practically-perfect-in-between-animation/.117588
+- [Structure-aware generative learning](https://www.slideshare.net/hamadakoichi/anime-generation-ai)
+- [Data Driven In-betweening for Hand Drawn Rotating Face](https://dl.acm.org/doi/pdf/10.1145/1836845.1836853)
+- 
+
+
+
+### Misc
+
+- Animation oriented keyframe generation? How to make it a smooth animation?
+  - https://www.reddit.com/r/anime/comments/7u51e7/can_somebody_explain_me_how_key_and_inbetween/
+  - low quality VS deliberate animation
+- **baseline**: generate features in the keyframes and interpolate using image processing
+- https://www.reddit.com/r/anime/comments/7u51e7/can_somebody_explain_me_how_key_and_inbetween/
+  - [Smears, Multiples and Other Animation Gimmicks](https://animationsmears.tumblr.com/)
+
+
+
+#### Software
+
+- [OpenToonz - An open-source full-featured 2D animation creation software](https://github.com/opentoonz/opentoonz)
+- [CACANi](https://cacani.sg/?v=79cba1185463)
+- 

@@ -1,6 +1,6 @@
 p="D:\UCL\labs\comp0122"
 
-cd %p
+cd p
 
 typora .
 

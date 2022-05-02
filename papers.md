@@ -91,3 +91,56 @@ Analysis
 
 - more structural error in rigid geometry (photo to map) than map to photo, which is more chaotic.
 - colorize produces grayscale or desaturated result
+
+### 2020 RIFE
+
+> https://arxiv.org/abs/2011.06294''
+
+<img src="https://raw.githubusercontent.com/redcxx/note-images/master/2022/05/upgit_20220502_1651523485.png" alt="image-20220502213123175" style="zoom: 80%;" />
+
+video frame interpolation
+
+- hard due to non linear motions and illumination changes
+
+- recently flow-based algorithms achieved impressive result
+
+  1. warping the input frames according to approximated optical flows
+  2. fusing and refining the warped frames using CNN
+
+  - But we do not have intermediate flow
+    - some compute bi-directional flow using model and refine them to intermediate flow
+      - but flaw in motion boundary, because now we only have one direction of the flow
+    - some proposes [voxel flow](https://arxiv.org/abs/1702.02463) to jointly model intermediate flow and occlusion mask
+
+This paper build 
+
+- light weight pipeline that achieve sota performance
+  - 3x3 conv only, no expensive cost volume 
+
+- no additional component like image depth mode, flow refinement model and flow reversal layer
+  - they are introduced to compensate for the defects of flow estimation
+- direct supervision for the approximated intermediate flow
+  - intermediate supervision is important
+    - end to end construction loss does not work
+    - used a privileged distillation scheme that employs a teacher model with access to the intermediate frames to guide the student to learn.
+      - from knowledge distillation method that aims to transfer knowledge from a large model to a smaller one.
+      - the teacher model gets more input than the student model, such as scene depth, images from other views, and even image annotation can guide student to learn
+
+Optical flow estimation
+
+- milestone are  flow net based on u net, and RAFT that iteratively update flow field
+
+Video frame interpolation
+
+- SuperSlomo uses the linear combination of the two bi-directional flows to estimate intermediate flows and refine with U-Net.
+- DAIN made it weighted
+- SoftSplat forward-warp frames and their feature map using softmax splatting
+- QVI exploit four consecutive frames and flow reversal filter to get the intermediate flows. and EQVI extends with rectified quadratic flow prediction.
+
+- flow free methods got improvements
+  - phase information to learn the motion relationship
+  - spatially adaptive convolution whose convolution kernel is generated using a CNN
+  - deformable separable convolution
+  - efficient flowfree method named CAIN, which employs the PixelShuffle operator and channel attention to capture the motion information implicitly
+
+<img src="https://raw.githubusercontent.com/redcxx/note-images/master/2022/05/upgit_20220502_1651528347.png" alt="image-20220502225225841" style="zoom: 50%;" />

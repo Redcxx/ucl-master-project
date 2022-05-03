@@ -126,7 +126,6 @@ To build a prototype that calculates in-between frames and interactively change 
 
 - [OpenToonz - An open-source full-featured 2D animation creation software](https://github.com/opentoonz/opentoonz)
 - [CACANi](https://cacani.sg/?v=79cba1185463)
-- 
 
 ## Meetings
 
@@ -136,4 +135,5 @@ pix2pix, unet, rife
 
 ### 3 May
 
+- 1-way NDA before tomorrow
 - 

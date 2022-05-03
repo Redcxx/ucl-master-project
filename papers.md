@@ -18,10 +18,7 @@
   - use upsampling to replace pooling in usual contracting network
   - upsampling uses a large number of feature channels
 
-
 <img src="https://raw.githubusercontent.com/redcxx/note-images/master/2022/05/upgit_20220501_1651400124.png" alt="image-20220501111523232" style="zoom: 80%;" />
-
-
 
 ### 2016 Image-to-Image Translation with Conditional Adversarial Networks
 
@@ -66,7 +63,7 @@ cGANs can penalize structure difference.
 
 This paper used more general and simpler setup. U-Net for generator and PatchGAN for discriminator
 
-- l1 loss for less blurring
+- l1 loss for less blurring.
 - for nondeterministic output, they did not find gaussian noise effective as the generator learn to ignore noise, so they use drop out only on both train and test time, but also with little stochastic output
 
 Generator:
@@ -144,3 +141,29 @@ Video frame interpolation
   - efficient flowfree method named CAIN, which employs the PixelShuffle operator and channel attention to capture the motion information implicitly
 
 <img src="https://raw.githubusercontent.com/redcxx/note-images/master/2022/05/upgit_20220502_1651528347.png" alt="image-20220502225225841" style="zoom: 50%;" />
+
+- uses RefineNet to refine the highfrequency area of warpped image
+
+<img src="https://raw.githubusercontent.com/redcxx/note-images/master/2022/05/upgit_20220503_1651573043.png" alt="image-20220503111721688" style="zoom: 80%;" />
+
+Training
+
+- Vimeo90K dataset, 51312 triplets 448x256
+- fixed timestep=0.5
+- adamW weight=10-4
+- 300 epochs
+- batchsize 64
+- lr=3x10-4 to 3x10-5, cosine annealing
+- titan x pascal gpu 16hrs
+
+Augmentation
+
+- horizontal and vertical flipping
+- temporal order reversal
+- rotate 90 degrees
+
+
+
+For arbitrary time steps, use Vimeo90K-Septuplet contains 7 consecutive frames, randomly select 3 frames and train it.
+
+- use PSNR for evaluation

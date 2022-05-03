@@ -1,6 +1,6 @@
 # Papers
 
-### 2015 U-Net
+## 2015 U-Net
 
 - size of dataset and network limited success of CNN
 
@@ -20,7 +20,7 @@
 
 <img src="https://raw.githubusercontent.com/redcxx/note-images/master/2022/05/upgit_20220501_1651400124.png" alt="image-20220501111523232" style="zoom: 80%;" />
 
-### 2016 Image-to-Image Translation with Conditional Adversarial Networks
+## 2016 Image-to-Image Translation with Conditional Adversarial Networks
 
 > https://arxiv.org/pdf/1611.07004.pdf
 
@@ -41,7 +41,7 @@ This paper goal is to define a common framework for these problems.
   - present a simple framework sufficient to achieve good results on a wide variety of problems,
   - and to analyze the effects of several important architectural choices.
 
-#### Related Works
+**Related Works**
 
 **Loss** 
 
@@ -54,7 +54,7 @@ Structured losses for image modeling is often per-pixel classification or regres
 - convolutional pseudo-prior
 - matching covariance statistics
 
-cGANs can penalize structure difference.
+cGANs can penalize structure difference usin.
 
 **cGAN**
 
@@ -89,9 +89,9 @@ Analysis
 - more structural error in rigid geometry (photo to map) than map to photo, which is more chaotic.
 - colorize produces grayscale or desaturated result
 
-### 2020 RIFE
+## 2020 RIFE
 
-> https://arxiv.org/abs/2011.06294''
+> https://arxiv.org/abs/2011.06294'
 
 <img src="https://raw.githubusercontent.com/redcxx/note-images/master/2022/05/upgit_20220502_1651523485.png" alt="image-20220502213123175" style="zoom: 80%;" />
 
@@ -167,3 +167,6 @@ Augmentation
 For arbitrary time steps, use Vimeo90K-Septuplet contains 7 consecutive frames, randomly select 3 frames and train it.
 
 - use PSNR for evaluation
+
+## 2014 Conditional Generative Adversarial Nets
+

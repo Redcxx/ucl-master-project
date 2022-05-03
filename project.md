@@ -108,8 +108,6 @@ To build a prototype that calculates in-between frames and interactively change 
 - [TraiNNer](https://github.com/victorca25/traiNNer)
 - [Old Photo Restoration](https://github.com/microsoft/Bringing-Old-Photos-Back-to-Life) & [Bring Old Films Back to Life](https://github.com/raywzy/Bringing-Old-Films-Back-to-Life)
 
-
-
 ### Misc
 
 - Animation oriented keyframe generation? How to make it a smooth animation?
@@ -137,3 +135,7 @@ pix2pix, unet, rife
 
 - 1-way NDA before tomorrow
 - 
+
+## Miscellaneous
+
+- **Annesah** organizing relations to external partners of UCL, such as the company No Ghost.

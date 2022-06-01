@@ -89,6 +89,14 @@ Analysis
 - more structural error in rigid geometry (photo to map) than map to photo, which is more chaotic.
 - colorize produces grayscale or desaturated result
 
+## 2017 CycleGAN
+
+> https://arxiv.org/abs/1703.10593
+
+
+
+
+
 ## 2020 RIFE
 
 > https://arxiv.org/abs/2011.06294'

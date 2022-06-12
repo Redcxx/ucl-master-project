@@ -45,7 +45,7 @@ class SessionOptions(dict):
         self.n_eval_display_samples = 5
 
         # Model
-        self.model = 'pix2pixModel'
+        self.model_name = 'pix2pixModel'
         self.generator_config = None
         self.discriminator_config = None
 

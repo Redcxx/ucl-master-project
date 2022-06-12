@@ -170,7 +170,7 @@ class Pix2pixModel(BaseModel):
             'session_options': self.opt
         }, file_name)
         save_file(self.opt, file_name, local=False)
-        print(f'Checkpoint saved with filename={file_name}')
+        print(f'Checkpoint saved: {file_name}')
 
     def load_checkpoint(self, tag):
         file_name = f'{self.opt.run_id}_{tag}.ckpt'
@@ -193,6 +193,6 @@ class Pix2pixModel(BaseModel):
         optimizer_G.load_state_dict(checkpoint['net_G_optimizer_state_dict'])
         optimizer_D.load_state_dict(checkpoint['net_D_optimizer_state_dict'])
 
-        print(f'Checkpoint loaded with filename={file_name}')
+        print(f'Checkpoint loaded: {file_name}')
 
         return loaded_config, net_G, net_D, optimizer_G, optimizer_D

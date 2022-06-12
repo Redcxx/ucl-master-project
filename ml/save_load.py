@@ -14,7 +14,12 @@ _DRIVE_AND_FOLDER = None
 
 
 def ensure_folder_on_drive(drive, folder_name):
-    folders = drive.ListFile().GetList()
+    folders = drive.ListFile({
+        # see https://developers.google.com/drive/api/guides/search-files
+        'q': "mimeType = 'application/vnd.google-apps.folder'"
+    }).GetList()
+
+    pprint(folders)
 
     folders = list(filter(lambda folder: folder['title'] == folder_name, folders))
 

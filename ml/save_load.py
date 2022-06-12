@@ -3,6 +3,7 @@ import time
 from pprint import pprint
 
 import torch
+from oauth2client.service_account import ServiceAccountCredentials
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 from torch import optim
@@ -48,11 +49,11 @@ def init_drive_and_folder(opt):
     if _DRIVE_AND_FOLDER is None:
         pydrive2_setting_file = opt.pydrive2_setting_file
         working_folder = opt.working_folder
-        g_auth = GoogleAuth(settings_file=pydrive2_setting_file, http_timeout=None)
-        # g_auth.LocalWebserverAuth(host_name="localhost", port_numbers=None, launch_browser=False)
-        # g_auth.CommandLineAuth()
-        g_auth.ServiceAuth()
-        drive = GoogleDrive(g_auth)
+
+        gauth = GoogleAuth()
+        gauth.auth_method = 'service'
+        gauth.credentials = ServiceAccountCredentials.from_json_keyfile_name('client_secrets.json', ["https://www.googleapis.com/auth/drive"])
+        drive = GoogleDrive(gauth)
 
         folder = ensure_folder_on_drive(drive, working_folder)
 

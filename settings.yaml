@@ -8,3 +8,4 @@ save_credentials_file: "credentials.json"
 
 service_config:
   client_user_email: "bin.kallzvx@gmail.com"
+  client_json_file_path: "client_secrets_bin.json"

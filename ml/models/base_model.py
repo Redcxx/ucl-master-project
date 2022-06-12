@@ -18,7 +18,7 @@ class BaseModel(ABC):
 
     def pre_train(self):
         self.training_start_time = time.time()
-        print(f'Training started at: {self.training_start_time}')
+        print(f'Training started at: {format_time(self.training_start_time)}')
 
     def post_train(self):
         training_end_time = time.time()

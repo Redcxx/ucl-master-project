@@ -41,3 +41,22 @@
 - New Quadro RTX 8000 GPU
 - Shared Google drive for storage
 - 12 May DDL for demo, promised 9 May for test
+
+### 3-8 Jun Holiday
+
+### 9 Jun Meeting
+
+- Gonna get new batch of data
+
+### 10 Jun
+
+- Got a new batch of data in the late afternoon
+
+### 11 Jun
+
+- Rebuilt dataset preprocessing pipeline to suit the new batch of dataset as well as extract tie-down dataset
+- Experimented with naive smaller models, but not very good result
+
+### 12 Jun
+
+- Rebuilt training pipeline so that I can develop in the IDE and run code in colab

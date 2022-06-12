@@ -1,4 +1,5 @@
 from datetime import datetime
+from pprint import pprint
 
 import torch.cuda
 
@@ -65,7 +66,7 @@ class SessionOptions(dict):
 
         self.update(dict(*args, **kwargs))
 
-        print(self)
+        pprint(self)
 
 
 def _discriminator_config():

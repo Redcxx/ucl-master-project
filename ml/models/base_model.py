@@ -1,36 +1,50 @@
+import time
 from abc import ABC, abstractmethod
 
 from torch import nn
+
+from ml.save_load import format_time
 
 
 class BaseModel(ABC):
 
     def __init__(self, opt):
         self.opt = opt
+        self.training_start_time = None
+        self.last_batch_time = None
+        self.epoch_eval_loss = None
+        self.epoch_start_time = None
+        self.training_start_time = None
 
-    @abstractmethod
     def pre_train(self):
-        pass
+        self.training_start_time = time.time()
 
-    @abstractmethod
     def post_train(self):
-        pass
+        training_end_time = time.time()
+        print(f'Training finished at {format_time(training_end_time)}')
+        print(f'Time taken: {format_time(training_end_time - self.training_start_time)}')
+        self.save_checkpoint(tag='final')
 
-    @abstractmethod
     def pre_epoch(self):
+        self.last_batch_time = time.time()
+        self.epoch_start_time = time.time()
+
+    def post_epoch(self, epoch):
+        if self.opt.eval_freq is not None and (epoch % self.opt.eval_freq == 0 or epoch == self.opt.start_epoch):
+            self.evaluate()
+
+        if self.opt.log_freq is not None and (epoch % self.opt.log_freq == 0 or epoch == self.opt.start_epoch):
+            self.log_epoch(epoch)
+
+        if self.opt.save_freq is not None and (epoch % self.opt.save_freq == 0 or epoch == self.opt.start_epoch):
+            self.save_checkpoint(epoch)
+
+    def pre_batch(self, epoch, batch):
         pass
 
-    @abstractmethod
-    def post_epoch(self):
-        pass
-
-    @abstractmethod
-    def pre_batch(self, batch):
-        pass
-
-    @abstractmethod
-    def post_batch(self, batch_out):
-        pass
+    def post_batch(self, epoch, batch, batch_out):
+        if self.opt.batch_log_freq is not None and (epoch % self.opt.batch_log_freq == 0 or batch == 1):
+            self.log_batch(batch)
 
     @abstractmethod
     def train_batch(self, batch, batch_data):
@@ -49,11 +63,11 @@ class BaseModel(ABC):
         pass
 
     @abstractmethod
-    def save_checkpoint(self, epoch):
+    def save_checkpoint(self, tag):
         pass
 
     @abstractmethod
-    def load_checkpoint(self, epoch):
+    def load_checkpoint(self, tag):
         pass
 
     def _gaussian_init_weight(self, m):

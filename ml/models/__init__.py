@@ -23,7 +23,7 @@ def _find_model_using_name(model_name):
     return model
 
 
-def create_model(opt):
+def create_model(opt) -> BaseModel:
     instance = _find_model_using_name(opt.model_name)(opt)
     print(f'[{instance.__class__.__name__}] was created')
     return instance

@@ -1,5 +1,7 @@
 from datetime import datetime
 
+import torch.cuda
+
 
 class SessionOptions(dict):
     def __init__(self, *args, **kwargs):
@@ -25,6 +27,9 @@ class SessionOptions(dict):
         # transforms
         self.random_jitter = True
         self.random_mirror = True
+        # loaders, will be set later in train.py
+        self.train_loader = None
+        self.test_loader = None
 
         # Training
         self.start_epoch = 1
@@ -34,6 +39,7 @@ class SessionOptions(dict):
         self.log_freq = 1  # log frequency, unit epoch
         self.save_freq = 100  # save checkpoint, unit epoch
         self.batch_log_freq = None
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
         # Evaluate
         self.n_eval_display_samples = 5

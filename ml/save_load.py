@@ -7,7 +7,9 @@ from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 from torch import optim
 
-from ml.models import Generator, Discriminator
+from ml.session import SessionOptions
+
+_DRIVE_AND_FOLDER = None
 
 
 def ensure_folder_on_drive(drive, folder_name):
@@ -40,17 +42,26 @@ def ensure_folder_on_drive(drive, folder_name):
     return folder
 
 
-def init_google_drive(pydrive2_setting_file, working_folder):
-    g_auth = GoogleAuth(settings_file=pydrive2_setting_file, http_timeout=None)
-    g_auth.LocalWebserverAuth(host_name="localhost", port_numbers=None, launch_browser=True)
-    drive = GoogleDrive(g_auth)
+def get_drive_and_folder(opt):
+    global _DRIVE_AND_FOLDER
+    pydrive2_setting_file = opt.pydrive2_setting_file
+    working_folder = opt.working_folder
 
-    folder = ensure_folder_on_drive(drive, working_folder)
+    if _DRIVE_AND_FOLDER is None:
+        g_auth = GoogleAuth(settings_file=pydrive2_setting_file, http_timeout=None)
+        g_auth.LocalWebserverAuth(host_name="localhost", port_numbers=None, launch_browser=True)
+        drive = GoogleDrive(g_auth)
 
-    return drive, folder
+        folder = ensure_folder_on_drive(drive, working_folder)
+
+        _DRIVE_AND_FOLDER = drive, folder
+
+    return _DRIVE_AND_FOLDER
 
 
-def save_file(drive, folder, file_name, local=True):
+def save_file(opt: SessionOptions, file_name, local=True):
+    drive, folder = get_drive_and_folder(opt)
+
     file = drive.CreateFile({
         'title': file_name,
         'parents': [{
@@ -65,7 +76,9 @@ def save_file(drive, folder, file_name, local=True):
         file.GetContentFile(file_name)
 
 
-def load_file(drive, folder, file_name):
+def load_file(opt, file_name):
+    drive, folder = get_drive_and_folder(opt)
+
     if os.path.isfile(file_name):
         print(f'"{file_name}" already exists, not downloading')
         return True
@@ -82,43 +95,3 @@ def load_file(drive, folder, file_name):
 
 def format_time(seconds):
     return time.strftime('%Hh:%Mm:%Ss', time.gmtime(seconds))
-
-
-def save_checkpoint(sconfig, net_G, net_D, optimizer_G, optimizer_D, tag=''):
-    file_name = f'{sconfig.run_id}{tag}.ckpt'
-    torch.save({
-        'net_G_state_dict': net_G.state_dict(),
-        'net_D_state_dict': net_D.state_dict(),
-        'net_G_optimizer_state_dict': optimizer_G.state_dict(),
-        'net_D_optimizer_state_dict': optimizer_D.state_dict(),
-        'session_config': sconfig
-    }, file_name)
-    save_file(file_name, local=False)
-    return file_name
-
-
-def load_checkpoint(run_id, device, tag=''):
-    file_name = f'{run_id}{tag}.ckpt'
-    load_file(file_name)  # ensure exists locally, will raise error if not exists
-    checkpoint = torch.load(file_name)
-
-    loaded_config = checkpoint['session_config']
-
-    net_G = Generator(loaded_config.generator_config)
-    net_D = Discriminator(loaded_config.discriminator_config)
-    net_G.load_state_dict(checkpoint['net_G_state_dict'])
-    net_D.load_state_dict(checkpoint['net_D_state_dict'])
-    net_G.to(device)
-    net_D.to(device)
-
-    optimizer_G = optim.Adam(net_G.parameters(), lr=loaded_config.lr,
-                             betas=(loaded_config.optimizer_beta1, loaded_config.optimizer_beta2))
-    optimizer_D = optim.Adam(net_D.parameters(), lr=loaded_config.lr,
-                             betas=(loaded_config.optimizer_beta1, loaded_config.optimizer_beta2))
-    optimizer_G.load_state_dict(checkpoint['net_G_optimizer_state_dict'])
-    optimizer_D.load_state_dict(checkpoint['net_D_optimizer_state_dict'])
-
-    return loaded_config, net_G, net_D, optimizer_G, optimizer_D
-
-
-

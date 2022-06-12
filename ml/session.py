@@ -65,6 +65,8 @@ class SessionOptions(dict):
 
         self.update(dict(*args, **kwargs))
 
+        print(self)
+
 
 def _discriminator_config():
     return {

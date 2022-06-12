@@ -46,8 +46,8 @@ class SessionOptions(dict):
 
         # Model
         self.model_name = 'pix2pixModel'
-        self.generator_config = None
-        self.discriminator_config = None
+        self.generator_config = _generator_config()
+        self.discriminator_config = _discriminator_config()
 
         # Optimizer
         self.lr = 0.0002
@@ -61,6 +61,78 @@ class SessionOptions(dict):
 
         # Loss
         self.l1_lambda = 100.0  # encourage l1 distance to actual output
-        self.d_loss_factor = 0.5  # slow down discrminator learning
+        self.d_loss_factor = 0.5  # slow down discriminator learning
 
         self.update(dict(*args, **kwargs))
+
+
+def _discriminator_config():
+    return {
+        'in_channels': 3 * 2,  # conditionalGAN takes both real and fake image
+        'blocks': [
+            {
+                'filters': 32,
+            },
+            {
+                'filters': 64,
+            },
+            {
+                'filters': 64,
+            },
+            # {
+            #     'filters': 256,
+            # },
+            # {
+            #     'filters': 512,
+            # }
+        ]
+    }
+
+
+def _generator_config():
+    return {
+        'in_channels': 3,
+        'out_channels': 3,
+        'blocks': [
+            {
+                'filters': 64,
+                'dropout': False,
+                'skip_connection': False
+            },
+            {
+                'filters': 128,
+                'dropout': False,
+                'skip_connection': True
+            },
+            {
+                'filters': 128,
+                'dropout': False,
+                'skip_connection': True
+            },
+            {
+                'filters': 128,
+                'dropout': False,
+                'skip_connection': True
+            },
+            # {
+            #     'filters': 512,
+            #     'dropout': True,
+            #     'skip_connection': True
+            # },
+            # {
+            #     'filters': 512,
+            #     'dropout': True,
+            #     'skip_connection': True
+            # },
+            # {
+            #     'filters': 512,
+            #     'dropout': True,
+            #     'skip_connection': True
+            # },
+            # {
+            #     'filters': 512,
+            #     'dropout': False,
+            #     'skip_connection': True
+            # }
+        ]
+    }

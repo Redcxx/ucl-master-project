@@ -50,7 +50,8 @@ def init_drive_and_folder(opt):
         working_folder = opt.working_folder
         g_auth = GoogleAuth(settings_file=pydrive2_setting_file, http_timeout=None)
         # g_auth.LocalWebserverAuth(host_name="localhost", port_numbers=None, launch_browser=False)
-        g_auth.CommandLineAuth()
+        # g_auth.CommandLineAuth()
+        g_auth.ServiceAuth()
         drive = GoogleDrive(g_auth)
 
         folder = ensure_folder_on_drive(drive, working_folder)

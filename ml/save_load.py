@@ -14,10 +14,7 @@ _DRIVE_AND_FOLDER = None
 
 
 def ensure_folder_on_drive(drive, folder_name):
-    folders = drive.ListFile({
-        # see https://developers.google.com/drive/api/guides/search-files
-        'q': "mimeType = 'application/vnd.google-apps.folder'"
-    }).GetList()
+    folders = drive.ListFile().GetList()
 
     folders = list(filter(lambda folder: folder['title'] == folder_name, folders))
 
@@ -51,9 +48,7 @@ def init_drive_and_folder(opt):
         working_folder = opt.working_folder
 
         scopes = [
-            "https://www.googleapis.com/auth/drive",
-            "https://www.googleapis.com/auth/drive.file"
-            # "https://www.googleapis.com/auth/drive.file"
+            "https://www.googleapis.com/auth/drive"
         ]
 
         gauth = GoogleAuth()

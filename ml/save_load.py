@@ -50,9 +50,15 @@ def init_drive_and_folder(opt):
         pydrive2_setting_file = opt.pydrive2_setting_file
         working_folder = opt.working_folder
 
+        scopes = [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/drive.file"
+            # "https://www.googleapis.com/auth/drive.file"
+        ]
+
         gauth = GoogleAuth()
         gauth.auth_method = 'service'
-        gauth.credentials = ServiceAccountCredentials.from_json_keyfile_name('client_secrets.json', ["https://www.googleapis.com/auth/drive"])
+        gauth.credentials = ServiceAccountCredentials.from_json_keyfile_name('client_secrets.json', scopes)
         drive = GoogleDrive(gauth)
 
         folder = ensure_folder_on_drive(drive, working_folder)

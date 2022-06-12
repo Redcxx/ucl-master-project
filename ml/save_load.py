@@ -42,14 +42,14 @@ def ensure_folder_on_drive(drive, folder_name):
     return folder
 
 
-def get_drive_and_folder(opt):
+def init_drive_and_folder(opt):
     global _DRIVE_AND_FOLDER
-    pydrive2_setting_file = opt.pydrive2_setting_file
-    working_folder = opt.working_folder
 
     if _DRIVE_AND_FOLDER is None:
+        pydrive2_setting_file = opt.pydrive2_setting_file
+        working_folder = opt.working_folder
         g_auth = GoogleAuth(settings_file=pydrive2_setting_file, http_timeout=None)
-        g_auth.LocalWebserverAuth(host_name="localhost", port_numbers=None, launch_browser=True)
+        g_auth.LocalWebserverAuth(host_name="localhost", port_numbers=None, launch_browser=False)
         drive = GoogleDrive(g_auth)
 
         folder = ensure_folder_on_drive(drive, working_folder)
@@ -60,7 +60,7 @@ def get_drive_and_folder(opt):
 
 
 def save_file(opt: SessionOptions, file_name, local=True):
-    drive, folder = get_drive_and_folder(opt)
+    drive, folder = init_drive_and_folder(opt)
 
     file = drive.CreateFile({
         'title': file_name,
@@ -77,7 +77,7 @@ def save_file(opt: SessionOptions, file_name, local=True):
 
 
 def load_file(opt, file_name):
-    drive, folder = get_drive_and_folder(opt)
+    drive, folder = init_drive_and_folder(opt)
 
     if os.path.isfile(file_name):
         print(f'"{file_name}" already exists, not downloading')

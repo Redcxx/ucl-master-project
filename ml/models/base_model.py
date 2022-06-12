@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 from torch import nn
 
-from ml.save_load import format_time
+from ml.save_load import format_time, init_drive_and_folder
 
 
 class BaseModel(ABC):
@@ -19,6 +19,8 @@ class BaseModel(ABC):
     def pre_train(self):
         self.training_start_time = time.time()
         print(f'Training started at: {format_time(self.training_start_time)}')
+
+        init_drive_and_folder(self.opt)
 
     def post_train(self):
         training_end_time = time.time()

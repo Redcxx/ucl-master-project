@@ -5,3 +5,6 @@ oauth_scope: ["https://www.googleapis.com/auth/drive"]
 
 save_credentials_backend: file
 save_credentials_file: "credentials.json"
+
+service_config:
+  client_json_file_path: "client_secrets.json"

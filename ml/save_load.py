@@ -9,7 +9,7 @@ from ml.session import SessionOptions
 _DRIVE_AND_FOLDER = None
 
 
-def ensure_folder_on_drive(drive, folder_name):
+def ensure_folder_on_drive(drive, folder_name, parent_id=None):
     folders = drive.ListFile({
         # see https://developers.google.com/drive/api/guides/search-files
         'q': "mimeType = 'application/vnd.google-apps.folder'"
@@ -25,14 +25,14 @@ def ensure_folder_on_drive(drive, folder_name):
         raise AssertionError('Multiple Folders of the same name detected')
 
     # folder not found, create a new one at root
-    print(f'Folder: {folder_name} not found, creating at root')
+    print(f'Folder {folder_name} with parent id {parent_id} not found, creating at root')
 
     folder = drive.CreateFile({
         'title': folder_name,
-        # "parents": [{
-        #     "kind": "drive#fileLink",
-        #     "id": parent_folder_id
-        # }],
+        "parents": [{
+            "kind": "drive#fileLink",
+            "id": parent_id
+        }] if parent_id else [],
         "mimeType": "application/vnd.google-apps.folder"
     })
     folder.Upload()
@@ -49,10 +49,11 @@ def init_drive_and_folder(opt):
         # gauth.LocalWebserverAuth()
         gauth.CommandLineAuth()
         drive = GoogleDrive(gauth)
-        folder = ensure_folder_on_drive(drive, opt.working_folder)
+        working_folder = ensure_folder_on_drive(drive, opt.working_folder)
+        session_folder = ensure_folder_on_drive(drive, opt.run_id, working_folder['id'])
         print(f'Authentication Finished')
 
-        _DRIVE_AND_FOLDER = drive, folder
+        _DRIVE_AND_FOLDER = drive, session_folder
 
     return _DRIVE_AND_FOLDER
 

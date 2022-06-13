@@ -22,9 +22,10 @@ def plot_h_images(images, titles=None, figsize=(10, 10), save_file=None):
         if titles:
             plt.title(titles[i])
 
-    plt.show()
     if save_file is not None:
         plt.savefig(save_file, bbox_inches='tight')
+    else:
+        plt.show()
 
     return fig
 

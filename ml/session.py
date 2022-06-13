@@ -82,13 +82,13 @@ def _discriminator_config():
         'in_channels': 3 * 2,  # conditionalGAN takes both real and fake image
         'blocks': [
             {
-                'filters': 8,
-            },
-            {
                 'filters': 16,
             },
             {
                 'filters': 32,
+            },
+            {
+                'filters': 64,
             },
             # {
             #     'filters': 256,
@@ -106,22 +106,22 @@ def _generator_config():
         'out_channels': 3,
         'blocks': [
             {
-                'filters': 8,
-                'dropout': False,
-                'skip_connection': False
-            },
-            {
-                'filters': 16,
-                'dropout': False,
-                'skip_connection': False
-            },
-            {
                 'filters': 32,
                 'dropout': False,
                 'skip_connection': False
             },
             {
                 'filters': 64,
+                'dropout': False,
+                'skip_connection': False
+            },
+            {
+                'filters': 128,
+                'dropout': False,
+                'skip_connection': False
+            },
+            {
+                'filters': 256,
                 'dropout': False,
                 'skip_connection': False
             },

@@ -1,6 +1,8 @@
 from datetime import datetime
 from pprint import pprint
+import random
 
+import numpy as np
 import torch.cuda
 
 
@@ -10,11 +12,10 @@ class SessionOptions(dict):
         self.__dict__ = self  # dangerous, merging namespace, but now you can access key using .key instead of ['key']
 
         # Housekeeping
-        self.tag = 'simple-GAN'
+        self.tag = 'test-GAN'
         self.run_id = f'{self.tag}-' + datetime.now().strftime('%Y-%m-%d-%A-%Hh-%Mm-%Ss')
         self.random_seed = 42
         self.working_folder = 'WORK'  # shared on Google Drive
-        self.pydrive2_setting_file = 'settings.yaml'
 
         # Dataset
         self.dataset_dir = './line_tied'
@@ -26,7 +27,7 @@ class SessionOptions(dict):
         self.pin_memory = True
         self.A_to_B = False
         # transforms
-        self.random_jitter = True
+        self.random_jitter = False
         self.random_mirror = True
         # loaders, will be set later in train.py
         self.train_loader = None
@@ -34,11 +35,11 @@ class SessionOptions(dict):
 
         # Training
         self.start_epoch = 1
-        self.end_epoch = 500  # default 200
-        self.decay_epochs = 50
-        self.eval_freq = 50  # eval frequency, unit epoch
+        self.end_epoch = 100  # default 200
+        self.decay_epochs = 25
+        self.eval_freq = 10  # eval frequency, unit epoch
         self.log_freq = 1  # log frequency, unit epoch
-        self.save_freq = 100  # save checkpoint, unit epoch
+        self.save_freq = 10  # save checkpoint, unit epoch
         self.batch_log_freq = None
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -64,7 +65,15 @@ class SessionOptions(dict):
         self.l1_lambda = 100.0  # encourage l1 distance to actual output
         self.d_loss_factor = 0.5  # slow down discriminator learning
 
+        # update above according to argument
         self.update(dict(*args, **kwargs))
+
+        # reproducibility
+        random.seed(self.random_seed)
+        np.random.seed(self.random_seed)
+        torch.manual_seed(self.random_seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(self.random_seed)
 
         pprint(self)
 

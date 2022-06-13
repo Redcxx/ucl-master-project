@@ -1,5 +1,3 @@
-import time
-
 import numpy as np
 import torch
 from torch import optim, nn
@@ -7,7 +5,7 @@ from torch import optim, nn
 from .base_model import BaseModel
 from .partials import Generator, Discriminator
 from ..criterion.GANBCELoss import GANBCELoss
-from ..save_load import format_time, save_file, load_file
+from ..plot_utils import plot_inp_tar_out
 from ..session import SessionOptions
 
 
@@ -38,11 +36,11 @@ class Pix2pixModel(BaseModel):
                                     betas=(opt.optimizer_beta1, opt.optimizer_beta2),
                                     weight_decay=opt.weight_decay)
 
-        self.sch_G = optim.lr_scheduler.LambdaLR(self.opt_G, lr_lambda=self.decay_rule)
-        self.sch_D = optim.lr_scheduler.LambdaLR(self.opt_D, lr_lambda=self.decay_rule)
+        self.sch_G = optim.lr_scheduler.LambdaLR(self.opt_G, lr_lambda=self._decay_rule)
+        self.sch_D = optim.lr_scheduler.LambdaLR(self.opt_D, lr_lambda=self._decay_rule)
 
         # loss
-        self.criterion_gan = GANBCELoss().to(opt.device)
+        self.criterion_gan = GANBCELoss()
         self.criterion_l1 = nn.L1Loss()
 
         # housekeeping
@@ -50,22 +48,25 @@ class Pix2pixModel(BaseModel):
         self.net_G_l1_losses = []
         self.net_D_losses = []
 
+    def pre_train(self):
+        super().pre_train()
+        self.net_G = self.net_G.train().to(self.opt.device)
+        self.net_D = self.net_D.train().to(self.opt.device)
+        self.criterion_gan = self.criterion_gan.to(self.opt.device)
+
     def pre_epoch(self):
         super().pre_epoch()
         self.net_G_gan_losses = []
         self.net_G_l1_losses = []
         self.net_D_losses = []
 
-        self.net_G = self.net_G.train().to(self.opt.device)
-        self.net_D = self.net_D.train().to(self.opt.device)
-
     def pre_batch(self, epoch, batch):
         super().pre_batch(epoch, batch)
 
+    def train_batch(self, batch, batch_data):
+
         self.net_G.train()
         self.net_D.train()
-
-    def train_batch(self, batch, batch_data):
 
         real_A, real_B = batch_data
         real_A, real_B = real_A.to(self.opt.device), real_B.to(self.opt.device)
@@ -77,7 +78,7 @@ class Pix2pixModel(BaseModel):
         ###
         # DISCRIMINATOR
         ###
-        self.set_requires_grad(self.net_D, True)
+        self._set_requires_grad(self.net_D, True)
         self.opt_D.zero_grad()
 
         # discriminate fake image
@@ -98,7 +99,7 @@ class Pix2pixModel(BaseModel):
         ###
         # GENERATOR
         ###
-        self.set_requires_grad(self.net_D, False)
+        self._set_requires_grad(self.net_D, False)
         self.opt_G.zero_grad()
 
         # generator should fool the discriminator
@@ -132,67 +133,59 @@ class Pix2pixModel(BaseModel):
     def evaluate(self):
         self.net_G.eval()
         self.net_D.eval()
-        self.epoch_eval_loss = None
+        eval_losses = []
+        for i, (inp, tar) in enumerate(self.opt.test_loader):
+            inp, tar = inp.to(self.opt.device), tar.to(self.opt.device)
+
+            out = self.net_G(inp)
+            loss = self.criterion_l1(out, tar)
+            eval_losses.append(loss.item())
+
+            if i < self.opt.n_display_samples:
+                plot_inp_tar_out(inp, tar, out)
+
+        self.epoch_eval_loss = eval_losses
 
     def log_epoch(self, epoch):
-        curr_time = time.time()
-        print(
-            f'[epoch={epoch}] ' +
-            f'[lr={self.get_lr(self.opt_G):.6f}] ' +
-            f'[G_l1_loss={np.mean(self.net_G_l1_losses):.4f}] ' +
-            f'[G_GAN_loss={np.mean(self.net_G_gan_losses):.4f}] ' +
-            f'[D_loss={np.mean(self.net_D_losses):.4f}] ' +
-            f'[epoch_time={format_time(curr_time - self.epoch_start_time)}] ' +
-            f'[train_time={format_time(curr_time - self.training_start_time)}] ' +
-            (f'[eval_loss={self.epoch_eval_loss:.4f}]' if self.epoch_eval_loss is not None else '')
-        )
+        return super().log_epoch(epoch) + \
+               f'[lr={self._get_lr(self.opt_G):.6f}] ' + \
+               f'[G_l1_loss={np.mean(self.net_G_l1_losses):.4f}] ' + \
+               f'[G_GAN_loss={np.mean(self.net_G_gan_losses):.4f}] ' + \
+               f'[D_loss={np.mean(self.net_D_losses):.4f}] ' + \
+               (f'[eval_loss={self.epoch_eval_loss:.4f}]' if self.epoch_eval_loss is not None else '')
 
     def log_batch(self, batch):
-        from_batch = max(1, batch - self.opt.batch_log_freq)
-        curr_time = time.time()
-        print(
-            f'[batch={from_batch}-{batch}] ' +
-            f'[G_l1_loss={np.mean(self.net_G_l1_losses[from_batch - 1:batch]):.4f}] ' +
-            f'[G_GAN_loss={np.mean(self.net_G_gan_losses[from_batch - 1:batch]):.4f}] ' +
-            f'[D_loss={np.mean(self.net_D_losses[from_batch - 1:batch]):.4f}] ' +
-            f'[batch_time={format_time(curr_time - self.last_batch_time)}] ' +
-            f'[train_time={format_time(curr_time - self.training_start_time)}]'
-        )
-        self.last_batch_time = curr_time
+        from_batch = self._get_last_batch(batch)
+        return super().log_batch(batch) + \
+               f'[G_l1_loss={np.mean(self.net_G_l1_losses[from_batch - 1:batch]):.4f}] ' + \
+               f'[G_GAN_loss={np.mean(self.net_G_gan_losses[from_batch - 1:batch]):.4f}] ' + \
+               f'[D_loss={np.mean(self.net_D_losses[from_batch - 1:batch]):.4f}] '
 
-    def save_checkpoint(self, tag):
-        file_name = f'{self.opt.run_id}_{tag}.ckpt'
-        torch.save({
+    def _get_checkpoint(self):
+        return {
             'net_G_state_dict': self.net_G.state_dict(),
             'net_D_state_dict': self.net_D.state_dict(),
-            'net_G_optimizer_state_dict': self.opt_G.state_dict(),
-            'net_D_optimizer_state_dict': self.opt_D.state_dict(),
-            'session_options': self.opt
-        }, file_name)
-        save_file(self.opt, file_name, local=False)
-        print(f'Checkpoint saved: {file_name}')
+            'opt_G_state_dict': self.opt_G.state_dict(),
+            'opt_D_state_dict': self.opt_D.state_dict(),
+            'opt': self.opt
+        }
 
     def load_checkpoint(self, tag):
-        file_name = f'{self.opt.run_id}_{tag}.ckpt'
-        load_file(self.opt, file_name)  # ensure exists locally, will raise error if not exists
-        checkpoint = torch.load(file_name)
+        checkpoint = super().load_checkpoint(tag)
 
-        loaded_config = checkpoint['session_config']
+        loaded_opt = checkpoint['opt']
 
-        net_G = Generator(loaded_config.generator_config)
-        net_D = Discriminator(loaded_config.discriminator_config)
+        net_G = Generator(loaded_opt.generator_config)
+        net_D = Discriminator(loaded_opt.discriminator_config)
         net_G.load_state_dict(checkpoint['net_G_state_dict'])
         net_D.load_state_dict(checkpoint['net_D_state_dict'])
-        net_G.to(self.opt.device)
-        net_D.to(self.opt.device)
 
-        optimizer_G = optim.Adam(net_G.parameters(), lr=loaded_config.lr,
-                                 betas=(loaded_config.optimizer_beta1, loaded_config.optimizer_beta2))
-        optimizer_D = optim.Adam(net_D.parameters(), lr=loaded_config.lr,
-                                 betas=(loaded_config.optimizer_beta1, loaded_config.optimizer_beta2))
-        optimizer_G.load_state_dict(checkpoint['net_G_optimizer_state_dict'])
-        optimizer_D.load_state_dict(checkpoint['net_D_optimizer_state_dict'])
+        optimizer_G = optim.Adam(net_G.parameters(), lr=loaded_opt.lr,
+                                 betas=(loaded_opt.optimizer_beta1, loaded_opt.optimizer_beta2))
+        optimizer_D = optim.Adam(net_D.parameters(), lr=loaded_opt.lr,
+                                 betas=(loaded_opt.optimizer_beta1, loaded_opt.optimizer_beta2))
+        optimizer_G.load_state_dict(checkpoint['opt_G_state_dict'])
+        optimizer_D.load_state_dict(checkpoint['opt_D_state_dict'])
 
-        print(f'Checkpoint loaded: {file_name}')
-
-        return loaded_config, net_G, net_D, optimizer_G, optimizer_D
+        print('Successfully created network with loaded checkpoint')
+        return loaded_opt, net_G, net_D, optimizer_G, optimizer_D

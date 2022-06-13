@@ -1,9 +1,12 @@
 import time
 from abc import ABC, abstractmethod
+from typing import Dict
 
+import torch
 from torch import nn
 
-from ml.save_load import format_time, init_drive_and_folder
+from ml.save_load import init_drive_and_folder, save_file, load_file
+from ml.misc_utils import format_time
 
 
 class BaseModel(ABC):
@@ -16,11 +19,14 @@ class BaseModel(ABC):
         self.epoch_start_time = None
         self.training_start_time = None
 
+    ###
+    # Pre & Post Train
+    ###
     def pre_train(self):
+        init_drive_and_folder(self.opt)  # for saving and loading
+
         self.training_start_time = time.time()
         print(f'Training started at: {format_time(self.training_start_time)}')
-
-        init_drive_and_folder(self.opt)
 
     def post_train(self):
         training_end_time = time.time()
@@ -28,6 +34,9 @@ class BaseModel(ABC):
         print(f'Time taken: {format_time(training_end_time - self.training_start_time)}')
         self.save_checkpoint(tag='final')
 
+    ###
+    # Pre & Post Epoch
+    ###
     def pre_epoch(self):
         self.last_batch_time = time.time()
         self.epoch_start_time = time.time()
@@ -37,18 +46,24 @@ class BaseModel(ABC):
             self.evaluate()
 
         if self.opt.log_freq is not None and (epoch % self.opt.log_freq == 0 or epoch == self.opt.start_epoch):
-            self.log_epoch(epoch)
+            print(self.log_epoch(epoch))
 
         if self.opt.save_freq is not None and (epoch % self.opt.save_freq == 0 or epoch == self.opt.start_epoch):
             self.save_checkpoint(epoch)
 
+    ###
+    # Pre & Post Batch
+    ###
     def pre_batch(self, epoch, batch):
         pass
 
     def post_batch(self, epoch, batch, batch_out):
         if self.opt.batch_log_freq is not None and (epoch % self.opt.batch_log_freq == 0 or batch == 1):
-            self.log_batch(batch)
+            print(self.log_batch(batch))
 
+    ###
+    # Train Batch
+    ###
     @abstractmethod
     def train_batch(self, batch, batch_data):
         pass
@@ -57,22 +72,47 @@ class BaseModel(ABC):
     def evaluate(self):
         pass
 
-    @abstractmethod
+    ###
+    # Log, Save & Loading
+    ###
     def log_epoch(self, epoch):
-        pass
+        curr_time = time.time()
+        return f'[epoch={epoch}] ' + \
+               f'[epoch_time={format_time(curr_time - self.epoch_start_time)}] ' + \
+               f'[train_time={format_time(curr_time - self.training_start_time)}] '
 
-    @abstractmethod
+
+    def _get_last_batch(self, this_batch):
+        return max(1, this_batch - self.opt.batch_log_freq)
+
     def log_batch(self, batch):
-        pass
+        curr_time = time.time()
+        self.last_batch_time = curr_time
+        from_batch = self._get_last_batch(batch)
+        return f'[batch={from_batch}-{batch}] ' + \
+               f'[batch_time={format_time(curr_time - self.last_batch_time)}] ' + \
+               f'[train_time={format_time(curr_time - self.training_start_time)}] '
 
     @abstractmethod
-    def save_checkpoint(self, tag):
+    def _get_checkpoint(self) -> Dict:
         pass
+
+    def save_checkpoint(self, tag):
+        file_name = f'{self.opt.run_id}_{tag}.ckpt'
+        torch.save(self._get_checkpoint(), file_name)
+        save_file(self.opt, file_name, local=False)
+        print(f'Checkpoint saved: {file_name}')
 
     @abstractmethod
     def load_checkpoint(self, tag):
-        pass
+        file_name = f'{self.opt.run_id}_{tag}.ckpt'
+        load_file(self.opt, file_name)  # ensure exists locally, will raise error if not exists
+        print(f'Checkpoint file loaded: {file_name}')
+        return torch.load(file_name)
 
+    ###
+    # Miscellaneous
+    ###
     def _gaussian_init_weight(self, m):
         classname = m.__class__.__name__
         if hasattr(m, 'weight') and (classname.find('Conv') != -1
@@ -82,13 +122,15 @@ class BaseModel(ABC):
             if hasattr(m, 'bias') and m.bias is not None:
                 nn.init.constant_(m.bias.data, 0.0)
 
-    def decay_rule(self, epoch):
+    def _decay_rule(self, epoch):
         return 1.0 - max(0, epoch + self.opt.start_epoch - self.opt.end_epoch) / float(self.opt.epochs_decay + 1)
 
-    def get_lr(self, optimizer):
+    @staticmethod
+    def _get_lr(optimizer):
         for param_group in optimizer.param_groups:
             return param_group['lr']
 
-    def set_requires_grad(self, net, requires_grad):
+    @staticmethod
+    def _set_requires_grad(net, requires_grad):
         for param in net.parameters():
             param.requires_grad = requires_grad

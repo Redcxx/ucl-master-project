@@ -2,13 +2,11 @@ import os
 import random
 
 from PIL import Image
-from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
 from torchvision.transforms import InterpolationMode
 
 from ml.file_utils import get_all_image_paths
-from ml.session import SessionOptions
 
 
 class MyDataset(Dataset):

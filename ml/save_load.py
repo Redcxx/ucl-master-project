@@ -1,12 +1,8 @@
 import os
-import time
 from pprint import pprint
 
-import torch
-from oauth2client.service_account import ServiceAccountCredentials
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
-from torch import optim
 
 from ml.session import SessionOptions
 
@@ -47,20 +43,15 @@ def init_drive_and_folder(opt):
     global _DRIVE_AND_FOLDER
 
     if _DRIVE_AND_FOLDER is None:
-        pydrive2_setting_file = opt.pydrive2_setting_file
         working_folder = opt.working_folder
 
-        scopes = [
-            "https://www.googleapis.com/auth/drive"
-        ]
-
+        print(f'Connecting to Google Drive for Saving and Backup')
         gauth = GoogleAuth()
+        # gauth.LocalWebserverAuth()
         gauth.CommandLineAuth()
-        # gauth.auth_method = 'service'
-        # gauth.credentials = ServiceAccountCredentials.from_json_keyfile_name('client_secrets_service.json', scopes)
         drive = GoogleDrive(gauth)
-
         folder = ensure_folder_on_drive(drive, working_folder)
+        print(f'Authentication Finished')
 
         _DRIVE_AND_FOLDER = drive, folder
 
@@ -99,7 +90,3 @@ def load_file(opt, file_name):
             drive.CreateFile({'id': file['id']}).GetContentFile(file_name)
             return True
     return False  # no match file
-
-
-def format_time(seconds):
-    return time.strftime('%Hh:%Mm:%Ss', time.gmtime(seconds))

@@ -47,8 +47,7 @@ def init_drive_and_folder(opt):
 
         print(f'Connecting to Google Drive for Saving and Backup')
         g_auth = GoogleAuth(settings_file=opt.pydrive2_settings_file)
-        print('settings')
-        print(LoadSettingsFile(opt.pydrive2_settings_file))
+        print('Save & Load Settings:')
         print(g_auth.settings)
         # g_auth.LocalWebserverAuth()
         g_auth.CommandLineAuth()

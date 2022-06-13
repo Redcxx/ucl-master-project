@@ -13,7 +13,7 @@ def unnormalize_im(im):
     return np.clip(im * 0.5 + 0.5, 0, 1)
 
 
-def plot_h_images(images, titles=None, figsize=(10, 10)):
+def plot_h_images(images, titles=None, figsize=(10, 10), save_file=None):
     fig = plt.figure(figsize=figsize)
 
     for i, im in enumerate(images):
@@ -23,13 +23,16 @@ def plot_h_images(images, titles=None, figsize=(10, 10)):
             plt.title(titles[i])
 
     plt.show()
+    if save_file is not None:
+        plt.savefig(save_file, bbox_inches='tight')
 
     return fig
 
 
-def plot_inp_tar_out(inp, tar, out):
+def plot_inp_tar_out(inp, tar, out, save_file=None):
     return plot_h_images(
         [inp, tar, out],
         ['input', 'target', 'output'],
-        (10, 10)
+        (10, 10),
+        save_file=save_file
     )

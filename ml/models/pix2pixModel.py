@@ -130,7 +130,7 @@ class Pix2pixModel(BaseModel):
         self.sch_G.step()
         self.sch_D.step()
 
-    def evaluate(self):
+    def evaluate(self, epoch):
         self.net_G.eval()
         self.net_D.eval()
         eval_losses = []
@@ -142,9 +142,10 @@ class Pix2pixModel(BaseModel):
             eval_losses.append(loss.item())
 
             if i < self.opt.n_eval_display_samples:
-                plot_inp_tar_out(inp, tar, out)
+                save_file = None if not self.opt.save_eval_images else f'epoch-{epoch}-eval-{i}.png'
+                plot_inp_tar_out(inp, tar, out, save_file)
 
-        self.epoch_eval_loss = eval_losses
+        self.epoch_eval_loss = np.mean(eval_losses)
 
     def log_epoch(self, epoch):
         return super().log_epoch(epoch) + \

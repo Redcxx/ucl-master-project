@@ -44,7 +44,7 @@ class BaseModel(ABC):
 
     def post_epoch(self, epoch):
         if self.opt.eval_freq is not None and (epoch % self.opt.eval_freq == 0 or epoch == self.opt.start_epoch):
-            self.evaluate()
+            self.evaluate(epoch)
 
         if self.opt.log_freq is not None and (epoch % self.opt.log_freq == 0 or epoch == self.opt.start_epoch):
             print(self.log_epoch(epoch))
@@ -70,7 +70,7 @@ class BaseModel(ABC):
         pass
 
     @abstractmethod
-    def evaluate(self):
+    def evaluate(self, epoch):
         pass
 
     ###

@@ -45,6 +45,7 @@ class SessionOptions(dict):
 
         # Evaluate
         self.n_eval_display_samples = 5
+        self.save_eval_images = True
 
         # Model
         self.model_name = 'pix2pixModel'

@@ -38,8 +38,8 @@ class SessionOptions(dict):
 
         # Training
         self.start_epoch = 600
-        self.end_epoch = 1000  # default 200
-        self.decay_epochs = 100  # default 100
+        self.end_epoch = 2000  # default 200
+        self.decay_epochs = 200  # default 100
         self.eval_freq = 50  # eval frequency, unit epoch
         self.log_freq = 10  # log frequency, unit epoch
         self.save_freq = 50  # save checkpoint, unit epoch

@@ -16,7 +16,7 @@ class SessionOptions(dict):
         self.run_id = f'{self.tag}-' + datetime.now().strftime('%Y-%m-%d-%A-%Hh-%Mm-%Ss')
         self.random_seed = 42
         self.working_folder = 'WORK'  # shared on Google Drive
-        self.pydrive2_settings_file - 'misc/settings.yaml'
+        self.pydrive2_settings_file = 'misc/settings.yaml'
 
         # Dataset
         self.dataset_dir = './line_tied'

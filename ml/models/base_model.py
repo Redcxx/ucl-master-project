@@ -6,8 +6,8 @@ from typing import Dict
 import torch
 from torch import nn
 
-from ml.save_load import init_drive_and_folder, save_file, load_file
 from ml.misc_utils import format_time
+from ml.save_load import init_drive_and_folder, save_file, load_file
 from ml.session import SessionOptions
 
 
@@ -24,19 +24,33 @@ class BaseModel(ABC):
     ###
     # Pre & Post Train
     ###
-    def pre_train(self):
-        init_drive_and_folder(self.opt)  # for saving and loading
+    @staticmethod
+    def _get_center_text(text, width, fill_char='='):
+        return fill_char * (width - (len(text) // 2)) + text + fill_char * (width - (len(text) + 1) // 2)
 
-        self.training_start_time = time.time()
-        self.last_epoch_time = time.time()
-        print('Options:')
+    def _print_title(self):
+        width = 50
+        fill_char = '='
+        option_text = 'OPTIONS'
+        run_start_text = f'STARTING RUN: {self.opt.run_id}'
+        print(self._get_center_text(option_text, width, fill_char))
         pprint(self.opt)
+        print(self._get_center_text(run_start_text, width, fill_char))
         print(f'Using device {self.opt.device}')
         print(f'Number of training samples: {len(self.opt.train_dataset)}')
         print(f'Number of training batches: {len(self.opt.test_loader)}')
         print(f'Number of testing samples: {len(self.opt.test_dataset)}')
         print(f'Number of testing batches: {len(self.opt.test_loader)}')
         print(f'Training started at {format_time(self.training_start_time)}')
+        print('' * width)
+
+    def pre_train(self):
+        init_drive_and_folder(self.opt)  # for saving and loading
+
+        self.training_start_time = time.time()
+        self.last_epoch_time = time.time()
+
+        self._print_title()
 
     def post_train(self):
         training_end_time = time.time()
@@ -91,7 +105,6 @@ class BaseModel(ABC):
     ###
     def log_epoch(self, epoch):
         curr_time = time.time()
-
         text = f'[epoch={epoch}] ' + \
                f'[train_time={format_time(curr_time - self.training_start_time)}] ' + \
                f'[epoch_time={format_time(curr_time - self.last_epoch_time)}] '
@@ -144,7 +157,7 @@ class BaseModel(ABC):
                 nn.init.constant_(m.bias.data, 0.0)
 
     def _decay_rule(self, epoch):
-        return 1.0 - max(0, epoch + self.opt.start_epoch - self.opt.end_epoch) / float(self.opt.epochs_decay + 1)
+        return 1.0 - max(0, epoch + self.opt.start_epoch - self.opt.end_epoch) / float(self.opt.decay_epochs + 1)
 
     @staticmethod
     def _get_lr(optimizer):

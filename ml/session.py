@@ -1,5 +1,3 @@
-from datetime import datetime
-from pprint import pprint
 import random
 
 import numpy as np
@@ -23,9 +21,9 @@ class SessionOptions(dict):
         self.dataset_dir = './line_tied'
         self.dataset_train_folder = 'train'
         self.dataset_test_folder = 'test'
-        self.batch_size = 4  # default 1
-        self.shuffle = False
-        self.num_workers = 1
+        self.batch_size = 1  # default 1
+        self.shuffle = True
+        self.num_workers = 4
         self.pin_memory = True
         self.A_to_B = False
         # transforms
@@ -38,12 +36,12 @@ class SessionOptions(dict):
         self.test_dataset = None
 
         # Training
-        self.start_epoch = 201
-        self.end_epoch = 1000  # default 200
-        self.decay_epochs = 500
+        self.start_epoch = 1
+        self.end_epoch = 500  # default 200
+        self.decay_epochs = 100  # default 100
         self.eval_freq = 50  # eval frequency, unit epoch
         self.log_freq = 10  # log frequency, unit epoch
-        self.save_freq = 100  # save checkpoint, unit epoch
+        self.save_freq = 50  # save checkpoint, unit epoch
         self.batch_log_freq = None
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -54,8 +52,7 @@ class SessionOptions(dict):
 
         # Model
         self.model_name = 'pix2pixModel'
-        self.generator_config = _generator_config()
-        self.discriminator_config = _discriminator_config()
+        self.network_config = _pix2pix_network_config()
 
         # Optimizer
         self.lr = 0.0002
@@ -63,9 +60,6 @@ class SessionOptions(dict):
         self.optimizer_beta2 = 0.999
         self.init_gain = 0.02  # default 0.02
         self.weight_decay = 0  # default 0
-
-        # Scheduler
-        self.epochs_decay = 0  # default 100
 
         # Loss
         self.l1_lambda = 100.0  # encourage l1 distance to actual output
@@ -87,13 +81,13 @@ def _discriminator_config():
         'in_channels': 3 * 2,  # conditionalGAN takes both real and fake image
         'blocks': [
             {
+                'filters': 8,
+            },
+            {
+                'filters': 16,
+            },
+            {
                 'filters': 32,
-            },
-            {
-                'filters': 64,
-            },
-            {
-                'filters': 64,
             },
             # {
             #     'filters': 256,
@@ -111,24 +105,24 @@ def _generator_config():
         'out_channels': 3,
         'blocks': [
             {
-                'filters': 64,
+                'filters': 8,
                 'dropout': False,
                 'skip_connection': False
             },
             {
-                'filters': 128,
+                'filters': 16,
                 'dropout': False,
-                'skip_connection': True
+                'skip_connection': False
             },
             {
-                'filters': 128,
+                'filters': 32,
                 'dropout': False,
-                'skip_connection': True
+                'skip_connection': False
             },
             {
-                'filters': 128,
+                'filters': 64,
                 'dropout': False,
-                'skip_connection': True
+                'skip_connection': False
             },
             # {
             #     'filters': 512,
@@ -151,4 +145,11 @@ def _generator_config():
             #     'skip_connection': True
             # }
         ]
+    }
+
+
+def _pix2pix_network_config():
+    return {
+        'generator_config': _generator_config(),
+        'discriminator_config': _discriminator_config()
     }

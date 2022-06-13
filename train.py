@@ -5,7 +5,7 @@ from ml.session import SessionOptions
 
 def main():
     opt = SessionOptions()
-    opt.train_loader, opt.test_loader = create_dataloaders(opt)
+    opt.train_loader, opt.test_loader, opt.train_dataset, opt.test_dataset = create_dataloaders(opt)
     model = create_model(opt)
 
     model.pre_train()

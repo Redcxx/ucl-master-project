@@ -12,7 +12,7 @@ class SessionOptions(dict):
         self.__dict__ = self  # dangerous, merging namespace, but now you can access key using .key instead of ['key']
 
         # Housekeeping
-        self.tag = 'test-GAN'
+        self.tag = 'line-tied-GAN'
         self.run_id = f'{self.tag}-' + datetime.now().strftime('%Y-%m-%d-%A-%Hh-%Mm-%Ss')
         self.random_seed = 42
         self.working_folder = 'WORK'  # shared on Google Drive
@@ -21,7 +21,7 @@ class SessionOptions(dict):
         self.dataset_dir = './line_tied'
         self.dataset_train_folder = 'train'
         self.dataset_test_folder = 'test'
-        self.batch_size = 1  # default 1
+        self.batch_size = 4  # default 1
         self.shuffle = False
         self.num_workers = 1
         self.pin_memory = True
@@ -29,17 +29,19 @@ class SessionOptions(dict):
         # transforms
         self.random_jitter = False
         self.random_mirror = True
-        # loaders, will be set later in train.py
+        # dataset & loaders, will be set later in train.py
         self.train_loader = None
         self.test_loader = None
+        self.train_dataset = None
+        self.test_dataset = None
 
         # Training
         self.start_epoch = 1
-        self.end_epoch = 100  # default 200
-        self.decay_epochs = 25
-        self.eval_freq = 10  # eval frequency, unit epoch
-        self.log_freq = 1  # log frequency, unit epoch
-        self.save_freq = 10  # save checkpoint, unit epoch
+        self.end_epoch = 1000  # default 200
+        self.decay_epochs = 500
+        self.eval_freq = 50  # eval frequency, unit epoch
+        self.log_freq = 10  # log frequency, unit epoch
+        self.save_freq = 100  # save checkpoint, unit epoch
         self.batch_log_freq = None
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 

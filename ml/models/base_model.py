@@ -7,17 +7,19 @@ from torch import nn
 
 from ml.save_load import init_drive_and_folder, save_file, load_file
 from ml.misc_utils import format_time
+from ml.session import SessionOptions
 
 
 class BaseModel(ABC):
 
-    def __init__(self, opt):
+    def __init__(self, opt: SessionOptions):
         self.opt = opt
         self.training_start_time = None
         self.last_batch_time = None
         self.epoch_eval_loss = None
         self.epoch_start_time = None
         self.training_start_time = None
+        self.this_epoch_evaluated = False
 
     ###
     # Pre & Post Train
@@ -27,6 +29,10 @@ class BaseModel(ABC):
 
         self.training_start_time = time.time()
         print(f'Using device {self.opt.device}')
+        print(f'Number of training samples: {len(self.opt.train_loader)}')
+        print(f'Number of training batches: {len(self.opt.train_dataset)}')
+        print(f'Number of testing samples: {len(self.opt.train_loader)}')
+        print(f'Number of testing batches: {len(self.opt.train_dataset)}')
         print(f'Training started at {format_time(self.training_start_time)}')
 
     def post_train(self):
@@ -44,7 +50,12 @@ class BaseModel(ABC):
 
     def post_epoch(self, epoch):
         if self.opt.eval_freq is not None and (epoch % self.opt.eval_freq == 0 or epoch == self.opt.start_epoch):
+            print('Evaluation in progress ... ', end='')
             self.evaluate(epoch)
+            print('done')
+            self.this_epoch_evaluated = True
+        else:
+            self.this_epoch_evaluated = False
 
         if self.opt.log_freq is not None and (epoch % self.opt.log_freq == 0 or epoch == self.opt.start_epoch):
             print(self.log_epoch(epoch))
@@ -79,9 +90,8 @@ class BaseModel(ABC):
     def log_epoch(self, epoch):
         curr_time = time.time()
         return f'[epoch={epoch}] ' + \
-               f'[epoch_time={format_time(curr_time - self.epoch_start_time)}] ' + \
-               f'[train_time={format_time(curr_time - self.training_start_time)}] '
-
+               f'[train_time={format_time(curr_time - self.training_start_time)}] ' + \
+               f'[epoch_time={format_time(curr_time - self.epoch_start_time)}] '
 
     def _get_last_batch(self, this_batch):
         return max(1, this_batch - self.opt.batch_log_freq)
@@ -99,10 +109,11 @@ class BaseModel(ABC):
         pass
 
     def save_checkpoint(self, tag):
+        print('Saving checkpoint ... ', end='')
         file_name = f'{self.opt.run_id}_{tag}.ckpt'
         torch.save(self._get_checkpoint(), file_name)
         save_file(self.opt, file_name, local=False)
-        print(f'Checkpoint saved: {file_name}')
+        print(f'done: {file_name}')
 
     @abstractmethod
     def load_checkpoint(self, tag):

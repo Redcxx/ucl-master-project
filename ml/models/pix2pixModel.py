@@ -142,8 +142,11 @@ class Pix2pixModel(BaseModel):
             eval_losses.append(loss.item())
 
             if i < self.opt.n_eval_display_samples:
-                save_file = None if not self.opt.save_eval_images else f'epoch-{epoch}-eval-{i}.png'
-                plot_inp_tar_out(inp, tar, out, save_file)
+                if not self.opt.save_eval_images:
+                    plot_inp_tar_out(inp, tar, out, save_file=None)
+                else:
+                    save_filename = f'epoch-{epoch}-eval-{i}.png'
+                    plot_inp_tar_out(inp, tar, out, save_file=save_filename)
 
         self.epoch_eval_loss = np.mean(eval_losses)
 
@@ -153,7 +156,7 @@ class Pix2pixModel(BaseModel):
                f'[G_l1_loss={np.mean(self.net_G_l1_losses):.4f}] ' + \
                f'[G_GAN_loss={np.mean(self.net_G_gan_losses):.4f}] ' + \
                f'[D_loss={np.mean(self.net_D_losses):.4f}] ' + \
-               (f'[eval_loss={self.epoch_eval_loss:.4f}]' if self.epoch_eval_loss is not None else '')
+               (f'[eval_loss={self.epoch_eval_loss:.4f}]' if self.this_epoch_evaluated is not None else '')
 
     def log_batch(self, batch):
         from_batch = self._get_last_batch(batch)

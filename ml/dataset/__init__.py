@@ -13,4 +13,4 @@ def create_dataloaders(opt: SessionOptions):
     test_dataloader = DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=opt.num_workers,
                                  pin_memory=opt.pin_memory)
 
-    return train_dataloader, test_dataloader
+    return train_dataloader, test_dataloader, train_dataset, train_dataloader

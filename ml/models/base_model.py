@@ -31,8 +31,8 @@ class BaseModel(ABC):
         print(f'Using device {self.opt.device}')
         print(f'Number of training samples: {len(self.opt.train_loader)}')
         print(f'Number of training batches: {len(self.opt.train_dataset)}')
-        print(f'Number of testing samples: {len(self.opt.train_loader)}')
-        print(f'Number of testing batches: {len(self.opt.train_dataset)}')
+        print(f'Number of testing samples: {len(self.opt.test_loader)}')
+        print(f'Number of testing batches: {len(self.opt.test_dataset)}')
         print(f'Training started at {format_time(self.training_start_time)}')
 
     def post_train(self):

@@ -186,8 +186,8 @@ class Pix2pixModel(BaseModel):
 
         loaded_opt = checkpoint['opt']
 
-        net_G = Generator(loaded_opt)
-        net_D = Discriminator(loaded_opt)
+        net_G = Generator(loaded_opt).to(self.opt.device)
+        net_D = Discriminator(loaded_opt).to(self.opt.device)
         net_G.load_state_dict(checkpoint['net_G_state_dict'])
         net_D.load_state_dict(checkpoint['net_D_state_dict'])
 

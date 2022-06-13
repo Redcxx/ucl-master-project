@@ -26,10 +26,10 @@ class BaseModel(ABC):
     ###
     @staticmethod
     def _get_center_text(text, width, fill_char='='):
-        return fill_char * (width - (len(text) // 2)) + text + fill_char * (width - (len(text) + 1) // 2)
+        return fill_char * (width // 2 - (len(text) // 2)) + text + fill_char * ((width+1)//2 - (len(text) + 1) // 2)
 
     def _print_title(self):
-        width = 50
+        width = 100
         fill_char = '='
         option_text = 'OPTIONS'
         run_start_text = f'RUN ID: {self.opt.run_id}'

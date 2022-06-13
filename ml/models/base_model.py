@@ -17,7 +17,6 @@ class BaseModel(ABC):
         self.training_start_time = None
         self.last_batch_time = None
         self.last_epoch_time = None
-        self.epoch_eval_loss = None
         self.training_start_time = None
         self.this_epoch_evaluated = False
 
@@ -50,7 +49,7 @@ class BaseModel(ABC):
 
     def post_epoch(self, epoch):
         if self.opt.eval_freq is not None and (epoch % self.opt.eval_freq == 0 or epoch == self.opt.start_epoch):
-            print('Evaluation in progress ... ', end='')
+            print('Evaluating ... ', end='')
             self.evaluate(epoch)
             print('done')
             self.this_epoch_evaluated = True

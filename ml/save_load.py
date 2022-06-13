@@ -45,7 +45,7 @@ def init_drive_and_folder(opt):
     if _DRIVE_AND_FOLDER is None:
 
         print(f'Connecting to Google Drive for Saving and Backup')
-        gauth = GoogleAuth()
+        gauth = GoogleAuth(settings_file=opt.pydrive2_settings_file)
         # gauth.LocalWebserverAuth()
         gauth.CommandLineAuth()
         drive = GoogleDrive(gauth)

@@ -50,6 +50,7 @@ class Pix2pixModel(BaseModel):
         self.net_G_gan_losses = []
         self.net_G_l1_losses = []
         self.net_D_losses = []
+        self.epoch_eval_loss = None
 
     def pre_train(self):
         super().pre_train()
@@ -164,7 +165,7 @@ class Pix2pixModel(BaseModel):
                f'[G_l1_loss={np.mean(self.net_G_l1_losses):.4f}] ' + \
                f'[G_GAN_loss={np.mean(self.net_G_gan_losses):.4f}] ' + \
                f'[D_loss={np.mean(self.net_D_losses):.4f}] ' + \
-               (f'[eval_loss={self.epoch_eval_loss:.4f}]' if self.this_epoch_evaluated is not None else '')
+               (f'[eval_loss={self.epoch_eval_loss:.4f}]' if self.this_epoch_evaluated else '')
 
     def log_batch(self, batch):
         from_batch = self._get_last_batch(batch)

@@ -57,7 +57,7 @@ def init_drive_and_folder(opt):
         gauth = GoogleAuth()
         gauth.CommandLineAuth()
         # gauth.auth_method = 'service'
-        # gauth.credentials = ServiceAccountCredentials.from_json_keyfile_name('client_secrets.json', scopes)
+        # gauth.credentials = ServiceAccountCredentials.from_json_keyfile_name('client_secrets_service.json', scopes)
         drive = GoogleDrive(gauth)
 
         folder = ensure_folder_on_drive(drive, working_folder)

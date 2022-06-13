@@ -16,8 +16,8 @@ class BaseModel(ABC):
         self.opt = opt
         self.training_start_time = None
         self.last_batch_time = None
+        self.last_epoch_time = None
         self.epoch_eval_loss = None
-        self.epoch_start_time = None
         self.training_start_time = None
         self.this_epoch_evaluated = False
 
@@ -28,6 +28,7 @@ class BaseModel(ABC):
         init_drive_and_folder(self.opt)  # for saving and loading
 
         self.training_start_time = time.time()
+        self.last_epoch_time = time.time()
         print(f'Using device {self.opt.device}')
         print(f'Number of training samples: {len(self.opt.train_dataset)}')
         print(f'Number of training batches: {len(self.opt.test_loader)}')
@@ -46,7 +47,6 @@ class BaseModel(ABC):
     ###
     def pre_epoch(self):
         self.last_batch_time = time.time()
-        self.epoch_start_time = time.time()
 
     def post_epoch(self, epoch):
         if self.opt.eval_freq is not None and (epoch % self.opt.eval_freq == 0 or epoch == self.opt.start_epoch):
@@ -89,20 +89,27 @@ class BaseModel(ABC):
     ###
     def log_epoch(self, epoch):
         curr_time = time.time()
-        return f'[epoch={epoch}] ' + \
+
+        text = f'[epoch={epoch}] ' + \
                f'[train_time={format_time(curr_time - self.training_start_time)}] ' + \
-               f'[epoch_time={format_time(curr_time - self.epoch_start_time)}] '
+               f'[epoch_time={format_time(curr_time - self.last_epoch_time)}] '
+
+        self.last_epoch_time = curr_time
+        return text
 
     def _get_last_batch(self, this_batch):
         return max(1, this_batch - self.opt.batch_log_freq)
 
     def log_batch(self, batch):
         curr_time = time.time()
-        self.last_batch_time = curr_time
         from_batch = self._get_last_batch(batch)
-        return f'[batch={from_batch}-{batch}] ' + \
+
+        text = f'[batch={from_batch}-{batch}] ' + \
                f'[batch_time={format_time(curr_time - self.last_batch_time)}] ' + \
                f'[train_time={format_time(curr_time - self.training_start_time)}] '
+
+        self.last_batch_time = curr_time
+        return text
 
     @abstractmethod
     def _get_checkpoint(self) -> Dict:

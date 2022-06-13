@@ -3,6 +3,7 @@ from pprint import pprint
 
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
+from pydrive2.settings import LoadSettingsFile
 
 from ml.session import SessionOptions
 
@@ -47,6 +48,7 @@ def init_drive_and_folder(opt):
         print(f'Connecting to Google Drive for Saving and Backup')
         g_auth = GoogleAuth(settings_file=opt.pydrive2_settings_file)
         print('settings')
+        print(LoadSettingsFile(opt.pydrive2_settings_file))
         print(g_auth.settings)
         # g_auth.LocalWebserverAuth()
         g_auth.CommandLineAuth()

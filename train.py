@@ -2,7 +2,8 @@ from ml.dataset import create_dataloaders
 from ml.models import create_model
 from ml.session import SessionOptions
 
-if __name__ == '__main__':
+
+def main():
     opt = SessionOptions()
     opt.train_loader, opt.test_loader = create_dataloaders(opt)
     model = create_model(opt)
@@ -23,3 +24,7 @@ if __name__ == '__main__':
         model.post_epoch(epoch)
 
     model.post_train()
+
+
+if __name__ == '__main__':
+    main()

@@ -141,7 +141,7 @@ class Pix2pixModel(BaseModel):
             loss = self.criterion_l1(out, tar)
             eval_losses.append(loss.item())
 
-            if i < self.opt.n_display_samples:
+            if i < self.opt.n_eval_display_samples:
                 plot_inp_tar_out(inp, tar, out)
 
         self.epoch_eval_loss = eval_losses

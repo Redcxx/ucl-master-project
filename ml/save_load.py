@@ -15,7 +15,7 @@ def ensure_folder_on_drive(drive, folder_name):
         'q': "mimeType = 'application/vnd.google-apps.folder'"
     }).GetList()
 
-    folders = list(filter(lambda folder: folder['title'] == folder_name, folders))
+    folders = list(filter(lambda f: f['title'] == folder_name, folders))
 
     if len(folders) == 1:
         return folders[0]
@@ -43,14 +43,13 @@ def init_drive_and_folder(opt):
     global _DRIVE_AND_FOLDER
 
     if _DRIVE_AND_FOLDER is None:
-        working_folder = opt.working_folder
 
         print(f'Connecting to Google Drive for Saving and Backup')
         gauth = GoogleAuth()
         # gauth.LocalWebserverAuth()
         gauth.CommandLineAuth()
         drive = GoogleDrive(gauth)
-        folder = ensure_folder_on_drive(drive, working_folder)
+        folder = ensure_folder_on_drive(drive, opt.working_folder)
         print(f'Authentication Finished')
 
         _DRIVE_AND_FOLDER = drive, folder

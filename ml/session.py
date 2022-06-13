@@ -13,11 +13,11 @@ class SessionOptions(dict):
 
         # Housekeeping
         self.tag = 'line-tied-GAN'
-        self.run_id = f'{self.tag}-' + datetime.now().strftime('%Y-%m-%d-%A-%Hh-%Mm-%Ss')
+        # self.run_id = f'{self.tag}-' + datetime.now().strftime('%Y-%m-%d-%A-%Hh-%Mm-%Ss')
+        self.run_id = f'{self.tag}-2022-06-13-Monday-13h-06m-22s'
         self.random_seed = 42
         self.working_folder = 'WORK'  # shared on Google Drive
         self.pydrive2_settings_file = 'ucl-master-project/misc/settings.yaml'
-
 
         # Dataset
         self.dataset_dir = './line_tied'
@@ -38,7 +38,7 @@ class SessionOptions(dict):
         self.test_dataset = None
 
         # Training
-        self.start_epoch = 1
+        self.start_epoch = 201
         self.end_epoch = 1000  # default 200
         self.decay_epochs = 500
         self.eval_freq = 50  # eval frequency, unit epoch
@@ -80,8 +80,6 @@ class SessionOptions(dict):
         torch.manual_seed(self.random_seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed(self.random_seed)
-
-        pprint(self)
 
 
 def _discriminator_config():

@@ -1,5 +1,6 @@
 import time
 from abc import ABC, abstractmethod
+from pprint import pprint
 from typing import Dict
 
 import torch
@@ -28,6 +29,8 @@ class BaseModel(ABC):
 
         self.training_start_time = time.time()
         self.last_epoch_time = time.time()
+        print('Options:')
+        pprint(self.opt)
         print(f'Using device {self.opt.device}')
         print(f'Number of training samples: {len(self.opt.train_dataset)}')
         print(f'Number of training batches: {len(self.opt.test_loader)}')

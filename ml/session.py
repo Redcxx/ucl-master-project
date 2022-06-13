@@ -12,8 +12,8 @@ class SessionOptions(dict):
 
         # Housekeeping
         self.tag = 'line-tied-small-GAN'
-        self.run_id = f'{self.tag}-' + datetime.now().strftime('%Y-%m-%d-%A-%Hh-%Mm-%Ss')
-        # self.run_id = f'{self.tag}-2022-06-13-Monday-13h-06m-22s'
+        # self.run_id = f'{self.tag}-' + datetime.now().strftime('%Y-%m-%d-%A-%Hh-%Mm-%Ss')
+        self.run_id = f'{self.tag}-2022-06-13-Monday-17h-47m-23s'
         self.random_seed = 42
         self.working_folder = 'WORK'  # shared on Google Drive
         self.pydrive2_settings_file = 'ucl-master-project/misc/settings.yaml'

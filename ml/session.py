@@ -37,7 +37,7 @@ class SessionOptions(dict):
         self.test_dataset = None
 
         # Training
-        self.start_epoch = 600
+        self.start_epoch = 601
         self.end_epoch = 2000  # default 200
         self.decay_epochs = 200  # default 100
         self.eval_freq = 50  # eval frequency, unit epoch

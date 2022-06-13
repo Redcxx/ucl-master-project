@@ -19,8 +19,6 @@ def ensure_folder_on_drive(drive, folder_name):
         'q': "mimeType = 'application/vnd.google-apps.folder'"
     }).GetList()
 
-    pprint(folders)
-
     folders = list(filter(lambda folder: folder['title'] == folder_name, folders))
 
     if len(folders) == 1:
@@ -57,8 +55,9 @@ def init_drive_and_folder(opt):
         ]
 
         gauth = GoogleAuth()
-        gauth.auth_method = 'service'
-        gauth.credentials = ServiceAccountCredentials.from_json_keyfile_name('client_secrets.json', scopes)
+        gauth.CommandLineAuth()
+        # gauth.auth_method = 'service'
+        # gauth.credentials = ServiceAccountCredentials.from_json_keyfile_name('client_secrets.json', scopes)
         drive = GoogleDrive(gauth)
 
         folder = ensure_folder_on_drive(drive, working_folder)

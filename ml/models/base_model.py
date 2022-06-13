@@ -32,17 +32,21 @@ class BaseModel(ABC):
         width = 50
         fill_char = '='
         option_text = 'OPTIONS'
-        run_start_text = f'STARTING RUN: {self.opt.run_id}'
+        run_start_text = f'RUN ID: {self.opt.run_id}'
+        print(fill_char * width)
         print(self._get_center_text(option_text, width, fill_char))
+        print(fill_char * width)
         pprint(self.opt)
+        print(fill_char * width)
         print(self._get_center_text(run_start_text, width, fill_char))
+        print(fill_char * width)
         print(f'Using device {self.opt.device}')
         print(f'Number of training samples: {len(self.opt.train_dataset)}')
         print(f'Number of training batches: {len(self.opt.test_loader)}')
         print(f'Number of testing samples: {len(self.opt.test_dataset)}')
         print(f'Number of testing batches: {len(self.opt.test_loader)}')
         print(f'Training started at {format_time(self.training_start_time)}')
-        print('' * width)
+        print(fill_char * width)
 
     def pre_train(self):
         init_drive_and_folder(self.opt)  # for saving and loading

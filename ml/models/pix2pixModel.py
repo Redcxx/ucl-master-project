@@ -137,10 +137,8 @@ class Pix2pixModel(BaseModel):
     def evaluate(self, epoch):
         self.net_G.eval()
         self.net_D.eval()
-        save_folder = None
         if self.opt.save_eval_images:
-            save_folder = f'eval-images-{self.opt.run_id}'
-            Path(save_folder).mkdir(exist_ok=True, parents=True)
+            Path(self.opt.eval_sample_file).mkdir(exist_ok=True, parents=True)
 
         eval_losses = []
         for i, (inp, tar) in enumerate(self.opt.test_loader):
@@ -154,7 +152,7 @@ class Pix2pixModel(BaseModel):
                 if not self.opt.save_eval_images:
                     plot_inp_tar_out(inp, tar, out, save_file=None)
                 else:
-                    save_filename = os.path.join(save_folder, f'epoch-{epoch}-eval-{i}.png')
+                    save_filename = os.path.join(self.opt.eval_sample_file, f'epoch-{epoch}-eval-{i}.png')
                     plot_inp_tar_out(inp, tar, out, save_file=save_filename)
 
         self.epoch_eval_loss = np.mean(eval_losses)

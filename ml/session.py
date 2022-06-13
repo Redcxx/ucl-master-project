@@ -18,6 +18,7 @@ class SessionOptions(dict):
         self.working_folder = 'WORK'  # shared on Google Drive
         self.pydrive2_settings_file = 'misc/settings.yaml'
 
+
         # Dataset
         self.dataset_dir = './line_tied'
         self.dataset_train_folder = 'train'
@@ -49,6 +50,7 @@ class SessionOptions(dict):
         # Evaluate
         self.n_eval_display_samples = 5
         self.save_eval_images = True
+        self.eval_sample_file = f'eval-images-{self.run_id}'
 
         # Model
         self.model_name = 'pix2pixModel'

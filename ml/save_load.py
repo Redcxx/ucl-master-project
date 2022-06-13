@@ -45,10 +45,10 @@ def init_drive_and_folder(opt):
     if _DRIVE_AND_FOLDER is None:
 
         print(f'Connecting to Google Drive for Saving and Backup')
-        gauth = GoogleAuth(settings_file=opt.pydrive2_settings_file)
-        # gauth.LocalWebserverAuth()
-        gauth.CommandLineAuth()
-        drive = GoogleDrive(gauth)
+        g_auth = GoogleAuth(settings_file=opt.pydrive2_settings_file)
+        # g_auth.LocalWebserverAuth()
+        g_auth.CommandLineAuth()
+        drive = GoogleDrive(g_auth)
         working_folder = ensure_folder_on_drive(drive, opt.working_folder)
         session_folder = ensure_folder_on_drive(drive, opt.run_id, working_folder['id'])
         print(f'Authentication Finished')

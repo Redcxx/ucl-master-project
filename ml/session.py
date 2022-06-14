@@ -12,8 +12,8 @@ class SessionOptions(dict):
 
         # Housekeeping
         self.tag = 'line-tied-small-GAN'
-        # self.run_id = f'{self.tag}-' + datetime.now().strftime('%Y-%m-%d-%A-%Hh-%Mm-%Ss')
-        self.run_id = f'{self.tag}-2022-06-13-Monday-17h-47m-23s'
+        self.run_id = f'{self.tag}-' + datetime.now().strftime('%Y-%m-%d-%A-%Hh-%Mm-%Ss')
+        # self.run_id = f'{self.tag}-2022-06-13-Monday-17h-47m-23s'
         self.random_seed = 42
         self.working_folder = 'WORK'  # shared on Google Drive
         self.pydrive2_settings_file = 'ucl-master-project/misc/settings.yaml'
@@ -37,10 +37,10 @@ class SessionOptions(dict):
         self.test_dataset = None
 
         # Training
-        self.start_epoch = 2201
-        self.end_epoch = 3000  # default 200
-        self.decay_epochs = 100  # default 100
-        self.eval_freq = 50  # eval frequency, unit epoch
+        self.start_epoch = 0
+        self.end_epoch = 2000  # default 200
+        self.decay_epochs = 500  # default 100
+        self.eval_freq = 100  # eval frequency, unit epoch
         self.log_freq = 10  # log frequency, unit epoch
         self.save_freq = 100  # save checkpoint, unit epoch
         self.batch_log_freq = None
@@ -82,13 +82,13 @@ def _discriminator_config():
         'in_channels': 3 * 2,  # conditionalGAN takes both real and fake image
         'blocks': [
             {
-                'filters': 16,
-            },
-            {
-                'filters': 32,
-            },
-            {
                 'filters': 64,
+            },
+            {
+                'filters': 128,
+            },
+            {
+                'filters': 256,
             },
             # {
             #     'filters': 256,
@@ -113,23 +113,23 @@ def _generator_config():
             {
                 'filters': 64,
                 'dropout': False,
-                'skip_connection': False
+                'skip_connection': True
             },
             {
                 'filters': 128,
                 'dropout': False,
-                'skip_connection': False
+                'skip_connection': True
             },
             {
                 'filters': 256,
                 'dropout': False,
-                'skip_connection': False
+                'skip_connection': True
             },
-            # {
-            #     'filters': 512,
-            #     'dropout': True,
-            #     'skip_connection': True
-            # },
+            {
+                'filters': 256,
+                'dropout': True,
+                'skip_connection': True
+            },
             # {
             #     'filters': 512,
             #     'dropout': True,

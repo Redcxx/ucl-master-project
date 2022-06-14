@@ -38,11 +38,11 @@ class SessionOptions(dict):
 
         # Training
         self.start_epoch = 0
-        self.end_epoch = 2000  # default 200
-        self.decay_epochs = 500  # default 100
-        self.eval_freq = 100  # eval frequency, unit epoch
+        self.end_epoch = 500  # default 200
+        self.decay_epochs = 100  # default 100
+        self.eval_freq = 50  # eval frequency, unit epoch
         self.log_freq = 10  # log frequency, unit epoch
-        self.save_freq = 100  # save checkpoint, unit epoch
+        self.save_freq = 50  # save checkpoint, unit epoch
         self.batch_log_freq = None
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -82,14 +82,14 @@ def _discriminator_config():
         'in_channels': 3 * 2,  # conditionalGAN takes both real and fake image
         'blocks': [
             {
-                'filters': 64,
+                'filters': 8,
             },
             {
-                'filters': 128,
+                'filters': 16,
             },
-            {
-                'filters': 256,
-            },
+            # {
+            #     'filters': 32,
+            # },
             # {
             #     'filters': 256,
             # },
@@ -106,30 +106,30 @@ def _generator_config():
         'out_channels': 3,
         'blocks': [
             {
-                'filters': 32,
+                'filters': 16,
                 'dropout': False,
                 'skip_connection': False
+            },
+            {
+                'filters': 32,
+                'dropout': False,
+                'skip_connection': True
             },
             {
                 'filters': 64,
                 'dropout': False,
                 'skip_connection': True
             },
-            {
-                'filters': 128,
-                'dropout': False,
-                'skip_connection': True
-            },
-            {
-                'filters': 256,
-                'dropout': False,
-                'skip_connection': True
-            },
-            {
-                'filters': 256,
-                'dropout': True,
-                'skip_connection': True
-            },
+            # {
+            #     'filters': 256,
+            #     'dropout': False,
+            #     'skip_connection': True
+            # },
+            # {
+            #     'filters': 256,
+            #     'dropout': True,
+            #     'skip_connection': True
+            # },
             # {
             #     'filters': 512,
             #     'dropout': True,

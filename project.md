@@ -19,10 +19,10 @@ Currently, lead artist gives front-loaded creative input followed by labor inten
 
 1. Prepare training data, ingesting from the client database.
 2. Processing stage to tag the data for use.
+   - This requires: core model, processing block design, fine tune hyper-parameters to avoid local minima.
 
-- This requires: core model, processing block design, finetune hyperparameters to avoid local minima.
 
-3. Optimization, compactification, scaling and sacrifice for real-time output.
+3. Optimization, compact-ification, scaling and sacrifice for real-time output.
 
 #### Expected Work flow
 

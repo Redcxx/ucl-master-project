@@ -1,4 +1,5 @@
 import os
+import shutil
 from pathlib import Path
 
 import numpy as np
@@ -138,7 +139,7 @@ class Pix2pixModel(BaseModel):
         self.net_G.eval()
         self.net_D.eval()
         if self.opt.save_eval_images:
-            Path(self.opt.eval_sample_file).mkdir(exist_ok=True, parents=True)
+            Path(self.opt.eval_sample_folder).mkdir(exist_ok=True, parents=True)
 
         eval_losses = []
         for i, (inp, tar) in enumerate(self.opt.test_loader):
@@ -152,7 +153,7 @@ class Pix2pixModel(BaseModel):
                 if not self.opt.save_eval_images:
                     plot_inp_tar_out(inp, tar, out, save_file=None)
                 else:
-                    save_filename = os.path.join(self.opt.eval_sample_file, f'epoch-{epoch}-eval-{i}.png')
+                    save_filename = os.path.join(self.opt.eval_sample_folder, f'epoch-{epoch}-eval-{i}.png')
                     plot_inp_tar_out(inp, tar, out, save_file=save_filename)
 
         self.epoch_eval_loss = np.mean(eval_losses)

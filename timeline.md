@@ -54,9 +54,15 @@
 
 ### 11 Jun
 
-- Rebuilt dataset preprocessing pipeline to suit the new batch of dataset as well as extract tie-down dataset
-- Experimented with naive smaller models, but not very good result
+- Rebuilt dataset preprocessing pipeline to suit the new batch of dataset as well as extract tie-down dataset.
+- Experimented with naive smaller models, but not very good result.
 
 ### 12 Jun
 
-- Rebuilt training pipeline so that I can develop in the IDE and run code in colab
+- Rebuilt training pipeline so that I can develop in the IDE and run code in colab.
+
+### 17 Jun
+
+- Server access
+- Gitlab
+- know about the preprocessing stage in the company, they will ask for my 

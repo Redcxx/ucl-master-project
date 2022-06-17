@@ -1,3 +1,4 @@
+import shutil
 import time
 from abc import ABC, abstractmethod
 from pprint import pprint
@@ -50,6 +51,7 @@ class BaseModel(ABC):
 
     def pre_train(self):
         init_drive_and_folder(self.opt)  # for saving and loading
+        shutil.rmtree(self.opt.eval_sample_folder, ignore_errors=True)
 
         self.training_start_time = time.time()
         self.last_epoch_time = time.time()

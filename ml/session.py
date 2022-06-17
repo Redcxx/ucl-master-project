@@ -49,7 +49,7 @@ class SessionOptions(dict):
         # Evaluate
         self.n_eval_display_samples = 5
         self.save_eval_images = True
-        self.eval_sample_file = f'eval-images-{self.run_id}'
+        self.eval_sample_folder = f'eval-images'
 
         # Model
         self.model_name = 'pix2pixModel'

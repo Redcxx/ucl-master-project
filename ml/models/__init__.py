@@ -5,11 +5,6 @@ from ml.models.pix2pixModel import Pix2pixModel
 
 
 def _find_model_using_name(model_name):
-    """Import the module "models/[model_name]_model.py".
-    In the file, the class called DatasetNameModel() will
-    be instantiated. It has to be a subclass of BaseModel,
-    and it is case-insensitive.
-    """
     modellib = importlib.import_module("ml.models." + model_name)
     model = None
     for name, cls in modellib.__dict__.items():

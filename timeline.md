@@ -63,6 +63,6 @@
 
 ### 17 Jun
 
-- Server access
-- Gitlab
-- know about the preprocessing stage in the company, they will ask for my 
+- Gitlab access
+- know about the preprocessing stage in the company, they will ask for my input
+- segmentation models for different part of the image

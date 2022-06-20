@@ -66,3 +66,10 @@
 - Gitlab access
 - know about the preprocessing stage in the company, they will ask for my input
 - segmentation models for different part of the image
+
+### 20 Jun
+
+- packed codebase into gitlab
+- Read about image segmentation.
+- Started reading about nerf.
+- abit busy cause working with my cv

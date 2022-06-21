@@ -2,25 +2,51 @@ import shutil
 import time
 from abc import ABC, abstractmethod
 from pprint import pprint
-from typing import Dict
+from typing import Dict, Union
 
 import torch
 from torch import nn
 
 from ml.misc_utils import format_time
 from ml.save_load import init_drive_and_folder, save_file, load_file
-from ml.session import TrainOptions
+from ml.options import TrainOptions, InferenceOptions
 
 
 class BaseModel(ABC):
 
-    def __init__(self, opt: TrainOptions):
+    def __init__(self, opt: Union[TrainOptions, InferenceOptions]):
         self.opt = opt
         self.training_start_time = None
         self.last_batch_time = None
         self.last_epoch_time = None
         self.training_start_time = None
         self.this_epoch_evaluated = False
+
+        if isinstance(opt, InferenceOptions):
+            checkpoint = self.load_checkpoint(tag='final')
+            print('Inference Checkpoint Loaded')
+            self._init_from_inference_checkpoint(checkpoint)
+
+        elif opt.start_epoch > 1:
+            # try resume training
+            checkpoint = self.load_checkpoint(tag=f'{opt.start_epoch - 1}')
+            print('Train Checkpoint Loaded')
+            self._init_from_train_checkpoint(checkpoint)
+        else:
+            print('Creating new model')
+            self._init_from_opt()
+
+    @abstractmethod
+    def _init_from_train_checkpoint(self, checkpoint):
+        pass
+
+    @abstractmethod
+    def _init_from_inference_checkpoint(self, checkpoint):
+        pass
+
+    @abstractmethod
+    def _init_from_opt(self):
+        pass
 
     ###
     # Pre & Post Train
@@ -51,7 +77,7 @@ class BaseModel(ABC):
 
     def pre_train(self):
         init_drive_and_folder(self.opt)  # for saving and loading
-        shutil.rmtree(self.opt.eval_sample_folder, ignore_errors=True)
+        shutil.rmtree(self.opt.inference_save_folder, ignore_errors=True)
 
         self.training_start_time = time.time()
         self.last_epoch_time = time.time()

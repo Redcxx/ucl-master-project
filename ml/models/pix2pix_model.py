@@ -1,5 +1,4 @@
 import os
-import shutil
 from pathlib import Path
 from typing import Union
 
@@ -11,8 +10,8 @@ from tqdm import tqdm
 from .base_model import BaseModel
 from .partials import Generator, Discriminator
 from ..criterion.GANBCELoss import GANBCELoss
+from ..options import TrainOptions, InferenceOptions
 from ..plot_utils import plot_inp_tar_out
-from ..session import TrainOptions, InferenceOptions
 
 
 class Pix2pixModel(BaseModel):
@@ -20,42 +19,24 @@ class Pix2pixModel(BaseModel):
     def __init__(self, opt: Union[TrainOptions, InferenceOptions]):
         super().__init__(opt)
 
-        if isinstance(opt, InferenceOptions):
-            opt, self.net_G, self.net_D, self.opt_G, self.opt_D = self.load_checkpoint(
-                tag='final')
-            print('Inference Checkpoint Loaded')
+        # set later in pre-train, cannot initialize here because its init calls step()
+        # which may requires attribute from TrainOptions that does not exist in InferenceOptions
 
-        elif opt.start_epoch > 1:
-            # try resume training
-            _prev_opt, self.net_G, self.net_D, self.opt_G, self.opt_D = self.load_checkpoint(
-                tag=f'{opt.start_epoch - 1}')
-            print('Train Checkpoint Loaded')
+        # network
+        self.net_G = None
+        self.net_D = None
 
-        else:
-            # generator
-            self.net_G = Generator(self.opt)
-            self.net_D = Discriminator(self.opt)
-            self.net_G.apply(self._gaussian_init_weight)
-            self.net_D.apply(self._gaussian_init_weight)
-            self.net_G.to(opt.device)
-            self.net_D.to(opt.device)
-            self.opt_G = optim.Adam(self.net_G.parameters(), lr=opt.lr,
-                                    betas=(opt.optimizer_beta1, opt.optimizer_beta2),
-                                    weight_decay=opt.weight_decay)
+        # optimizer
+        self.opt_G = None
+        self.opt_D = None
 
-            # discriminator
-            self.opt_D = optim.Adam(self.net_D.parameters(), lr=opt.lr,
-                                    betas=(opt.optimizer_beta1, opt.optimizer_beta2),
-                                    weight_decay=opt.weight_decay)
-
-        # set later in pre train, cannot initialize here because its init calls step()
-        # which may requires attribute from TrainOptions that does not exists in InferenceOptions
+        # scheduler
         self.sch_G = None
         self.sch_D = None
 
         # loss
-        self.criterion_gan = GANBCELoss()
-        self.criterion_l1 = nn.L1Loss()
+        self.crt_gan = None
+        self.crt_l1 = None
 
         # housekeeping
         self.net_G_gan_losses = []
@@ -63,13 +44,37 @@ class Pix2pixModel(BaseModel):
         self.net_D_losses = []
         self.epoch_eval_loss = None
 
+    def _init_from_inference_checkpoint(self, checkpoint):
+        self.opt, self.net_G, self.net_D, self.opt_G, self.opt_D = checkpoint
+
+    def _init_from_train_checkpoint(self, checkpoint):
+        _prev_opt, self.net_G, self.net_D, self.opt_G, self.opt_D = checkpoint
+
+    def _init_from_opt(self):
+        # generator
+        self.net_G = Generator(self.opt)
+        self.net_D = Discriminator(self.opt)
+        self.net_G.apply(self._gaussian_init_weight)
+        self.net_D.apply(self._gaussian_init_weight)
+        self.net_G.to(self.opt.device)
+        self.net_D.to(self.opt.device)
+        self.opt_G = optim.Adam(self.net_G.parameters(), lr=self.opt.lr,
+                                betas=(self.opt.optimizer_beta1, self.opt.optimizer_beta2),
+                                weight_decay=self.opt.weight_decay)
+
+        # discriminator
+        self.opt_D = optim.Adam(self.net_D.parameters(), lr=self.opt.lr,
+                                betas=(self.opt.optimizer_beta1, self.opt.optimizer_beta2),
+                                weight_decay=self.opt.weight_decay)
+
     def pre_train(self):
         super().pre_train()
         self.net_G = self.net_G.train().to(self.opt.device)
         self.net_D = self.net_D.train().to(self.opt.device)
         self.sch_G = optim.lr_scheduler.LambdaLR(self.opt_G, lr_lambda=self._decay_rule)
         self.sch_D = optim.lr_scheduler.LambdaLR(self.opt_D, lr_lambda=self._decay_rule)
-        self.criterion_gan = self.criterion_gan.to(self.opt.device)
+        self.crt_gan = GANBCELoss().to(self.opt.device)
+        self.crt_l1 = nn.L1Loss()
 
     def pre_epoch(self):
         super().pre_epoch()
@@ -101,12 +106,12 @@ class Pix2pixModel(BaseModel):
         # discriminate fake image
         fake_AB = torch.cat((real_A, fake_B), dim=1)  # conditionalGAN takes both real and fake image
         pred_fake = self.net_D(fake_AB.detach())
-        loss_D_fake = self.criterion_gan(pred_fake, False)
+        loss_D_fake = self.crt_gan(pred_fake, False)
 
         # discriminate real image
         real_AB = torch.cat((real_A, real_B), dim=1)
         pred_real = self.net_D(real_AB)
-        loss_D_real = self.criterion_gan(pred_real, True)
+        loss_D_real = self.crt_gan(pred_real, True)
 
         # backward & optimize
         loss_D = (loss_D_fake + loss_D_real) * self.opt.d_loss_factor
@@ -122,10 +127,10 @@ class Pix2pixModel(BaseModel):
         # generator should fool the discriminator
         fake_AB = torch.cat((real_A, fake_B), dim=1)
         pred_fake = self.net_D(fake_AB)
-        loss_G_fake = self.criterion_gan(pred_fake, True)
+        loss_G_fake = self.crt_gan(pred_fake, True)
 
         # l1 loss between generated and real image for more accurate output
-        loss_G_l1 = self.criterion_l1(fake_B, real_B) * self.opt.l1_lambda
+        loss_G_l1 = self.crt_l1(fake_B, real_B) * self.opt.l1_lambda
 
         # backward & optimize
         loss_G = loss_G_fake + loss_G_l1
@@ -161,7 +166,7 @@ class Pix2pixModel(BaseModel):
             inp, tar = inp.to(self.opt.device), tar.to(self.opt.device)
 
             out = self.net_G(inp)
-            loss = self.criterion_l1(out, tar)
+            loss = self.crt_l1(out, tar)
             eval_losses.append(loss.item())
 
             if i < self.opt.n_infer_display_samples:
@@ -194,25 +199,28 @@ class Pix2pixModel(BaseModel):
             'net_D_state_dict': self.net_D.state_dict(),
             'opt_G_state_dict': self.opt_G.state_dict(),
             'opt_D_state_dict': self.opt_D.state_dict(),
-            'opt': self.opt
+            'opt': self.opt.__dict__,
+            'opt_name': self.opt.__class__.__name__
         }
 
     def load_checkpoint(self, tag):
         checkpoint = super().load_checkpoint(tag)
 
-        loaded_opt = checkpoint['opt']
+        opt_dict = checkpoint['opt']
+        opt_name = checkpoint['opt_name']
+        loaded_opt = InferenceOptions(**opt_dict) if opt_name == 'InferenceOptions' else TrainOptions(**opt_dict)
 
         net_G = Generator(loaded_opt).to(self.opt.device)
         net_D = Discriminator(loaded_opt).to(self.opt.device)
         net_G.load_state_dict(checkpoint['net_G_state_dict'])
         net_D.load_state_dict(checkpoint['net_D_state_dict'])
 
-        optimizer_G = optim.Adam(net_G.parameters(), lr=loaded_opt.lr,
-                                 betas=(loaded_opt.optimizer_beta1, loaded_opt.optimizer_beta2))
-        optimizer_D = optim.Adam(net_D.parameters(), lr=loaded_opt.lr,
-                                 betas=(loaded_opt.optimizer_beta1, loaded_opt.optimizer_beta2))
-        optimizer_G.load_state_dict(checkpoint['opt_G_state_dict'])
-        optimizer_D.load_state_dict(checkpoint['opt_D_state_dict'])
+        opt_G = optim.Adam(net_G.parameters(), lr=loaded_opt.lr,
+                           betas=(loaded_opt.optimizer_beta1, loaded_opt.optimizer_beta2))
+        opt_D = optim.Adam(net_D.parameters(), lr=loaded_opt.lr,
+                           betas=(loaded_opt.optimizer_beta1, loaded_opt.optimizer_beta2))
+        opt_G.load_state_dict(checkpoint['opt_G_state_dict'])
+        opt_D.load_state_dict(checkpoint['opt_D_state_dict'])
 
         print('Successfully created network with loaded checkpoint')
-        return loaded_opt, net_G, net_D, optimizer_G, optimizer_D
+        return loaded_opt, net_G, net_D, opt_G, opt_D

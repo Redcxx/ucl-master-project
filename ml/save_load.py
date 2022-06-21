@@ -3,9 +3,9 @@ from pprint import pprint
 
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
-from pydrive2.settings import LoadSettingsFile, SettingsError
+from pydrive2.settings import LoadSettingsFile
 
-from ml.session import TrainOptions
+from ml.options import TrainOptions
 
 _DRIVE_AND_FOLDER = None
 
@@ -44,14 +44,14 @@ def init_drive_and_folder(opt):
     global _DRIVE_AND_FOLDER
 
     if _DRIVE_AND_FOLDER is None:
-
         print(f'Connecting to Google Drive for Saving and Backup')
         g_auth = GoogleAuth(settings_file=opt.pydrive2_settings_file)
         # pydrive2 swallow error, we load it again to ensure it really works
-        print('Loading settings file')
+        print('Loading settings file ... ', end='')
         LoadSettingsFile(opt.pydrive2_settings_file)
-        print('Save & Load Settings:')
-        print(g_auth.settings)
+        print('done')
+        # print('Save & Load Settings:')
+        # print(g_auth.settings)
         # g_auth.LocalWebserverAuth()
         g_auth.CommandLineAuth()
         drive = GoogleDrive(g_auth)

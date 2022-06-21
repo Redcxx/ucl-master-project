@@ -1,6 +1,6 @@
 from ml.dataset import create_inference_dataloaders
 from ml.models import create_model
-from ml.session import InferenceOptions
+from ml.options import InferenceOptions
 
 
 def main():

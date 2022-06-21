@@ -6,7 +6,7 @@ from torch import optim, nn
 
 from .base_model import BaseModel
 from ..plot_utils import plot_inp_tar_out
-from ..session import TrainOptions
+from ..options import TrainOptions
 
 
 class SimpleCNN(BaseModel):

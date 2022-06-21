@@ -1,6 +1,6 @@
 from ml.dataset import create_train_dataloaders
 from ml.models import create_model
-from ml.session import TrainOptions
+from ml.options import TrainOptions
 
 
 def main():

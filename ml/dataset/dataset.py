@@ -7,7 +7,7 @@ from torchvision import transforms
 from torchvision.transforms import InterpolationMode
 
 from ml.file_utils import get_all_image_paths
-from ml.session import InferenceOptions
+from ml.options import InferenceOptions
 
 
 class BaseDataset(Dataset):

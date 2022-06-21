@@ -24,10 +24,9 @@ def plot_h_images(images, titles=None, figsize=(10, 10), save_file=None):
 
     if save_file is not None:
         plt.savefig(save_file, bbox_inches='tight')
+        plt.close(fig)
     else:
         plt.show()
-
-    return fig
 
 
 def plot_inp_tar_out(inp, tar, out, save_file=None):

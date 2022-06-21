@@ -179,6 +179,8 @@ class SessionOptions(BaseOptions):
         self.init_gain = 0.02  # default 0.02
         self.weight_decay = 0  # default 0
 
+        self.network_config = None
+
         # Loss
         self.l1_lambda = 100.0  # encourage l1 distance to actual output
         self.d_loss_factor = 0.5  # slow down discriminator learning

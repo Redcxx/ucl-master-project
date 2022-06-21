@@ -104,3 +104,9 @@ class TrainDataset(BaseDataset):
 
     def _crop(self, im, pos, size):
         return im.crop((pos[0], pos[1], pos[0] + size[0], pos[1] + size[1]))
+
+
+class MyDataset(Dataset):
+
+    def __init__(self):
+        pass

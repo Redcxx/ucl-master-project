@@ -13,11 +13,11 @@ class BaseOptions(dict):
         self.__dict__ = self
 
         # Housekeeping
-        self.tag = 'raw-data-5-shots'
+        self.tag = 'line-tied-GAN'
         # self.run_id = f'{self.tag}-' + datetime.now().strftime('%Y-%m-%d-%A-%Hh-%Mm-%Ss')
-        self.run_id = f'{self.tag}-2022-06-01-Wednesday-14h-21m-44s'
+        self.run_id = f'{self.tag}-2022-06-13-Monday-13h-06m-22s'
         self.random_seed = 42
-        self.working_folder = 'MasterProject'  # shared on Google Drive
+        self.working_folder = 'WORK'  # shared on Google Drive
         self.pydrive2_settings_file = 'ucl-master-project/misc/settings.yaml'
 
         # Model

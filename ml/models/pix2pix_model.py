@@ -48,8 +48,10 @@ class Pix2pixModel(BaseModel):
                                     betas=(opt.optimizer_beta1, opt.optimizer_beta2),
                                     weight_decay=opt.weight_decay)
 
-        self.sch_G = optim.lr_scheduler.LambdaLR(self.opt_G, lr_lambda=self._decay_rule)
-        self.sch_D = optim.lr_scheduler.LambdaLR(self.opt_D, lr_lambda=self._decay_rule)
+        # set later in pre train, cannot initialize here because its init calls step()
+        # which may requires attribute from TrainOptions that does not exists in InferenceOptions
+        self.sch_G = None
+        self.sch_D = None
 
         # loss
         self.criterion_gan = GANBCELoss()
@@ -65,6 +67,8 @@ class Pix2pixModel(BaseModel):
         super().pre_train()
         self.net_G = self.net_G.train().to(self.opt.device)
         self.net_D = self.net_D.train().to(self.opt.device)
+        self.sch_G = optim.lr_scheduler.LambdaLR(self.opt_G, lr_lambda=self._decay_rule)
+        self.sch_D = optim.lr_scheduler.LambdaLR(self.opt_D, lr_lambda=self._decay_rule)
         self.criterion_gan = self.criterion_gan.to(self.opt.device)
 
     def pre_epoch(self):

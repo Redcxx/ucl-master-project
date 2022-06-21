@@ -1,4 +1,5 @@
 import os
+import shutil
 from pathlib import Path
 from typing import Union
 
@@ -20,13 +21,13 @@ class Pix2pixModel(BaseModel):
         super().__init__(opt)
 
         if isinstance(opt, InferenceOptions):
-            self.net_G, self.net_D, self.opt_G, self.opt_D = self.load_checkpoint(
+            opt, self.net_G, self.net_D, self.opt_G, self.opt_D = self.load_checkpoint(
                 tag='final')
             print('Inference Checkpoint Loaded')
 
         elif opt.start_epoch > 1:
             # try resume training
-            self.net_G, self.net_D, self.opt_G, self.opt_D = self.load_checkpoint(
+            _prev_opt, self.net_G, self.net_D, self.opt_G, self.opt_D = self.load_checkpoint(
                 tag=f'{opt.start_epoch - 1}')
             print('Train Checkpoint Loaded')
 
@@ -189,24 +190,25 @@ class Pix2pixModel(BaseModel):
             'net_D_state_dict': self.net_D.state_dict(),
             'opt_G_state_dict': self.opt_G.state_dict(),
             'opt_D_state_dict': self.opt_D.state_dict(),
+            'opt': self.opt
         }
 
     def load_checkpoint(self, tag):
         checkpoint = super().load_checkpoint(tag)
 
-        opt = self.opt
+        loaded_opt = checkpoint['opt']
 
-        net_G = Generator(opt).to(self.opt.device)
-        net_D = Discriminator(opt).to(self.opt.device)
+        net_G = Generator(loaded_opt).to(self.opt.device)
+        net_D = Discriminator(loaded_opt).to(self.opt.device)
         net_G.load_state_dict(checkpoint['net_G_state_dict'])
         net_D.load_state_dict(checkpoint['net_D_state_dict'])
 
-        optimizer_G = optim.Adam(net_G.parameters(), lr=opt.lr,
-                                 betas=(opt.optimizer_beta1, opt.optimizer_beta2))
-        optimizer_D = optim.Adam(net_D.parameters(), lr=opt.lr,
-                                 betas=(opt.optimizer_beta1, opt.optimizer_beta2))
+        optimizer_G = optim.Adam(net_G.parameters(), lr=loaded_opt.lr,
+                                 betas=(loaded_opt.optimizer_beta1, loaded_opt.optimizer_beta2))
+        optimizer_D = optim.Adam(net_D.parameters(), lr=loaded_opt.lr,
+                                 betas=(loaded_opt.optimizer_beta1, loaded_opt.optimizer_beta2))
         optimizer_G.load_state_dict(checkpoint['opt_G_state_dict'])
         optimizer_D.load_state_dict(checkpoint['opt_D_state_dict'])
 
         print('Successfully created network with loaded checkpoint')
-        return net_G, net_D, optimizer_G, optimizer_D
+        return loaded_opt, net_G, net_D, optimizer_G, optimizer_D

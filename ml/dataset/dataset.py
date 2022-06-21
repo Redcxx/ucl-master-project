@@ -36,13 +36,17 @@ class InferenceDataset(BaseDataset):
         root = opt.inference_images_folder
         self.paths = sorted(get_all_image_paths(root))
         self.A_to_B = opt.A_to_B
+        self.transform = transforms.Compose([
+            transforms.ToTensor(),
+            # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
 
     def __len__(self):
         return len(self.paths)
 
     def __getitem__(self, i):
         A, B = self._split_input_output(self._read_im(self.paths[i]))
-
+        A, B = self.transform(A), self.transform(B)
         return (A, B) if self.A_to_B else (B, A)
 
 

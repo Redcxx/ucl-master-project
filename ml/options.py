@@ -21,7 +21,7 @@ class BaseOptions(dict):
         self.pydrive2_settings_file = 'ucl-master-project/misc/settings.yaml'
 
         # Model
-        self.model_name = 'pix2pixModel'
+        self.model_name = 'pix2pix_model'
         self.network_config = _pix2pix_network_config()
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 

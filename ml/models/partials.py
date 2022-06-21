@@ -78,7 +78,6 @@ class UnetBlock(nn.Module):
             return self.model(x)
 
 
-
 class Generator(nn.Module):
 
     def __init__(self, opt: SessionOptions):

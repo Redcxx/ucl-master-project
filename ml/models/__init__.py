@@ -1,14 +1,14 @@
 import importlib
 
 from ml.models.base_model import BaseModel
-from ml.models.pix2pixModel import Pix2pixModel
+from ml.models.pix2pix_model import Pix2pixModel
 
 
 def _find_model_using_name(model_name):
     modellib = importlib.import_module("ml.models." + model_name)
     model = None
     for name, cls in modellib.__dict__.items():
-        if name.lower() == model_name.lower() \
+        if name.replace('_', '').lower() == model_name.lower() \
                 and issubclass(cls, BaseModel):
             model = cls
 

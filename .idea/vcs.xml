@@ -4,5 +4,6 @@
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/githubs/DAIN" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/githubs/arXiv2021-RIFE" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/gitlab/animation-ml" vcs="Git" />
   </component>
 </project>

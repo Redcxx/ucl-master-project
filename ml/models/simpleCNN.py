@@ -6,12 +6,12 @@ from torch import optim, nn
 
 from .base_model import BaseModel
 from ..plot_utils import plot_inp_tar_out
-from ..session import SessionOptions
+from ..options import TrainOptions
 
 
 class SimpleCNN(BaseModel):
 
-    def __init__(self, opt: SessionOptions):
+    def __init__(self, opt: TrainOptions):
         super().__init__(opt)
 
         if opt.start_epoch > 1:
@@ -69,9 +69,9 @@ class SimpleCNN(BaseModel):
 
         self.scheduler.step()
 
-    def evaluate(self, epoch):
+    def evaluate(self, epoch, progress=False):
         self.network.eval()
-        if self.opt.save_eval_images:
+        if self.opt.save_inferred_images:
             Path(self.opt.eval_sample_folder).mkdir(exist_ok=True, parents=True)
 
         eval_losses = []
@@ -82,8 +82,8 @@ class SimpleCNN(BaseModel):
             loss = self.criterion(out, tar)
             eval_losses.append(loss.item())
 
-            if i < self.opt.n_eval_display_samples:
-                if not self.opt.save_eval_images:
+            if i < self.opt.n_infer_display_samples:
+                if not self.opt.save_inferred_images:
                     plot_inp_tar_out(inp, tar, out, save_file=None)
                 else:
                     save_filename = os.path.join(self.opt.eval_sample_folder, f'epoch-{epoch}-eval-{i}.png')

@@ -2,4 +2,4 @@ pydrive2
 torchinfo
 torch
 torchvision
-
+PIL

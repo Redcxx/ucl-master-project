@@ -5,17 +5,18 @@ from pathlib import Path
 import numpy as np
 import torch
 from torch import optim, nn
+from tqdm import tqdm
 
 from .base_model import BaseModel
 from .partials import Generator, Discriminator
 from ..criterion.GANBCELoss import GANBCELoss
 from ..plot_utils import plot_inp_tar_out
-from ..session import SessionOptions
+from ..options import TrainOptions
 
 
 class Pix2pixModel(BaseModel):
 
-    def __init__(self, opt: SessionOptions):
+    def __init__(self, opt: TrainOptions):
         super().__init__(opt)
 
         if opt.start_epoch > 1:
@@ -135,26 +136,29 @@ class Pix2pixModel(BaseModel):
         self.sch_G.step()
         self.sch_D.step()
 
-    def evaluate(self, epoch):
+    def evaluate(self, epoch, progress=False):
         self.net_G.eval()
         self.net_D.eval()
-        if self.opt.save_eval_images:
-            Path(self.opt.eval_sample_folder).mkdir(exist_ok=True, parents=True)
+        if self.opt.save_inferred_images:
+            Path(self.opt.inference_save_folder).mkdir(exist_ok=True, parents=True)
 
         eval_losses = []
-        for i, (inp, tar) in enumerate(self.opt.test_loader):
+        iterator = enumerate(self.opt.test_loader)
+        if progress:
+            iterator = tqdm(iterator, total=len(self.opt.test_loader))
+        for i, (inp, tar) in iterator:
             inp, tar = inp.to(self.opt.device), tar.to(self.opt.device)
 
             out = self.net_G(inp)
             loss = self.criterion_l1(out, tar)
             eval_losses.append(loss.item())
 
-            if i < self.opt.n_eval_display_samples:
-                if not self.opt.save_eval_images:
-                    plot_inp_tar_out(inp, tar, out, save_file=None)
-                else:
-                    save_filename = os.path.join(self.opt.eval_sample_folder, f'epoch-{epoch}-eval-{i}.png')
-                    plot_inp_tar_out(inp, tar, out, save_file=save_filename)
+            if i < self.opt.n_infer_display_samples:
+                plot_inp_tar_out(inp, tar, out, save_file=None)
+
+            if self.opt.save_inferred_images:
+                save_filename = os.path.join(self.opt.inference_save_folder, f'epoch-{epoch}-eval-{i}.png')
+                plot_inp_tar_out(inp, tar, out, save_file=save_filename)
 
         self.epoch_eval_loss = np.mean(eval_losses)
 

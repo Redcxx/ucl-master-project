@@ -1,11 +1,11 @@
-from ml.dataset import create_dataloaders
+from ml.dataset import create_train_dataloaders
 from ml.models import create_model
-from ml.session import SessionOptions
+from ml.options import TrainOptions
 
 
 def main():
-    opt = SessionOptions()
-    opt.train_loader, opt.test_loader, opt.train_dataset, opt.test_dataset = create_dataloaders(opt)
+    opt = TrainOptions()
+    opt.train_loader, opt.test_loader, opt.train_dataset, opt.test_dataset = create_train_dataloaders(opt)
     model = create_model(opt)
 
     model.pre_train()

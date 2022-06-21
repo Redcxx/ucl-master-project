@@ -5,10 +5,12 @@ import numpy as np
 import torch.cuda
 
 
-class SessionOptions(dict):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.__dict__ = self  # dangerous, merging namespace, but now you can access key using .key instead of ['key']
+class BaseOptions(dict):
+    def __init__(self):
+        super().__init__()
+        # dangerous, merging namespace,
+        # but now you can access key using .key instead of ['key'] and pretty print it
+        self.__dict__ = self
 
         # Housekeeping
         self.tag = 'line-tied-small-GAN'
@@ -18,25 +20,68 @@ class SessionOptions(dict):
         self.working_folder = 'WORK'  # shared on Google Drive
         self.pydrive2_settings_file = 'ucl-master-project/misc/settings.yaml'
 
+        # Model
+        self.model_name = 'pix2pixModel'
+        self.network_config = _pix2pix_network_config()
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+        # Dataset
+        self.num_workers = 4
+        self.pin_memory = True
+        self.A_to_B = False
+        # will be set later in train or inference py
+        self.test_loader = None
+        self.test_dataset = None
+
+        # Evaluate
+        self.n_infer_display_samples = 0
+        self.save_inferred_images = True
+        self.inference_save_folder = f'eval-images'
+
+        # reproducibility
+        random.seed(self.random_seed)
+        np.random.seed(self.random_seed)
+        torch.manual_seed(self.random_seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(self.random_seed)
+
+
+class InferenceOptions(BaseOptions):
+
+    def __init__(self):
+        super().__init__()
+
+        self.inference_images_folder = 'images'
+
+        # overwrite
+        self.n_infer_display_samples = 0
+        self.save_inferred_images = True
+        self.inference_save_folder = f'inference-images'
+
+
+class TrainOptions(BaseOptions):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
         # Dataset
         self.dataset_dir = './line_tied'
         self.dataset_train_folder = 'train'
         self.dataset_test_folder = 'test'
-        self.batch_size = 1  # default 1
         self.shuffle = True
-        self.num_workers = 4
-        self.pin_memory = True
-        self.A_to_B = False
         # transforms
         self.random_jitter = False
         self.random_mirror = True
         # dataset & loaders, will be set later in train.py
         self.train_loader = None
-        self.test_loader = None
         self.train_dataset = None
-        self.test_dataset = None
+
+        # Evaluate
+        self.n_infer_display_samples = 5
+        self.save_inferred_images = True
+        self.inference_save_folder = f'eval-images'
 
         # Training
+        self.batch_size = 1
         self.start_epoch = 0
         self.end_epoch = 500  # default 200
         self.decay_epochs = 100  # default 100
@@ -44,16 +89,6 @@ class SessionOptions(dict):
         self.log_freq = 10  # log frequency, unit epoch
         self.save_freq = 50  # save checkpoint, unit epoch
         self.batch_log_freq = None
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-        # Evaluate
-        self.n_eval_display_samples = 5
-        self.save_eval_images = True
-        self.eval_sample_folder = f'eval-images'
-
-        # Model
-        self.model_name = 'pix2pixModel'
-        self.network_config = _pix2pix_network_config()
 
         # Optimizer
         self.lr = 0.0002
@@ -68,13 +103,6 @@ class SessionOptions(dict):
 
         # update above according to argument
         self.update(dict(*args, **kwargs))
-
-        # reproducibility
-        random.seed(self.random_seed)
-        np.random.seed(self.random_seed)
-        torch.manual_seed(self.random_seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed(self.random_seed)
 
 
 def _discriminator_config():

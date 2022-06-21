@@ -3,7 +3,7 @@ import functools
 import torch
 from torch import nn
 
-from ml.session import SessionOptions
+from ml.options import TrainOptions
 
 
 class UnetBlock(nn.Module):
@@ -80,7 +80,7 @@ class UnetBlock(nn.Module):
 
 class Generator(nn.Module):
 
-    def __init__(self, opt: SessionOptions):
+    def __init__(self, opt: TrainOptions):
         super().__init__()
 
         config = opt.network_config['generator_config']
@@ -151,7 +151,7 @@ class Generator(nn.Module):
 
 
 class Discriminator(nn.Module):
-    def __init__(self, opt: SessionOptions):
+    def __init__(self, opt: TrainOptions):
         super().__init__()
 
         config = opt.network_config['discriminator_config']

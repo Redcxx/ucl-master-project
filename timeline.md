@@ -73,3 +73,10 @@
 - Read about image segmentation.
 - Started reading about nerf.
 - abit busy cause working with my cv
+
+
+
+### 21 Jun
+
+- 4-8 computing hardware
+- nerf: light field demo from Google

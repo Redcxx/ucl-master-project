@@ -5,7 +5,7 @@ from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 from pydrive2.settings import LoadSettingsFile, SettingsError
 
-from ml.session import SessionOptions
+from ml.options import TrainOptions
 
 _DRIVE_AND_FOLDER = None
 
@@ -64,7 +64,7 @@ def init_drive_and_folder(opt):
     return _DRIVE_AND_FOLDER
 
 
-def save_file(opt: SessionOptions, file_name, local=True):
+def save_file(opt: TrainOptions, file_name, local=True):
     drive, folder = init_drive_and_folder(opt)
 
     file = drive.CreateFile({

@@ -9,12 +9,12 @@ from torch import nn
 
 from ml.misc_utils import format_time
 from ml.save_load import init_drive_and_folder, save_file, load_file
-from ml.session import SessionOptions
+from ml.options import TrainOptions
 
 
 class BaseModel(ABC):
 
-    def __init__(self, opt: SessionOptions):
+    def __init__(self, opt: TrainOptions):
         self.opt = opt
         self.training_start_time = None
         self.last_batch_time = None
@@ -46,7 +46,7 @@ class BaseModel(ABC):
         print(f'Number of training batches: {len(self.opt.test_loader)}')
         print(f'Number of testing samples: {len(self.opt.test_dataset)}')
         print(f'Number of testing batches: {len(self.opt.test_loader)}')
-        print(f'Training started at {format_time(self.training_start_time)}')
+        print(f'Run started at {format_time(self.training_start_time)}')
         print(fill_char * width)
 
     def pre_train(self):
@@ -103,7 +103,7 @@ class BaseModel(ABC):
         pass
 
     @abstractmethod
-    def evaluate(self, epoch):
+    def evaluate(self, epoch, progress=False):
         pass
 
     ###

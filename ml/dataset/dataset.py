@@ -7,11 +7,49 @@ from torchvision import transforms
 from torchvision.transforms import InterpolationMode
 
 from ml.file_utils import get_all_image_paths
+from ml.options import InferenceOptions
 
 
-class MyDataset(Dataset):
+class BaseDataset(Dataset):
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def _read_im(path):
+        return Image.open(path).convert('RGB')
+
+    @staticmethod
+    def _split_input_output(AB):
+        w, h = AB.size
+        w2 = int(w / 2)
+        A = AB.crop((0, 0, w2, h))
+        B = AB.crop((w2, 0, w, h))
+
+        return A, B
+
+
+class InferenceDataset(BaseDataset):
+
+    def __init__(self, opt: InferenceOptions):
+        super().__init__()
+        root = opt.inference_images_folder
+        self.paths = sorted(get_all_image_paths(root))
+        self.A_to_B = opt.A_to_B
+
+    def __len__(self):
+        return len(self.paths)
+
+    def __getitem__(self, i):
+        A, B = self._split_input_output(self._read_im(self.paths[i]))
+
+        return (A, B) if self.A_to_B else (B, A)
+
+
+class TrainDataset(BaseDataset):
 
     def __init__(self, opt, train=True):
+        super().__init__()
         dataset_folder = opt.dataset_train_folder if train else opt.dataset_test_folder
         root = os.path.join(opt.dataset_dir, dataset_folder)
 
@@ -31,17 +69,6 @@ class MyDataset(Dataset):
         A, B = transform(A), transform(B)  # apply same transform to both A and B
 
         return (A, B) if self.A_to_B else (B, A)
-
-    def _read_im(self, path):
-        return Image.open(path).convert('RGB')
-
-    def _split_input_output(self, AB):
-        w, h = AB.size
-        w2 = int(w / 2)
-        A = AB.crop((0, 0, w2, h))
-        B = AB.crop((w2, 0, w, h))
-
-        return A, B
 
     def _generate_transform(self):
         additional_transforms = []

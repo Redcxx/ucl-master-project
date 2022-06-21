@@ -1,6 +1,7 @@
 import os
 import shutil
 from pathlib import Path
+from typing import Union
 
 import numpy as np
 import torch
@@ -11,19 +12,25 @@ from .base_model import BaseModel
 from .partials import Generator, Discriminator
 from ..criterion.GANBCELoss import GANBCELoss
 from ..plot_utils import plot_inp_tar_out
-from ..options import TrainOptions
+from ..options import TrainOptions, InferenceOptions
 
 
 class Pix2pixModel(BaseModel):
 
-    def __init__(self, opt: TrainOptions):
+    def __init__(self, opt: Union[TrainOptions, InferenceOptions]):
         super().__init__(opt)
 
-        if opt.start_epoch > 1:
+        if isinstance(opt, InferenceOptions):
+            opt, self.net_G, self.net_D, self.opt_G, self.opt_D = self.load_checkpoint(
+                tag='final')
+            print('Inference Checkpoint Loaded')
+
+        elif opt.start_epoch > 1:
             # try resume training
             _prev_opt, self.net_G, self.net_D, self.opt_G, self.opt_D = self.load_checkpoint(
                 tag=f'{opt.start_epoch - 1}')
-            print('Checkpoint Loaded')
+            print('Train Checkpoint Loaded')
+
         else:
             # generator
             self.net_G = Generator(self.opt)

@@ -13,11 +13,11 @@ class BaseOptions(dict):
         self.__dict__ = self
 
         # Housekeeping
-        self.tag = 'line-tied-small-GAN'
-        self.run_id = f'{self.tag}-' + datetime.now().strftime('%Y-%m-%d-%A-%Hh-%Mm-%Ss')
-        # self.run_id = f'{self.tag}-2022-06-13-Monday-17h-47m-23s'
+        self.tag = 'raw-data-5-shots'
+        # self.run_id = f'{self.tag}-' + datetime.now().strftime('%Y-%m-%d-%A-%Hh-%Mm-%Ss')
+        self.run_id = f'{self.tag}-2022-06-01-Wednesday-14h-21m-44s'
         self.random_seed = 42
-        self.working_folder = 'WORK'  # shared on Google Drive
+        self.working_folder = 'MasterProject'  # shared on Google Drive
         self.pydrive2_settings_file = 'ucl-master-project/misc/settings.yaml'
 
         # Model
@@ -51,7 +51,7 @@ class InferenceOptions(BaseOptions):
     def __init__(self):
         super().__init__()
 
-        self.inference_images_folder = 'images'
+        self.inference_images_folder = 'line_fill_inference'
 
         # overwrite
         self.n_infer_display_samples = 0

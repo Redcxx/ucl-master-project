@@ -8,7 +8,7 @@ def _find_model_using_name(model_name):
     model_lib = importlib.import_module("ml.models." + model_name)
     model = None
     for name, cls in model_lib.__dict__.items():
-        if name.replace('_', '').lower() == model_name.lower() \
+        if name.lower() == model_name.replace('_', '').lower() \
                 and issubclass(cls, BaseModel):
             model = cls
 

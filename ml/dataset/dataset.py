@@ -38,7 +38,7 @@ class InferenceDataset(BaseDataset):
         self.A_to_B = opt.A_to_B
         self.transform = transforms.Compose([
             transforms.ToTensor(),
-            # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
 
     def __len__(self):

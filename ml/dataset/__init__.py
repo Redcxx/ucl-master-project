@@ -22,4 +22,4 @@ def create_inference_dataloaders(opt: InferenceOptions):
     inference_dataloader = DataLoader(inference_dataset, batch_size=1, shuffle=False,
                                       num_workers=opt.num_workers, pin_memory=opt.pin_memory)
 
-    return inference_dataset, inference_dataloader
+    return inference_dataloader, inference_dataset

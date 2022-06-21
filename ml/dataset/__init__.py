@@ -1,7 +1,7 @@
 from torch.utils.data import DataLoader
 
 from ml.dataset.dataset import TrainDataset, InferenceDataset
-from ml.options import TrainOptions, InferenceOptions
+from ml.session import TrainOptions, InferenceOptions
 
 
 def create_train_dataloaders(opt: TrainOptions):

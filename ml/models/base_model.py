@@ -9,7 +9,7 @@ from torch import nn
 
 from ml.misc_utils import format_time
 from ml.save_load import init_drive_and_folder, save_file, load_file
-from ml.options import TrainOptions
+from ml.session import TrainOptions
 
 
 class BaseModel(ABC):

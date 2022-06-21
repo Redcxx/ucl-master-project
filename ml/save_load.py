@@ -5,7 +5,7 @@ from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 from pydrive2.settings import LoadSettingsFile, SettingsError
 
-from ml.options import TrainOptions
+from ml.session import TrainOptions
 
 _DRIVE_AND_FOLDER = None
 

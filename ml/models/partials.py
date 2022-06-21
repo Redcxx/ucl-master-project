@@ -3,7 +3,7 @@ import functools
 import torch
 from torch import nn
 
-from ml.options import TrainOptions
+from ml.session import TrainOptions
 
 
 class UnetBlock(nn.Module):

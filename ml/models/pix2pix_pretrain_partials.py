@@ -12,7 +12,7 @@ class UnetSkipConnectionBlock(nn.Module):
 
     def __init__(self, outer_nc, inner_nc, input_nc=None,
                  submodule=None, outermost=False, innermost=False, norm_layer=nn.BatchNorm2d, use_dropout=False):
-        """Construct a Unet submodule with skip connections.
+        """Construct an Unet submodule with skip connections.
 
         Parameters:
             outer_nc (int) -- the number of filters in the outer conv layer

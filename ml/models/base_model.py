@@ -7,9 +7,9 @@ from typing import Dict, Union
 import torch
 from torch import nn
 
-from ml.misc_utils import format_time
-from ml.save_load import init_drive_and_folder, save_file, load_file
+from ml.misc_utils import format_time, get_center_text
 from ml.options import TrainOptions, InferenceOptions
+from ml.save_load import init_drive_and_folder, save_file, load_file
 
 
 class BaseModel(ABC):
@@ -23,18 +23,20 @@ class BaseModel(ABC):
         self.this_epoch_evaluated = False
 
         if isinstance(opt, InferenceOptions):
-            checkpoint = self.load_checkpoint(tag='final')
-            print('Inference Checkpoint Loaded')
-            self._init_from_inference_checkpoint(checkpoint)
+            print('Loading inference checkpoint ...', end='')
+            self._init_from_inference_checkpoint(self.load_checkpoint(tag='latest'))
+            print('done')
 
         elif opt.start_epoch > 1:
             # try resume training
-            checkpoint = self.load_checkpoint(tag=f'{opt.start_epoch - 1}')
-            print('Train Checkpoint Loaded')
-            self._init_from_train_checkpoint(checkpoint)
+            print('Loading training checkpoint ...', end='')
+            self._init_from_train_checkpoint(self.load_checkpoint(tag=f'{opt.start_epoch - 1}'))
+            print('done')
+
         else:
-            print('Creating new model')
+            print('Initializing new model ...', end='')
             self._init_from_opt()
+            print('done')
 
     @abstractmethod
     def _init_from_train_checkpoint(self, checkpoint):
@@ -51,21 +53,18 @@ class BaseModel(ABC):
     ###
     # Pre & Post Train
     ###
-    @staticmethod
-    def _get_center_text(text, width, fill_char='='):
-        return fill_char * (width // 2 - (len(text) // 2)) + text + fill_char * ((width+1)//2 - (len(text) + 1) // 2)
-
     def _print_title(self):
         width = 100
         fill_char = '='
         option_text = 'OPTIONS'
         run_start_text = f'RUN ID: {self.opt.run_id}'
+
         print(fill_char * width)
-        print(self._get_center_text(option_text, width, fill_char))
+        print(get_center_text(option_text, width, fill_char))
         print(fill_char * width)
         pprint(self.opt)
         print(fill_char * width)
-        print(self._get_center_text(run_start_text, width, fill_char))
+        print(get_center_text(run_start_text, width, fill_char))
         print(fill_char * width)
         print(f'Using device {self.opt.device}')
         print(f'Number of training samples: {len(self.opt.train_dataset)}')
@@ -110,6 +109,7 @@ class BaseModel(ABC):
 
         if self.opt.save_freq is not None and (epoch % self.opt.save_freq == 0 or epoch == self.opt.start_epoch):
             self.save_checkpoint(epoch)
+            self.save_checkpoint('latest')
 
     ###
     # Pre & Post Batch
@@ -138,6 +138,7 @@ class BaseModel(ABC):
     def log_epoch(self, epoch):
         curr_time = time.time()
         text = f'[epoch={epoch}] ' + \
+               f'[curr_time={format_time(curr_time)}] ' + \
                f'[train_time={format_time(curr_time - self.training_start_time)}] ' + \
                f'[epoch_time={format_time(curr_time - self.last_epoch_time)}] '
 
@@ -169,7 +170,6 @@ class BaseModel(ABC):
         save_file(self.opt, file_name, local=False)
         print(f'done: {file_name}')
 
-    @abstractmethod
     def load_checkpoint(self, tag):
         file_name = f'{self.opt.run_id}_{tag}.ckpt'
         load_file(self.opt, file_name)  # ensure exists locally, will raise error if not exists

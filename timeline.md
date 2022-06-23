@@ -80,3 +80,12 @@
 
 - 4-8 computing hardware
 - nerf: light field demo from Google
+
+
+
+### 23 Jun
+
+- connected to noghost network folder
+- failed to connect to gpu machine
+- found a bunch of image segmentation models, but not for 2d cartoon characters
+  - human segmentation model performs poorly on cartoon style characters

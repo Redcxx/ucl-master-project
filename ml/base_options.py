@@ -41,9 +41,6 @@ class BaseOptions(ABC):
     def __str__(self):
         return pprint.pformat(self.saved_dict)
 
-    def __repr__(self):
-        return str(self)
-
     @property
     @abstractmethod
     def tag(self): pass
@@ -53,7 +50,7 @@ class BaseOptions(ABC):
     def a_to_b(self): pass
 
 
-class BaseInferenceOptions(ABC, BaseOptions):
+class BaseInferenceOptions(BaseOptions, ABC):
 
     def __init__(self):
         super().__init__()
@@ -62,8 +59,11 @@ class BaseInferenceOptions(ABC, BaseOptions):
     @abstractmethod
     def images_folder_path(self): pass
 
+    def __str__(self):
+        return BaseOptions.__str__(self)
 
-class BaseTrainOptions(ABC, BaseOptions):
+
+class BaseTrainOptions(BaseOptions, ABC):
     def __init__(self):
         super().__init__()
 
@@ -110,3 +110,6 @@ class BaseTrainOptions(ABC, BaseOptions):
     @property
     @abstractmethod
     def shuffle(self): pass
+
+    def __str__(self):
+        return BaseOptions.__str__(self)

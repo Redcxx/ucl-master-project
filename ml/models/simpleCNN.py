@@ -4,14 +4,14 @@ from pathlib import Path
 import numpy as np
 from torch import optim, nn
 
-from .base_model import BaseModel
+from ml.base_model import BaseModel, BaseTrainModel
+from ..options.pix2pix import Pix2pixTrainOptions
 from ..plot_utils import plot_inp_tar_out
-from ..options import TrainOptions
 
 
-class SimpleCNN(BaseModel):
+class SimpleCNNTrainModel(BaseTrainModel):
 
-    def __init__(self, opt: TrainOptions):
+    def __init__(self, opt: Pix2pixTrainOptions):
         super().__init__(opt)
 
         if opt.start_epoch > 1:
@@ -101,7 +101,7 @@ class SimpleCNN(BaseModel):
         from_batch = self._get_last_batch(batch)
         return super().log_batch(batch) + f'[loss={np.mean(self.losses[from_batch - 1:batch]):.4f}] '
 
-    def _get_checkpoint(self):
+    def get_checkpoint(self):
         return {
             'network': self.network.state_dict(),
             'optimizer': self.optimizer.state_dict(),

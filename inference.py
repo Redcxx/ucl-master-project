@@ -1,12 +1,12 @@
-from ml.dataset import create_inference_dataloaders
-from ml.models import create_model
-from ml.options import InferenceOptions
+from ml.datasets import create_inference_dataloaders
+from ml.models import create_train_model
+from ml.base_options import BaseInferenceOptions
 
 
 def main():
-    opt = InferenceOptions()
+    opt = BaseInferenceOptions()
     opt.test_loader, opt.test_dataset = create_inference_dataloaders(opt)
-    model = create_model(opt)
+    model = create_train_model(opt)
 
     print('Evaluate Started')
     model.evaluate(0, progress=True)

@@ -1,26 +1,23 @@
 import os
 from pathlib import Path
-from typing import Union
 
 import numpy as np
 import torch
 from torch import optim, nn
 from tqdm import tqdm
 
-from .base_model import BaseModel
-from .partials import Generator, Discriminator
+from ml.base_model import BaseTrainModel
+from .pix2pix_partials import Generator, Discriminator
 from ..criterion.GANBCELoss import GANBCELoss
-from ..options import TrainOptions, InferenceOptions
+from ..options.pix2pix import Pix2pixTrainOptions
 from ..plot_utils import plot_inp_tar_out
 
 
-class Pix2pixModel(BaseModel):
+class Pix2pixTrainModel(BaseTrainModel):
 
-    def __init__(self, opt: Union[TrainOptions, InferenceOptions]):
-        super().__init__(opt)
-
-        # set later in pre-train, cannot initialize here because its init calls step()
-        # which may requires attribute from TrainOptions that does not exist in InferenceOptions
+    def __init__(self, opt: Pix2pixTrainOptions, train_loader, test_loader):
+        super().__init__(opt, train_loader, test_loader)
+        self.opt = opt
 
         # network
         self.net_G = None
@@ -44,37 +41,32 @@ class Pix2pixModel(BaseModel):
         self.net_D_losses = []
         self.epoch_eval_loss = None
 
-    def _init_from_inference_checkpoint(self, checkpoint):
-        self.opt, self.net_G, self.net_D, self.opt_G, self.opt_D = checkpoint
+    def _init_fixed(self):
+        self.crt_gan = GANBCELoss().to(self.opt.device)
+        self.crt_l1 = nn.L1Loss()
+        self.sch_G = optim.lr_scheduler.LambdaLR(self.opt_G, lr_lambda=self._decay_rule)
+        self.sch_D = optim.lr_scheduler.LambdaLR(self.opt_D, lr_lambda=self._decay_rule)
 
-    def _init_from_train_checkpoint(self, checkpoint):
+    def init_from_train_checkpoint(self, checkpoint):
         _prev_opt, self.net_G, self.net_D, self.opt_G, self.opt_D = checkpoint
+        self._init_fixed()
 
-    def _init_from_opt(self):
+    def init_from_opt(self):
         # generator
-        self.net_G = Generator(self.opt)
-        self.net_D = Discriminator(self.opt)
-        self.net_G.apply(self._gaussian_init_weight)
-        self.net_D.apply(self._gaussian_init_weight)
-        self.net_G.to(self.opt.device)
-        self.net_D.to(self.opt.device)
+        self.net_G = Generator(self.opt).to(self.opt.device).apply(self._gaussian_init_weight)
+        self.net_D = Discriminator(self.opt).to(self.opt.device).apply(self._gaussian_init_weight)
         self.opt_G = optim.Adam(self.net_G.parameters(), lr=self.opt.lr,
                                 betas=(self.opt.optimizer_beta1, self.opt.optimizer_beta2),
                                 weight_decay=self.opt.weight_decay)
-
-        # discriminator
         self.opt_D = optim.Adam(self.net_D.parameters(), lr=self.opt.lr,
                                 betas=(self.opt.optimizer_beta1, self.opt.optimizer_beta2),
                                 weight_decay=self.opt.weight_decay)
+        self._init_fixed()
 
     def pre_train(self):
         super().pre_train()
         self.net_G = self.net_G.train().to(self.opt.device)
         self.net_D = self.net_D.train().to(self.opt.device)
-        self.sch_G = optim.lr_scheduler.LambdaLR(self.opt_G, lr_lambda=self._decay_rule)
-        self.sch_D = optim.lr_scheduler.LambdaLR(self.opt_D, lr_lambda=self._decay_rule)
-        self.crt_gan = GANBCELoss().to(self.opt.device)
-        self.crt_l1 = nn.L1Loss()
 
     def pre_epoch(self):
         super().pre_epoch()
@@ -86,9 +78,8 @@ class Pix2pixModel(BaseModel):
         super().pre_batch(epoch, batch)
 
     def train_batch(self, batch, batch_data):
-
-        self.net_G.train()
-        self.net_D.train()
+        self.net_G = self.net_G.train()
+        self.net_D = self.net_D.train()
 
         real_A, real_B = batch_data
         real_A, real_B = real_A.to(self.opt.device), real_B.to(self.opt.device)
@@ -152,16 +143,19 @@ class Pix2pixModel(BaseModel):
         self.sch_G.step()
         self.sch_D.step()
 
+    def post_train(self):
+        super().post_train()
+
     def evaluate(self, epoch, progress=False):
         self.net_G.eval()
         self.net_D.eval()
-        if self.opt.save_inferred_images:
-            Path(self.opt.inference_save_folder).mkdir(exist_ok=True, parents=True)
+        if self.opt.evaluate_save_images:
+            Path(self.opt.evaluate_images_save_folder).mkdir(exist_ok=True, parents=True)
 
         eval_losses = []
-        iterator = enumerate(self.opt.test_loader)
+        iterator = enumerate(self.test_loader)
         if progress:
-            iterator = tqdm(iterator, total=len(self.opt.test_loader))
+            iterator = tqdm(iterator, total=len(self.test_loader))
         for i, (inp, tar) in iterator:
             inp, tar = inp.to(self.opt.device), tar.to(self.opt.device)
 
@@ -169,11 +163,11 @@ class Pix2pixModel(BaseModel):
             loss = self.crt_l1(out, tar)
             eval_losses.append(loss.item())
 
-            if i < self.opt.n_infer_display_samples:
+            if i < self.opt.evaluate_n_display_samples:
                 plot_inp_tar_out(inp, tar, out, save_file=None)
 
-            if self.opt.save_inferred_images:
-                save_filename = os.path.join(self.opt.inference_save_folder, f'epoch-{epoch}-eval-{i}.png')
+            if self.opt.evaluate_save_images:
+                save_filename = os.path.join(self.opt.evaluate_images_save_folder, f'epoch-{epoch}-eval-{i}.png')
                 plot_inp_tar_out(inp, tar, out, save_file=save_filename)
 
         self.epoch_eval_loss = np.mean(eval_losses)
@@ -193,22 +187,22 @@ class Pix2pixModel(BaseModel):
                f'[G_GAN_loss={np.mean(self.net_G_gan_losses[from_batch - 1:batch]):.4f}] ' + \
                f'[D_loss={np.mean(self.net_D_losses[from_batch - 1:batch]):.4f}] '
 
-    def _get_checkpoint(self):
+    def get_checkpoint(self):
         return {
             'net_G_state_dict': self.net_G.state_dict(),
             'net_D_state_dict': self.net_D.state_dict(),
             'opt_G_state_dict': self.opt_G.state_dict(),
             'opt_D_state_dict': self.opt_D.state_dict(),
-            'opt': self.opt.__dict__,
-            'opt_name': self.opt.__class__.__name__
+            'opt': self.opt.saved_dict,
         }
 
     def load_checkpoint(self, tag):
         checkpoint = super().load_checkpoint(tag)
 
         opt_dict = checkpoint['opt']
-        opt_name = checkpoint['opt_name']
-        loaded_opt = InferenceOptions(**opt_dict) if opt_name == 'InferenceOptions' else TrainOptions(**opt_dict)
+        loaded_opt = Pix2pixTrainOptions()
+        for k, v in opt_dict:
+            setattr(loaded_opt, k, v)
 
         net_G = Generator(loaded_opt).to(self.opt.device)
         net_D = Discriminator(loaded_opt).to(self.opt.device)
@@ -224,3 +218,15 @@ class Pix2pixModel(BaseModel):
 
         print('Successfully created network with loaded checkpoint')
         return loaded_opt, net_G, net_D, opt_G, opt_D
+
+    def _gaussian_init_weight(self, m):
+        classname = m.__class__.__name__
+        if hasattr(m, 'weight') and (classname.find('Conv') != -1
+                                     or classname.find('Linear') != -1
+                                     or classname.find('BatchNorm2d') != -1):
+            nn.init.normal_(m.weight.data, 0.0, self.opt.init_gain)
+            if hasattr(m, 'bias') and m.bias is not None:
+                nn.init.constant_(m.bias.data, 0.0)
+
+    def _decay_rule(self, epoch):
+        return 1.0 - max(0, epoch + self.opt.start_epoch - self.opt.end_epoch) / float(self.opt.decay_epochs + 1)

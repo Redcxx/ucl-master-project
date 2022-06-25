@@ -1,9 +1,10 @@
 import functools
+from typing import Optional, Type, Union
 
 import torch
 from torch import nn
 
-from ml.options import TrainOptions
+from ml.options.pix2pix import Pix2pixTrainOptions
 
 
 class UnetBlock(nn.Module):
@@ -17,9 +18,13 @@ class UnetBlock(nn.Module):
             sub_skip_connection=False,
 
             skip_connection=True,
-            dropout=nn.Dropout,
-            in_norm=nn.BatchNorm2d, out_norm=nn.BatchNorm2d,
-            in_act=nn.LeakyReLU, out_act=nn.ReLU,
+
+            # callable type hint is for partial function
+            dropout: Optional[Type[Union[callable, nn.Dropout]]] = nn.Dropout,
+            in_norm: Optional[Type[Union[callable, nn.BatchNorm2d]]] = nn.BatchNorm2d,
+            out_norm: Optional[Type[Union[callable, nn.BatchNorm2d]]] = nn.BatchNorm2d,
+            in_act: Optional[Type[Union[callable, nn.LeakyReLU, nn.ReLU]]] = nn.LeakyReLU,
+            out_act: Optional[Type[Union[callable, nn.LeakyReLU, nn.ReLU]]] = nn.ReLU,
     ):
         super().__init__()
 
@@ -36,10 +41,8 @@ class UnetBlock(nn.Module):
             # batch norm has bias
         }
 
-        layers = []
-
         # encoder
-        layers.append(nn.Conv2d(in_channels=in_filters, out_channels=sub_in_filters, **conv_common_args))
+        layers = [nn.Conv2d(in_channels=in_filters, out_channels=sub_in_filters, **conv_common_args)]
 
         if in_norm:
             layers.append(in_norm(sub_in_filters))
@@ -80,10 +83,10 @@ class UnetBlock(nn.Module):
 
 class Generator(nn.Module):
 
-    def __init__(self, opt: TrainOptions):
+    def __init__(self, opt: Pix2pixTrainOptions):
         super().__init__()
 
-        config = opt['generator_config']
+        config = opt.generator_config
 
         # dependency injection
         batch_norm = functools.partial(nn.BatchNorm2d, affine=True, track_running_stats=True)
@@ -109,7 +112,7 @@ class Generator(nn.Module):
 
             skip_connection=blocks[0]['skip_connection'],
             dropout=dropout if blocks[0]['dropout'] else None,
-            in_norm=None, out_norm=False,
+            in_norm=None, out_norm=None,
             in_act=relu, out_act=relu
         )
 
@@ -151,10 +154,10 @@ class Generator(nn.Module):
 
 
 class Discriminator(nn.Module):
-    def __init__(self, opt: TrainOptions):
+    def __init__(self, opt: Pix2pixTrainOptions):
         super().__init__()
 
-        config = opt['discriminator_config']
+        config = opt.discriminator_config
 
         # we do not use bias in conv2d layer if batch norm is used, because batch norm already has bias
         batch_norm = functools.partial(nn.BatchNorm2d, affine=True, track_running_stats=True)

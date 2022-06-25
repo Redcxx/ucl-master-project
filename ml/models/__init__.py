@@ -1,24 +1,19 @@
-import importlib
-
-from ml.models.base_model import BaseModel
-from ml.models.pix2pix_model import Pix2pixModel
+from ml.base_model import BaseTrainModel
+from ml.file_utils import _find_cls_using_name
 
 
-def _find_model_using_name(model_name):
-    model_lib = importlib.import_module("ml.models." + model_name)
-    model = None
-    for name, cls in model_lib.__dict__.items():
-        if name.lower() == model_name.replace('_', '').lower() \
-                and issubclass(cls, BaseModel):
-            model = cls
+def create_train_model(opt, train_loader, test_loader, name):
 
-    if model is None:
-        raise FileNotFoundError(f'model not found: {model_name}')
+    print(f'Finding train model with name: [{name}] ...')
 
-    return model
+    cls = _find_cls_using_name(
+        name,
+        package='models',
+        parent_class=BaseTrainModel,
+        cls_postfix='TrainModel'
+    )
 
+    instance = cls(opt, train_loader, test_loader)
 
-def create_model(opt) -> BaseModel:
-    instance = _find_model_using_name(opt.model_name)(opt)
     print(f'Model: [{instance.__class__.__name__}] was created')
     return instance

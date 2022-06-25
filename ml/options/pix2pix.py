@@ -18,7 +18,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         super().__init__()
 
         # Dataset
-        self.dataset_dir = './alacgan_colorization_data'
+        self.dataset_dir = './line_fill_RAW_DATA-20220624T112436Z-001'
         self.dataset_train_folder = 'train'
         self.dataset_test_folder = 'test'
 
@@ -38,7 +38,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.d_loss_factor = 0.5  # slow down discriminator learning
 
         # transforms
-        self.random_jitter = False
+        self.random_jitter = True
         self.random_mirror = True
 
         # Evaluate
@@ -47,36 +47,28 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.evaluate_images_save_folder = f'eval-images'
 
     @property
-    def a_to_b(self):
-        return True
+    def a_to_b(self): return True
 
     @property
-    def batch_size(self):
-        return 4
+    def batch_size(self): return 4
 
     @property
-    def start_epoch(self):
-        return 1
+    def start_epoch(self): return 1
 
     @property
-    def end_epoch(self):
-        return 50
+    def end_epoch(self): return 200
 
     @property
-    def eval_freq(self):
-        return 10
+    def eval_freq(self): return 10
 
     @property
-    def log_freq(self):
-        return 10
+    def log_freq(self): return 10
 
     @property
-    def save_freq(self):
-        return 10
+    def save_freq(self): return 10
 
     @property
-    def batch_log_freq(self):
-        return 0
+    def batch_log_freq(self): return 0
 
     @property
     def num_workers(self):

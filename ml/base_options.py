@@ -1,3 +1,4 @@
+import pprint
 import random
 from abc import ABC, abstractmethod
 from datetime import datetime
@@ -38,7 +39,7 @@ class BaseOptions(ABC):
         super().__setattr__(key, value)
 
     def __str__(self):
-        return str(self.__dict__)
+        return pprint.pformat(self.saved_dict)
 
     @property
     @abstractmethod

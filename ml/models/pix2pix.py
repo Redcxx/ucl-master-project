@@ -4,6 +4,7 @@ from pathlib import Path
 import numpy as np
 import torch
 from torch import optim, nn
+from torchsummaryX import summary
 from tqdm import tqdm
 
 from ml.base_model import BaseTrainModel
@@ -67,8 +68,8 @@ class Pix2pixTrainModel(BaseTrainModel):
 
     def pre_train(self):
         super().pre_train()
-        print(self.net_G)
-        print(self.net_D)
+        summary(self.net_G, torch.rand(4, 3, 512, 512))
+        summary(self.net_D, torch.rand(4, 6, 512, 512))
 
     def pre_epoch(self):
         super().pre_epoch()
@@ -148,7 +149,7 @@ class Pix2pixTrainModel(BaseTrainModel):
     def post_train(self):
         super().post_train()
 
-    def evaluate(self, epoch, progress=False):
+    def evaluate(self, epoch, progress=True):
         self.net_G.eval()
         self.net_D.eval()
         if self.opt.evaluate_save_images:

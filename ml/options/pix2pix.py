@@ -43,7 +43,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.random_mirror = True
 
         # Evaluate
-        self.evaluate_n_display_samples = 5
+        self.evaluate_n_display_samples = 0
         self.evaluate_save_images = True
         self.evaluate_images_save_folder = f'eval-images'
 
@@ -82,9 +82,6 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
     @property
     def shuffle(self):
         return True
-
-    def __str__(self):
-        return BaseTrainOptions.__str__(self)
 
 
 def _discriminator_config():
@@ -138,12 +135,7 @@ def _generator_config():
             },
             {
                 'filters': 512,
-                'dropout': False,
-                'skip_connection': True
-            },
-            {
-                'filters': 512,
-                'dropout': False,
+                'dropout': True,
                 'skip_connection': True
             },
             {
@@ -151,6 +143,11 @@ def _generator_config():
                 'dropout': True,
                 'skip_connection': True
             },
+            # {
+            #     'filters': 512,
+            #     'dropout': True,
+            #     'skip_connection': True
+            # },
             # {
             #     'filters': 512,
             #     'dropout': True,

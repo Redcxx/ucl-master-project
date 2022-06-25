@@ -59,9 +59,6 @@ class BaseInferenceOptions(BaseOptions, ABC):
     @abstractmethod
     def images_folder_path(self): pass
 
-    def __str__(self):
-        return BaseOptions.__str__(self)
-
 
 class BaseTrainOptions(BaseOptions, ABC):
     def __init__(self):
@@ -111,5 +108,3 @@ class BaseTrainOptions(BaseOptions, ABC):
     @abstractmethod
     def shuffle(self): pass
 
-    def __str__(self):
-        return BaseOptions.__str__(self)

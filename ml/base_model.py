@@ -106,7 +106,7 @@ class BaseTrainModel(BaseModel, ABC):
         print(fill_char * width)
         print(get_center_text(option_text, width, fill_char))
         print(fill_char * width)
-        pprint(self.opt)
+        print(self.opt)
         print(fill_char * width)
         print(get_center_text(run_start_text, width, fill_char))
         print(fill_char * width)
@@ -152,7 +152,7 @@ class BaseTrainModel(BaseModel, ABC):
     @abstractmethod
     def post_epoch(self, epoch):
         if self.opt.eval_freq > 0 and (epoch % self.opt.eval_freq == 0 or epoch == self.opt.start_epoch):
-            print('Evaluating ... ', end='')
+            print('Evaluating ... ')
             self.evaluate(epoch)
             print('done')
             self.this_epoch_evaluated = True

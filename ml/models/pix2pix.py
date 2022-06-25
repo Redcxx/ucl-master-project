@@ -16,7 +16,6 @@ from ..plot_utils import plot_inp_tar_out
 class Pix2pixTrainModel(BaseTrainModel):
 
     def __init__(self, opt: Pix2pixTrainOptions, train_loader, test_loader):
-        super().__init__(opt, train_loader, test_loader)
         self.opt = opt
 
         # network
@@ -40,6 +39,9 @@ class Pix2pixTrainModel(BaseTrainModel):
         self.net_G_l1_losses = []
         self.net_D_losses = []
         self.epoch_eval_loss = None
+
+        # declare before init
+        super().__init__(opt, train_loader, test_loader)
 
     def _init_fixed(self):
         self.crt_gan = GANBCELoss().to(self.opt.device)
@@ -65,10 +67,8 @@ class Pix2pixTrainModel(BaseTrainModel):
 
     def pre_train(self):
         super().pre_train()
-        self.net_G = self.net_G.train()
-        self.net_D = self.net_D.train()
-        self.net_G.to(self.opt.device)
-        self.net_D.to(self.opt.device)
+        self.net_G = self.net_G.train().to(self.opt.device)
+        self.net_D = self.net_D.train().to(self.opt.device)
 
     def pre_epoch(self):
         super().pre_epoch()
@@ -231,4 +231,5 @@ class Pix2pixTrainModel(BaseTrainModel):
                 nn.init.constant_(m.bias.data, 0.0)
 
     def _decay_rule(self, epoch):
-        return 1.0 - max(0, epoch + self.opt.start_epoch - (self.opt.end_epoch - self.opt.decay_epochs)) / float(self.opt.decay_epochs + 1)
+        return 1.0 - max(0, epoch + self.opt.start_epoch - (self.opt.end_epoch - self.opt.decay_epochs)) / float(
+            self.opt.decay_epochs + 1)

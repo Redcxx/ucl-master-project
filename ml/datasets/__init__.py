@@ -26,7 +26,7 @@ def create_train_dataloaders(opt: BaseTrainOptions, name):
 
     train_dataloader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=opt.shuffle,
                                   num_workers=opt.num_workers, pin_memory=opt.pin_memory)
-    test_dataloader = DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=opt.num_workers,
+    test_dataloader = DataLoader(test_dataset, batch_size=opt.batch_size, shuffle=False, num_workers=opt.num_workers,
                                  pin_memory=opt.pin_memory)
 
     return train_dataloader, test_dataloader

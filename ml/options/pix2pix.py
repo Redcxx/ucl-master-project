@@ -83,17 +83,20 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
     def shuffle(self):
         return True
 
+    def __str__(self):
+        BaseTrainOptions.__str__(self)
+
 
 def _discriminator_config():
     return {
         'in_channels': 3 * 2,  # conditionalGAN takes both real and fake image
         'blocks': [
-            {
-                'filters': 512,
-            },
-            {
-                'filters': 512,
-            },
+            # {
+            #     'filters': 512,
+            # },
+            # {
+            #     'filters': 512,
+            # },
             {
                 'filters': 512,
             },
@@ -109,15 +112,6 @@ def _discriminator_config():
             {
                 'filters': 64,
             },
-            # {
-            #     'filters': 32,
-            # },
-            # {
-            #     'filters': 256,
-            # },
-            # {
-            #     'filters': 512,
-            # }
         ]
     }
 
@@ -154,18 +148,18 @@ def _generator_config():
             },
             {
                 'filters': 512,
-                'dropout': False,
+                'dropout': True,
                 'skip_connection': True
             },
-            {
-                'filters': 512,
-                'dropout': False,
-                'skip_connection': True
-            },
-            {
-                'filters': 512,
-                'dropout': False,
-                'skip_connection': True
-            },
+            # {
+            #     'filters': 512,
+            #     'dropout': True,
+            #     'skip_connection': True
+            # },
+            # {
+            #     'filters': 512,
+            #     'dropout': True,
+            #     'skip_connection': True
+            # },
         ]
     }

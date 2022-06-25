@@ -4,7 +4,7 @@ from ml.file_utils import _find_cls_using_name
 
 def create_train_model(opt, train_loader, test_loader, name):
 
-    print(f'Finding train model with name: [{name}] ...')
+    print(f'Finding train model with name: [{name}] ... ', end='')
 
     cls = _find_cls_using_name(
         name,
@@ -15,5 +15,5 @@ def create_train_model(opt, train_loader, test_loader, name):
 
     instance = cls(opt, train_loader, test_loader)
 
-    print(f'Model: [{instance.__class__.__name__}] was created')
+    print(f'done: [{instance.__class__.__name__}] was created')
     return instance

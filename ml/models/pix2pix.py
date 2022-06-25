@@ -68,8 +68,8 @@ class Pix2pixTrainModel(BaseTrainModel):
 
     def pre_train(self):
         super().pre_train()
-        summary(self.net_G, torch.rand(4, 3, 512, 512), device=self.opt.device)
-        summary(self.net_D, torch.rand(4, 6, 512, 512), device=self.opt.device)
+        summary(self.net_G, torch.rand(4, 3, 512, 512).to(self.opt.device))
+        summary(self.net_D, torch.rand(4, 6, 512, 512).to(self.opt.device))
 
     def pre_epoch(self):
         super().pre_epoch()

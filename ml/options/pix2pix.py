@@ -32,6 +32,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.optimizer_beta2 = 0.999
         self.init_gain = 0.02  # default 0.02
         self.weight_decay = 0  # default 0
+        self.decay_epochs = 10
 
         # Loss
         self.l1_lambda = 100.0  # encourage l1 distance to actual output
@@ -56,7 +57,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
     def start_epoch(self): return 1
 
     @property
-    def end_epoch(self): return 200
+    def end_epoch(self): return 100
 
     @property
     def eval_freq(self): return 10

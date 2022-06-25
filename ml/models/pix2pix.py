@@ -229,4 +229,4 @@ class Pix2pixTrainModel(BaseTrainModel):
                 nn.init.constant_(m.bias.data, 0.0)
 
     def _decay_rule(self, epoch):
-        return 1.0 - max(0, epoch + self.opt.start_epoch - self.opt.end_epoch) / float(self.opt.decay_epochs + 1)
+        return 1.0 - max(0, epoch + self.opt.start_epoch - (self.opt.end_epoch - self.opt.decay_epochs)) / float(self.opt.decay_epochs + 1)

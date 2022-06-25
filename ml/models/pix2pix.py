@@ -163,7 +163,7 @@ class Pix2pixTrainModel(BaseTrainModel):
             inp, tar = inp.to(self.opt.device), tar.to(self.opt.device)
 
             out = self.net_G(inp)
-            loss = self.crt_l1(out, tar).squeeze()
+            loss = self.crt_l1(out, tar)
             for value in loss:
                 eval_losses.append(value.item())
 

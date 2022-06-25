@@ -164,8 +164,7 @@ class Pix2pixTrainModel(BaseTrainModel):
 
             out = self.net_G(inp)
             loss = self.crt_l1(out, tar)
-            for value in loss:
-                eval_losses.append(value.item())
+            eval_losses.append(loss.item())
 
             if i < self.opt.evaluate_n_display_samples:
                 plot_inp_tar_out(inp, tar, out, save_file=None)

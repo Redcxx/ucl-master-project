@@ -110,6 +110,8 @@ class BaseTrainModel(BaseModel, ABC):
         print(fill_char * width)
         print(get_center_text(run_start_text, width, fill_char))
         print(fill_char * width)
+        print(f'Train loader size: {len(self.train_loader)}')
+        print(f'Test loader size: {len(self.test_loader)}')
         print(f'Using device {self.opt.device}')
         print(f'Run started at {format_time(self.training_start_time)}')
         print(fill_char * width)

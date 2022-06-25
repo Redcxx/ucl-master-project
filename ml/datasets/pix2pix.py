@@ -14,7 +14,7 @@ class Pix2pixTestDataset(BaseDataset):
 
     def __init__(self, opt: Pix2pixTrainOptions):
         super().__init__()
-        root = os.path.join(opt.dataset_dir, opt.dataset_train_folder)
+        root = os.path.join(opt.dataset_dir, opt.dataset_test_folder)
         self.paths = sorted(get_all_image_paths(root))
         self.a_to_b = opt.a_to_b
         self.transform = transforms.Compose([

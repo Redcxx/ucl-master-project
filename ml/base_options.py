@@ -7,7 +7,12 @@ import torch.cuda
 
 
 class BaseOptions(ABC):
+
     def __init__(self):
+
+        # for saving and loading
+        # this line must be on top here
+        self.saved_dict = dict()
 
         # Housekeeping
         self.run_id = f'{self.tag}-' + datetime.now().strftime('%Y-%m-%d-%A-%Hh-%Mm-%Ss')
@@ -26,9 +31,6 @@ class BaseOptions(ABC):
         torch.manual_seed(self.random_seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed(self.random_seed)
-
-        # for saving and loading
-        self.saved_dict = dict()
 
     def __setattr__(self, key, value):
         if key != 'saved_dict':

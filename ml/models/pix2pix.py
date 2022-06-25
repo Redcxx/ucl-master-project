@@ -156,6 +156,8 @@ class Pix2pixTrainModel(BaseTrainModel):
             Path(self.opt.evaluate_images_save_folder).mkdir(exist_ok=True, parents=True)
 
         eval_losses = []
+        displayed_images = 0
+
         iterator = enumerate(self.test_loader)
         if progress:
             iterator = tqdm(iterator, total=len(self.test_loader))
@@ -166,12 +168,15 @@ class Pix2pixTrainModel(BaseTrainModel):
             loss = self.crt_l1(out, tar)
             eval_losses.append(loss.item())
 
-            if i < self.opt.evaluate_n_display_samples:
-                plot_inp_tar_out(inp, tar, out, save_file=None)
+            for inp_im, tar_im, out_im in zip(inp, tar, out):
+                if displayed_images < self.opt.evaluate_n_display_samples:
+                    plot_inp_tar_out(inp_im, tar_im, out_im, save_file=None)
+                    displayed_images += 1
 
             if self.opt.evaluate_save_images:
                 save_filename = os.path.join(self.opt.evaluate_images_save_folder, f'epoch-{epoch}-eval-{i}.png')
-                plot_inp_tar_out(inp, tar, out, save_file=save_filename)
+                for inp_im, tar_im, out_im in zip(inp, tar, out):
+                    plot_inp_tar_out(inp_im, tar_im, out_im, save_file=save_filename)
 
         self.epoch_eval_loss = np.mean(eval_losses)
 

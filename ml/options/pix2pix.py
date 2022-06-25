@@ -63,7 +63,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
     def eval_freq(self): return 10
 
     @property
-    def log_freq(self): return 10
+    def log_freq(self): return 1
 
     @property
     def save_freq(self): return 10
@@ -84,7 +84,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         return True
 
     def __str__(self):
-        BaseTrainOptions.__str__(self)
+        return BaseTrainOptions.__str__(self)
 
 
 def _discriminator_config():

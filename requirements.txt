@@ -4,5 +4,4 @@ torch
 torchvision
 pillow
 tqdm
-bisect
 scipy

@@ -65,8 +65,10 @@ class Pix2pixTrainModel(BaseTrainModel):
 
     def pre_train(self):
         super().pre_train()
-        self.net_G = self.net_G.train().to(self.opt.device)
-        self.net_D = self.net_D.train().to(self.opt.device)
+        self.net_G = self.net_G.train()
+        self.net_D = self.net_D.train()
+        self.net_G.to(self.opt.device)
+        self.net_D.to(self.opt.device)
 
     def pre_epoch(self):
         super().pre_epoch()

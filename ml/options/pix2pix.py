@@ -69,7 +69,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
     def save_freq(self): return 10
 
     @property
-    def batch_log_freq(self): return 1000
+    def batch_log_freq(self): return 500
 
     @property
     def num_workers(self):

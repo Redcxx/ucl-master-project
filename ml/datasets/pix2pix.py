@@ -68,8 +68,8 @@ class Pix2pixTrainDataset(BaseDataset):
         additional_transforms = []
 
         if self.random_jitter:
-            new_size = 286
-            old_size = 256
+            new_size = 572
+            old_size = 512
 
             rand_x = random.randint(0, new_size - old_size)
             rand_y = random.randint(0, new_size - old_size)

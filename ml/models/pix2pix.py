@@ -85,7 +85,7 @@ class Pix2pixTrainModel(BaseTrainModel):
                 i += 1
                 if i > 5:
                     break
-            else:
+            if i > 5:
                 break
 
     def pre_train(self):

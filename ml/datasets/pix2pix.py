@@ -12,16 +12,16 @@ from ml.file_utils import get_all_image_paths
 from ml.options.pix2pix import Pix2pixTrainOptions
 
 
-def to_float_tensor(pil_im):
-    arr = np.array(pil_im)
-    # print(arr.shape)
-    if np.issubdtype(arr.dtype, np.int):
-        arr = arr.astype(np.float32) / 255
-    else:
-        arr = arr.astype(np.float32)
-    tensor = torch.from_numpy(arr).permute(2, 0, 1)
-    # print(tensor.shape)
-    return tensor
+# def to_float_tensor(pil_im):
+#     arr = np.array(pil_im)
+#     # print(arr.shape)
+#     if np.issubdtype(arr.dtype, np.int):
+#         arr = arr.astype(np.float32) / 255
+#     else:
+#         arr = arr.astype(np.float32)
+#     tensor = torch.from_numpy(arr).permute(2, 0, 1)
+#     # print(tensor.shape)
+#     return tensor
 
 
 class Pix2pixTestDataset(BaseDataset):
@@ -32,7 +32,7 @@ class Pix2pixTestDataset(BaseDataset):
         self.paths = sorted(get_all_image_paths(root))
         self.a_to_b = opt.a_to_b
         self.transform = transforms.Compose([
-            transforms.Lambda(lambda im: to_float_tensor(im)),
+            transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
 
@@ -90,7 +90,7 @@ class Pix2pixTrainDataset(BaseDataset):
 
         return transforms.Compose([
             *additional_transforms,
-            transforms.Lambda(lambda im: to_float_tensor(im)),
+            transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
 

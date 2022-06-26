@@ -3,6 +3,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
+from matplotlib import pyplot as plt
 from torch import optim, nn
 from torchsummaryX import summary
 from tqdm import tqdm
@@ -66,10 +67,25 @@ class Pix2pixTrainModel(BaseTrainModel):
                                 weight_decay=self.opt.weight_decay)
         self._init_fixed()
 
-    def pre_train(self):
-        super().pre_train()
+    def _sanity_check(self):
+        # see if model architecture is alright
         summary(self.net_G, torch.rand(4, 3, 512, 512).to(self.opt.device))
         summary(self.net_D, torch.rand(4, 6, 512, 512).to(self.opt.device))
+        # get some data and see if it looks good
+        i = 1
+        for inp, tar in self.train_loader:
+            if i > 5:
+                break
+            plt.figure(figsize=(3, 6))
+            plt.subplot(1, 2, 1)
+            plt.imshow(inp)
+            plt.subplot(1, 2, 2)
+            plt.imshow(tar)
+            plt.show()
+
+    def pre_train(self):
+        super().pre_train()
+        self._sanity_check()
 
     def pre_epoch(self):
         super().pre_epoch()

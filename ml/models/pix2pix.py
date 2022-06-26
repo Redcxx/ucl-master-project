@@ -152,11 +152,12 @@ class Pix2pixTrainModel(BaseTrainModel):
     def evaluate(self, epoch, progress=True):
         self.net_G.eval()
         self.net_D.eval()
-        if self.opt.evaluate_save_images:
+        if self.opt.evaluate_n_save_samples > 0:
             Path(self.opt.evaluate_images_save_folder).mkdir(exist_ok=True, parents=True)
 
         eval_losses = []
         displayed_images = 0
+        saved_images = 0
 
         iterator = enumerate(self.test_loader)
         if progress:
@@ -173,10 +174,13 @@ class Pix2pixTrainModel(BaseTrainModel):
                     plot_inp_tar_out(inp_im, tar_im, out_im, save_file=None)
                     displayed_images += 1
 
-            if self.opt.evaluate_save_images:
-                save_filename = os.path.join(self.opt.evaluate_images_save_folder, f'epoch-{epoch}-eval-{i}.png')
-                for inp_im, tar_im, out_im in zip(inp, tar, out):
+                if saved_images < self.opt.evaluate_n_save_samples:
+                    save_filename = os.path.join(
+                        self.opt.evaluate_images_save_folder,
+                        f'epoch-{epoch}-eval-{saved_images}.png'
+                    )
                     plot_inp_tar_out(inp_im, tar_im, out_im, save_file=save_filename)
+                    saved_images += 1
 
         self.epoch_eval_loss = np.mean(eval_losses)
 

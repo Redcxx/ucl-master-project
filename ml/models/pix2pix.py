@@ -75,12 +75,13 @@ class Pix2pixTrainModel(BaseTrainModel):
         i = 0
         for inp_batch, tar_batch in self.train_loader:
             for inp, tar in zip(inp_batch, tar_batch):
-                plt.figure(figsize=(3, 6))
+                fig = plt.figure(figsize=(3, 6))
                 plt.subplot(1, 2, 1)
                 plt.imshow(inp)
                 plt.subplot(1, 2, 2)
                 plt.imshow(tar)
-                plt.show()
+                plt.savefig(f'sanity_check-{i}.jpg', bbox_inches='tight')
+                plt.close(fig)
                 i += 1
                 if i > 5:
                     break

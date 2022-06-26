@@ -141,7 +141,7 @@ class BaseTrainModel(BaseModel, ABC):
 
     @abstractmethod
     def post_batch(self, epoch, batch, batch_out):
-        if self.opt.batch_log_freq > 0 and (epoch % self.opt.batch_log_freq == 0 or batch == 1):
+        if self.opt.batch_log_freq > 0 and (epoch % self.opt.batch_log_freq == 0 or batch == 2):
             print(self.log_batch(batch))
             self.this_batch_logged = True
         else:

@@ -88,9 +88,9 @@ def _discriminator_config():
     return {
         'in_channels': 3 * 2,  # conditionalGAN takes both real and fake image
         'blocks': [
-            {
-                'filters': 512,
-            },
+            # {
+            #     'filters': 512,
+            # },
             {
                 'filters': 512,
             },
@@ -140,11 +140,6 @@ def _generator_config():
             },
             {
                 'filters': 512,
-                'dropout': False,
-                'skip_connection': True
-            },
-            {
-                'filters': 512,
                 'dropout': True,
                 'skip_connection': True
             },
@@ -158,5 +153,10 @@ def _generator_config():
                 'dropout': True,
                 'skip_connection': True
             },
+            # {
+            #     'filters': 512,
+            #     'dropout': True,
+            #     'skip_connection': True
+            # },
         ]
     }

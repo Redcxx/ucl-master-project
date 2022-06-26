@@ -14,13 +14,13 @@ from ml.options.pix2pix import Pix2pixTrainOptions
 
 def to_float_tensor(pil_im):
     arr = np.array(pil_im)
-    print(arr.shape)
+    # print(arr.shape)
     if np.issubdtype(arr.dtype, np.int):
         arr = arr.astype(np.float32) / 255
     else:
         arr = arr.astype(np.float32)
-    tensor = torch.from_numpy(arr)
-    print(tensor.shape)
+    tensor = torch.from_numpy(arr).permute(2, 0, 1)
+    # print(tensor.shape)
     return tensor
 
 

@@ -1,6 +1,8 @@
 import os
 import random
 
+import numpy as np
+import torch
 from PIL import Image
 from torchvision import transforms
 from torchvision.transforms import InterpolationMode
@@ -8,6 +10,15 @@ from torchvision.transforms import InterpolationMode
 from ml.base_dataset import BaseDataset
 from ml.file_utils import get_all_image_paths
 from ml.options.pix2pix import Pix2pixTrainOptions
+
+
+def to_float_tensor(pil_im):
+    arr = np.array(pil_im)
+    if np.issubdtype(arr.dtype, np.int):
+        arr = arr.astype(np.float32) / 255
+    else:
+        arr = arr.astype(np.float32)
+    return torch.from_numpy(arr).unsqueeze(0)
 
 
 class Pix2pixTestDataset(BaseDataset):
@@ -18,7 +29,7 @@ class Pix2pixTestDataset(BaseDataset):
         self.paths = sorted(get_all_image_paths(root))
         self.a_to_b = opt.a_to_b
         self.transform = transforms.Compose([
-            transforms.ToTensor(),
+            transforms.Lambda(lambda im: to_float_tensor(im)),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
 
@@ -76,7 +87,7 @@ class Pix2pixTrainDataset(BaseDataset):
 
         return transforms.Compose([
             *additional_transforms,
-            transforms.ToTensor(),
+            transforms.Lambda(lambda im: to_float_tensor(im)),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
 

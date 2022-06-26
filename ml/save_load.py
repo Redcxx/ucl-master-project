@@ -26,7 +26,7 @@ def ensure_folder_on_drive(drive, folder_name, parent_id=None):
         raise AssertionError('Multiple Folders of the same name detected')
 
     # folder not found, create a new one at root
-    print(f'Folder {folder_name} with parent id {parent_id} not found, creating...', end='')
+    print(f'Folder {folder_name} with parent id {parent_id} not found, creating... ', end='')
 
     folder = drive.CreateFile({
         'title': folder_name,

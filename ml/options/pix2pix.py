@@ -51,7 +51,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
     def a_to_b(self): return True
 
     @property
-    def batch_size(self): return 4
+    def batch_size(self): return 32
 
     @property
     def start_epoch(self): return 1
@@ -69,7 +69,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
     def save_freq(self): return 1
 
     @property
-    def batch_log_freq(self): return 100
+    def batch_log_freq(self): return 10
 
     @property
     def num_workers(self):

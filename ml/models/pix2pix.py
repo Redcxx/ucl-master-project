@@ -72,16 +72,20 @@ class Pix2pixTrainModel(BaseTrainModel):
         summary(self.net_G, torch.rand(4, 3, 512, 512).to(self.opt.device))
         summary(self.net_D, torch.rand(4, 6, 512, 512).to(self.opt.device))
         # get some data and see if it looks good
-        i = 1
-        for inp, tar in self.train_loader:
-            if i > 5:
+        i = 0
+        for inp_batch, tar_batch in self.train_loader:
+            for inp, tar in zip(inp_batch, tar_batch):
+                plt.figure(figsize=(3, 6))
+                plt.subplot(1, 2, 1)
+                plt.imshow(inp)
+                plt.subplot(1, 2, 2)
+                plt.imshow(tar)
+                plt.show()
+                i += 1
+                if i > 5:
+                    break
+            else:
                 break
-            plt.figure(figsize=(3, 6))
-            plt.subplot(1, 2, 1)
-            plt.imshow(inp)
-            plt.subplot(1, 2, 2)
-            plt.imshow(tar)
-            plt.show()
 
     def pre_train(self):
         super().pre_train()

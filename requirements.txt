@@ -6,3 +6,4 @@ pillow
 tqdm
 scipy
 torchsummaryX
+matplotlib

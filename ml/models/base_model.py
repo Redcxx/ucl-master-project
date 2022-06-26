@@ -1,13 +1,19 @@
+import os
+import shutil
 import time
 from abc import ABC, abstractmethod
-from pprint import pprint
-from typing import Dict
+from pathlib import Path
+from typing import Dict, Tuple
 
+import numpy as np
 import torch
+from torch import Tensor
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
-from ml.base_options import BaseOptions, BaseTrainOptions, BaseInferenceOptions
 from ml.misc_utils import format_time, get_center_text
+from ml.options.base_options import BaseOptions, BaseTrainOptions, BaseInferenceOptions
+from ml.plot_utils import plot_inp_tar_out
 from ml.save_load import init_drive_and_folder, save_file, load_file
 
 
@@ -89,6 +95,8 @@ class BaseTrainModel(BaseModel, ABC):
         self.this_epoch_saved = False
         self.this_batch_logged = False
 
+        self.epoch_eval_loss = None
+
     @abstractmethod
     def init_from_train_checkpoint(self, checkpoint):
         pass
@@ -148,31 +156,57 @@ class BaseTrainModel(BaseModel, ABC):
             self.this_batch_logged = False
 
     @abstractmethod
-    def evaluate(self, epoch):
+    def evaluate_batch(self, i, batch_data) -> Tuple[float, Tensor, Tensor, Tensor]:
         pass
+
+    def evaluate(self, epoch):
+        if self.opt.eval_n_save_samples > 0:
+            # create directory, delete existing one
+            eval_path = Path(self.opt.eval_images_save_folder)
+            if eval_path.is_dir():
+                shutil.rmtree(str(eval_path))
+            eval_path.mkdir(parents=True)
+
+        eval_losses = []
+        displayed_images = 0
+        saved_images = 0
+
+        iterator = enumerate(self.test_loader)
+        if self.opt.eval_show_progress:
+            iterator = tqdm(iterator, total=len(self.test_loader), desc='Evaluate')
+        for i, batch_data in iterator:
+
+            eval_loss, inp_batch, tar_batch, out_batch = self.evaluate_batch(i, batch_data)
+            eval_losses.append(eval_loss)
+
+            for inp_im, tar_im, out_im in zip(inp_batch, tar_batch, out_batch)
+                if displayed_images < self.opt.eval_n_display_samples:
+                    plot_inp_tar_out(inp_im, tar_im, out_im, save_file=None)
+                    displayed_images += 1
+
+                if saved_images < self.opt.eval_n_save_samples:
+                    save_filename = os.path.join(
+                        self.opt.eval_images_save_folder,
+                        f'epoch-{epoch}-eval-{saved_images}.png'
+                    )
+                    plot_inp_tar_out(inp_im, tar_im, out_im, save_file=save_filename)
+                    saved_images += 1
+
+        return np.mean(eval_losses)
 
     @abstractmethod
     def post_epoch(self, epoch):
         if self.opt.eval_freq > 0 and (epoch % self.opt.eval_freq == 0 or epoch == self.opt.start_epoch):
-            print('Evaluating ... ')
-            self.evaluate(epoch)
-            print('done')
-            self.this_epoch_evaluated = True
+            self.epoch_eval_loss = self.evaluate(epoch)
         else:
-            self.this_epoch_evaluated = False
+            self.epoch_eval_loss = None
 
         if self.opt.log_freq > 0 and (epoch % self.opt.log_freq == 0 or epoch == self.opt.start_epoch):
             print(self.log_epoch(epoch))
-            self.this_epoch_logged = True
-        else:
-            self.this_epoch_logged = False
 
         if self.opt.save_freq > 0 and (epoch % self.opt.save_freq == 0 or epoch == self.opt.start_epoch):
             self.save_checkpoint(epoch)
             self.save_checkpoint('latest')
-            self.this_epoch_saved = True
-        else:
-            self.this_epoch_saved = False
 
     @abstractmethod
     def post_train(self):
@@ -212,7 +246,8 @@ class BaseTrainModel(BaseModel, ABC):
         text = f'[epoch={epoch}] ' + \
                f'[curr_time={format_time(curr_time)}] ' + \
                f'[train_time={format_time(curr_time - self.training_start_time)}] ' + \
-               f'[epoch_time={format_time(curr_time - self.last_epoch_time)}] '
+               f'[epoch_time={format_time(curr_time - self.last_epoch_time)}] ' + \
+               (f'[eval_loss={self.epoch_eval_loss:.4f}]' if self.epoch_eval_loss is not None else '')
 
         self.last_epoch_time = curr_time
         return text

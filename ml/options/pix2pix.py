@@ -1,6 +1,6 @@
 from abc import ABC
 
-from ml.base_options import BaseTrainOptions
+from ml.options.base_options import BaseTrainOptions
 
 
 class Pix2pixOptions(ABC):
@@ -19,8 +19,6 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
 
         # Dataset
         self.dataset_dir = './alacgan_colorization_data'
-        self.dataset_train_folder = 'train'
-        self.dataset_test_folder = 'test'
 
         # Model
         self.generator_config = _generator_config()
@@ -28,10 +26,10 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
 
         # Optimizer
         self.lr = 0.0002
-        self.optimizer_beta1 = 0.5  # default 0.5
+        self.optimizer_beta1 = 0.5
         self.optimizer_beta2 = 0.999
-        self.init_gain = 0.02  # default 0.02
-        self.weight_decay = 0  # default 0
+        self.init_gain = 0.02
+        self.weight_decay = 0
         self.decay_epochs = 10
 
         # Loss
@@ -41,11 +39,6 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # transforms
         self.random_jitter = True
         self.random_mirror = True
-
-        # Evaluate
-        self.evaluate_n_display_samples = 0
-        self.evaluate_n_save_samples = 10
-        self.evaluate_images_save_folder = f'eval-images'
 
     @property
     def a_to_b(self): return True

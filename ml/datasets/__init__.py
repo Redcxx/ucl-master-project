@@ -1,7 +1,7 @@
 from torch.utils.data import DataLoader
 
-from ml.base_options import BaseTrainOptions
-from ml.base_dataset import BaseDataset
+from ml.options.base_options import BaseTrainOptions
+from ml.datasets.base_dataset import BaseDataset
 from ml.file_utils import _find_cls_using_name
 
 

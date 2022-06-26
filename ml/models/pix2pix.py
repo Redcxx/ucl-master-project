@@ -1,18 +1,13 @@
-import os
-from pathlib import Path
-
 import numpy as np
 import torch
 from matplotlib import pyplot as plt
 from torch import optim, nn
 from torchsummaryX import summary
-from tqdm import tqdm
 
-from ml.base_model import BaseTrainModel
+from ml.models.base_model import BaseTrainModel
 from .pix2pix_partials import Generator, Discriminator
 from ..criterion.GANBCELoss import GANBCELoss
 from ..options.pix2pix import Pix2pixTrainOptions
-from ..plot_utils import plot_inp_tar_out
 
 
 class Pix2pixTrainModel(BaseTrainModel):
@@ -40,7 +35,6 @@ class Pix2pixTrainModel(BaseTrainModel):
         self.net_G_gan_losses = []
         self.net_G_l1_losses = []
         self.net_D_losses = []
-        self.epoch_eval_loss = None
 
         # declare before init
         super().__init__(opt, train_loader, test_loader)
@@ -68,6 +62,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         self._init_fixed()
 
     def _sanity_check(self):
+        print('Generating Sanity Checks')
         # see if model architecture is alright
         summary(self.net_G, torch.rand(4, 3, 512, 512).to(self.opt.device))
         summary(self.net_D, torch.rand(4, 6, 512, 512).to(self.opt.device))
@@ -87,6 +82,7 @@ class Pix2pixTrainModel(BaseTrainModel):
                     break
             if i > 5:
                 break
+        print('Sanity Checks Generated')
 
     def pre_train(self):
         super().pre_train()
@@ -170,48 +166,24 @@ class Pix2pixTrainModel(BaseTrainModel):
     def post_train(self):
         super().post_train()
 
-    def evaluate(self, epoch, progress=True):
-        self.net_G.eval()
-        self.net_D.eval()
-        if self.opt.evaluate_n_save_samples > 0:
-            Path(self.opt.evaluate_images_save_folder).mkdir(exist_ok=True, parents=True)
+    def evaluate_batch(self, i, batch_data):
+        self.net_G = self.net_G.eval().to(self.opt.device)
+        self.net_D = self.net_D.eval().to(self.opt.device)
 
-        eval_losses = []
-        displayed_images = 0
-        saved_images = 0
+        inp, tar = batch_data
+        inp, tar = inp.to(self.opt.device), tar.to(self.opt.device)
 
-        iterator = enumerate(self.test_loader)
-        if progress:
-            iterator = tqdm(iterator, total=len(self.test_loader))
-        for i, (inp, tar) in iterator:
-            inp, tar = inp.to(self.opt.device), tar.to(self.opt.device)
+        out = self.net_G(inp)
+        loss = self.crt_l1(out, tar)
 
-            out = self.net_G(inp)
-            loss = self.crt_l1(out, tar)
-            eval_losses.append(loss.item())
-
-            for inp_im, tar_im, out_im in zip(inp, tar, out):
-                if displayed_images < self.opt.evaluate_n_display_samples:
-                    plot_inp_tar_out(inp_im, tar_im, out_im, save_file=None)
-                    displayed_images += 1
-
-                if saved_images < self.opt.evaluate_n_save_samples:
-                    save_filename = os.path.join(
-                        self.opt.evaluate_images_save_folder,
-                        f'epoch-{epoch}-eval-{saved_images}.png'
-                    )
-                    plot_inp_tar_out(inp_im, tar_im, out_im, save_file=save_filename)
-                    saved_images += 1
-
-        self.epoch_eval_loss = np.mean(eval_losses)
+        return loss.item(), inp, tar, out
 
     def log_epoch(self, epoch):
         return super().log_epoch(epoch) + \
                f'[lr={self._get_lr(self.opt_G):.6f}] ' + \
                f'[G_l1_loss={np.mean(self.net_G_l1_losses):.4f}] ' + \
                f'[G_GAN_loss={np.mean(self.net_G_gan_losses):.4f}] ' + \
-               f'[D_loss={np.mean(self.net_D_losses):.4f}] ' + \
-               (f'[eval_loss={self.epoch_eval_loss:.4f}]' if self.this_epoch_evaluated else '')
+               f'[D_loss={np.mean(self.net_D_losses):.4f}] '
 
     def log_batch(self, batch):
         from_batch = self._get_last_batch(batch)

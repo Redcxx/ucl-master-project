@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 from torch import optim, nn
 
-from ml.base_model import BaseModel, BaseTrainModel
+from ml.models.base_model import BaseTrainModel
 from ..options.pix2pix import Pix2pixTrainOptions
 from ..plot_utils import plot_inp_tar_out
 

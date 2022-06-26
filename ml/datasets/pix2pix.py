@@ -1,13 +1,11 @@
 import os
 import random
 
-import numpy as np
-import torch
 from PIL import Image
 from torchvision import transforms
 from torchvision.transforms import InterpolationMode
 
-from ml.base_dataset import BaseDataset
+from ml.datasets.base_dataset import BaseDataset
 from ml.file_utils import get_all_image_paths
 from ml.options.pix2pix import Pix2pixTrainOptions
 

@@ -74,14 +74,10 @@
 - Started reading about nerf.
 - abit busy cause working with my cv
 
-
-
 ### 21 Jun
 
 - 4-8 computing hardware
 - nerf: light field demo from Google
-
-
 
 ### 23 Jun
 
@@ -89,3 +85,16 @@
 - failed to connect to gpu machine
 - found a bunch of image segmentation models, but not for 2d cartoon characters
   - human segmentation model performs poorly on cartoon style characters
+
+### 24 Jun
+
+- Got a new batch of data
+  - finished preprocess them
+
+### 26 Jun
+
+- pretrain model seems to be good
+  - try pretrain own model
+    - gathered 20k images
+    - extract line segments using various methods
+    - implemented xdog, line extraction using some models as well

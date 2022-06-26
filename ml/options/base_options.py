@@ -26,6 +26,9 @@ class BaseOptions(ABC):
         # Model
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
+        # Dataset
+        self.a_to_b = True
+
         # reproducibility
         random.seed(self.random_seed)
         np.random.seed(self.random_seed)
@@ -45,66 +48,37 @@ class BaseOptions(ABC):
     @abstractmethod
     def tag(self): pass
 
-    @property
-    @abstractmethod
-    def a_to_b(self): pass
-
 
 class BaseInferenceOptions(BaseOptions, ABC):
 
     def __init__(self):
         super().__init__()
-
-    @property
-    @abstractmethod
-    def images_folder_path(self): pass
+        self.images_folder_path = None
 
 
 class BaseTrainOptions(BaseOptions, ABC):
     def __init__(self):
         super().__init__()
 
-    # training
+        # Training
+        self.batch_size = 16
+        self.start_epoch = 1
+        self.end_epoch = 100
+        self.eval_freq = 10
+        self.log_freq = 1
+        self.save_freq = 10
+        self.batch_log_freq = 100
 
-    @property
-    @abstractmethod
-    def batch_size(self): pass
+        # Dataset
+        self.num_workers = 4
+        self.pin_memory = True
+        self.shuffle = True
+        self.dataset_train_folder = 'train'
+        self.dataset_test_folder = 'test'
 
-    @property
-    @abstractmethod
-    def start_epoch(self): pass
-
-    @property
-    @abstractmethod
-    def end_epoch(self): pass
-
-    @property
-    @abstractmethod
-    def eval_freq(self): pass
-
-    @property
-    @abstractmethod
-    def log_freq(self): pass
-
-    @property
-    @abstractmethod
-    def save_freq(self): pass
-
-    @property
-    @abstractmethod
-    def batch_log_freq(self): pass
-
-    # datasets
-
-    @property
-    @abstractmethod
-    def num_workers(self): pass
-
-    @property
-    @abstractmethod
-    def pin_memory(self): pass
-
-    @property
-    @abstractmethod
-    def shuffle(self): pass
+        # Evaluate
+        self.eval_n_display_samples = 0
+        self.eval_n_save_samples = 10
+        self.eval_images_save_folder = f'eval-images'
+        self.eval_show_progress = True
 

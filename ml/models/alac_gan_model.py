@@ -10,12 +10,12 @@ from torch.autograd import grad
 from tqdm import tqdm
 
 from .alac_gan_partials import NetG, NetD, NetF, NetI, WarmUpLRScheduler
-from ml.base_model import BaseModel
-from ..base_options import BaseTrainOptions, BaseInferenceOptions
+from ml.models.base_model import BaseTrainModel
+from ml.options.base_options import BaseTrainOptions, BaseInferenceOptions
 from ..plot_utils import plot_inp_tar_out
 
 
-class AlacGANModel(BaseModel):
+class AlacTrainModel(BaseTrainModel):
 
     def __init__(self, opt: Union[BaseTrainOptions, BaseInferenceOptions]):
         super().__init__(opt)
@@ -246,7 +246,7 @@ class AlacGANModel(BaseModel):
     def evaluate(self, epoch, progress=False):
         self.net_G.eval()
         if self.opt.evaluate_save_images:
-            Path(self.opt.evaluate_images_save_folder).mkdir(exist_ok=True, parents=True)
+            Path(self.opt.eval_images_save_folder).mkdir(exist_ok=True, parents=True)
 
         eval_losses = []
         iterator = enumerate(self.opt.test_loader)
@@ -267,11 +267,11 @@ class AlacGANModel(BaseModel):
             loss = self.crt_mse(fake_cim, real_cim)
             eval_losses.append(loss.item())
 
-            if i < self.opt.evaluate_n_display_samples:
+            if i < self.opt.eval_n_display_samples:
                 plot_inp_tar_out(real_sim, real_cim, fake_cim, save_file=None)
 
             if self.opt.evaluate_save_images:
-                save_filename = os.path.join(self.opt.evaluate_images_save_folder, f'epoch-{epoch}-eval-{i}.png')
+                save_filename = os.path.join(self.opt.eval_images_save_folder, f'epoch-{epoch}-eval-{i}.png')
                 plot_inp_tar_out(real_sim, real_cim, fake_cim, save_file=save_filename)
 
         self.epoch_eval_loss = np.mean(eval_losses)

@@ -77,9 +77,9 @@ class Pix2pixTrainModel(BaseTrainModel):
             for inp, tar in zip(inp_batch, tar_batch):
                 fig = plt.figure(figsize=(3, 6))
                 plt.subplot(1, 2, 1)
-                plt.imshow(inp)
+                plt.imshow(inp.permute(1, 2, 0))
                 plt.subplot(1, 2, 2)
-                plt.imshow(tar)
+                plt.imshow(tar.permute(1, 2, 0))
                 plt.savefig(f'sanity_check-{i}.jpg', bbox_inches='tight')
                 plt.close(fig)
                 i += 1

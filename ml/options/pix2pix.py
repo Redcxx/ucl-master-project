@@ -32,7 +32,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.optimizer_beta2 = 0.999
         self.init_gain = 0.02  # default 0.02
         self.weight_decay = 0  # default 0
-        self.decay_epochs = 20
+        self.decay_epochs = 10
 
         # Loss
         self.l1_lambda = 100.0  # encourage l1 distance to actual output
@@ -57,19 +57,19 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
     def start_epoch(self): return 1
 
     @property
-    def end_epoch(self): return 120
+    def end_epoch(self): return 60
 
     @property
-    def eval_freq(self): return 10
+    def eval_freq(self): return 5
 
     @property
     def log_freq(self): return 1
 
     @property
-    def save_freq(self): return 10
+    def save_freq(self): return 1
 
     @property
-    def batch_log_freq(self): return 500
+    def batch_log_freq(self): return 100
 
     @property
     def num_workers(self):
@@ -91,9 +91,9 @@ def _discriminator_config():
             # {
             #     'filters': 512,
             # },
-            {
-                'filters': 512,
-            },
+            # {
+            #     'filters': 512,
+            # },
             {
                 'filters': 512,
             },
@@ -148,11 +148,11 @@ def _generator_config():
                 'dropout': True,
                 'skip_connection': True
             },
-            {
-                'filters': 512,
-                'dropout': True,
-                'skip_connection': True
-            },
+            # {
+            #     'filters': 512,
+            #     'dropout': True,
+            #     'skip_connection': True
+            # },
             # {
             #     'filters': 512,
             #     'dropout': True,

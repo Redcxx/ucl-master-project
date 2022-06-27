@@ -119,8 +119,21 @@ class AlacGANTrainModel(BaseTrainModel):
     def _sanity_check(self):
         print('Generating Sanity Checks')
         # see if model architecture is alright
-        summary(self.net_G, torch.rand(self.opt.batch_size, 3, self.opt.image_size, self.opt.image_size).to(self.opt.device))
-        summary(self.net_D, torch.rand(self.opt.batch_size, 6, self.opt.image_size, self.opt.image_size).to(self.opt.device))
+        summary(
+            self.net_G,
+            (
+                torch.rand(self.opt.batch_size, 1, self.opt.image_size, self.opt.image_size).to(self.opt.device),
+                torch.rand(self.opt.batch_size, 4, self.opt.image_size//4, self.opt.image_size//4).to(self.opt.device),
+                torch.rand(self.opt.batch_size, 512, 32, 32).to(self.opt.device),
+            )
+        )
+        summary(
+            self.net_D,
+            (
+                torch.rand(self.opt.batch_size, 3, self.opt.image_size, self.opt.image_size).to(self.opt.device),
+                torch.rand(self.opt.batch_size, 512, 32, 32).to(self.opt.device),
+            )
+        )
         # get some data and see if it looks good
         i = 0
         for inp_batch, tar_batch in self.train_loader:
@@ -135,7 +148,7 @@ class AlacGANTrainModel(BaseTrainModel):
 
     def pre_train(self):
         super().pre_train()
-        # self._sanity_check()
+        self._sanity_check()
 
     def pre_epoch(self):
         super().pre_epoch()
@@ -201,8 +214,6 @@ class AlacGANTrainModel(BaseTrainModel):
             # get sketch feature
             feat_sim = self.net_I(real_sim).detach()
             # generate fake color image
-            print('netG')
-            print(real_sim.shape, hint.shape, feat_sim.shape)
             fake_cim = self.net_G(real_sim, hint, feat_sim).detach()
 
         # ask discriminator to calculate loss
@@ -212,8 +223,6 @@ class AlacGANTrainModel(BaseTrainModel):
         errD_fake.backward(retain_graph=True)  # backward on score on real
 
         # train with real
-        print('netD')
-        print(real_cim.shape, feat_sim.shape)
         errD_real = self.net_D(real_cim, feat_sim)
         errD_real = errD_real.mean(0).view(1)
         errD = errD_real - errD_fake

@@ -39,7 +39,7 @@ class AlacGANTrainDataset(BaseDataset):
             transforms.Resize(opt.image_size, InterpolationMode.BICUBIC),
             transforms.ToTensor(),
             transforms.Lambda(jitter),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            transforms.Normalize(0.5, 0.5)
         ])
 
     def __len__(self):

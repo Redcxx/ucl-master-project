@@ -21,7 +21,7 @@ class AlacGANTrainOptions(BaseTrainOptions):
         self.batch_log_freq = 100
 
         # Dataset
-        self.dataset_dir = './alacgan_colorization_data'
+        self.dataset_root = './alacgan_colorization_data'
         self.a_to_b = True
 
         # Optimizer

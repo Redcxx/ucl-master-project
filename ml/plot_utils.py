@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 def plot_im(tensor):
     im = tensor.cpu().detach().numpy()
     im = unnormalize_im(im)
-    im = im.transpose(1, 2, 0)
+    im = im.transpose(1, 2, 0).squeeze()
     plt.imshow(im)
 
 

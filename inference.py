@@ -7,7 +7,7 @@ def main():
     name = 'alac_gan'
     opt = create_inference_options(name)
     inference_loader = create_inference_dataloaders(opt, name)
-    model = create_inference_model(opt, inference_loader)
+    model = create_inference_model(opt, inference_loader, name)
 
     print('Inference started')
     model.inference()

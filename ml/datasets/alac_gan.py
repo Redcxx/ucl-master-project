@@ -162,7 +162,7 @@ class RandomSizedCrop(object):
                 img = img.crop((x1, y1, x1 + w, y1 + h))
                 assert (img.size == (w, h))
 
-                return img.resize((self.size, self.size), self.interpolation)
+                return img.resize((self.size, self.size), Image.BICUBIC)
 
         # Fallback
         scale = transforms.Resize(self.size, self.interpolation)

@@ -14,11 +14,12 @@ class AlacGANTrainOptions(BaseTrainOptions):
         # Training
         self.batch_size = 16
         self.start_epoch = 1
-        self.end_epoch = 60
+        self.end_epoch = 30
         self.eval_freq = 5
         self.log_freq = 1
         self.save_freq = 1
         self.batch_log_freq = 100
+        self.image_size = 512
 
         # Dataset
         self.dataset_root = './alacgan_colorization_data'

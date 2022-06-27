@@ -11,7 +11,7 @@ from .alac_gan_partials import NetG, NetD, NetF, NetI, WarmUpLRScheduler
 from ..options.alac_gan import AlacGANTrainOptions
 
 
-class AlacTrainModel(BaseTrainModel):
+class AlacGANTrainModel(BaseTrainModel):
 
     def __init__(self, opt: AlacGANTrainOptions, train_loader, test_loader):
         super().__init__(opt, train_loader, test_loader)

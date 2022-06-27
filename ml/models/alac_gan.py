@@ -157,7 +157,7 @@ class AlacGANTrainModel(BaseTrainModel):
         super().pre_batch(epoch, batch)
 
     def _mask_gen(self):
-        image_size = 512
+        image_size = self.opt.image_size
         maskS = image_size // 4
 
         mask1 = torch.cat(

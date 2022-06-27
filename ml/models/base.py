@@ -281,8 +281,8 @@ class BaseTrainModel(BaseModel, ABC):
         from_batch = self._get_last_batch(batch)
 
         text = f'[batch={from_batch}-{batch}] ' + \
-               f'[batch_time={format_time(curr_time - self.last_batch_time)}] ' + \
-               f'[train_time={format_time(curr_time - self.training_start_time)}] '
+               f'[train_time={format_time(curr_time - self.training_start_time)}] ' + \
+               f'[batch_time={format_time(curr_time - self.last_batch_time)}] '
 
         self.last_batch_time = curr_time
         return text

@@ -58,6 +58,45 @@ class AlacGANTrainDataset(BaseDataset):
         return c_im, v_im, s_im
 
 
+
+class AlacGANTestDataset(BaseDataset):
+
+    def __init__(self, opt: AlacGANTrainOptions):
+        super().__init__(opt)
+        root = os.path.join(opt.dataset_root, opt.dataset_train_folder)
+        self.paths = sorted(get_all_image_paths(root))
+        self.a_to_b = opt.a_to_b
+
+        self.c_trans = transforms.Compose([
+            transforms.Resize(opt.image_size, InterpolationMode.BICUBIC),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
+
+        self.v_trans = transforms.Compose([
+            RandomSizedCrop(opt.image_size // 4, InterpolationMode.BICUBIC),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
+
+        self.s_trans = transforms.Compose([
+            transforms.Resize(opt.image_size, InterpolationMode.BICUBIC),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
+
+    def __len__(self):
+        return len(self.paths)
+
+    def __getitem__(self, i):
+        A, B = self._split_image(self._read_im(self.paths[i]))
+        s_im, c_im = (A, B) if self.a_to_b else (B, A)
+
+        c_im, v_im, s_im = self.c_trans(c_im), self.v_trans(c_im), self.s_trans(s_im)
+
+        return c_im, v_im, s_im
+
+
 class RandomCrop(object):
     """Crops the given PIL.Image at a random location to have a region of
     the given size. size can be a tuple (target_height, target_width)

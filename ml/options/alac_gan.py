@@ -1,41 +1,28 @@
-from ml.options.base_options import BaseTrainOptions
+from ml.options.base import BaseTrainOptions
 from ml.options.pix2pix import Pix2pixOptions
 
 
-class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
+class AlacGANTrainOptions(BaseTrainOptions):
+
+    @property
+    def tag(self):
+        return 'alacGAN-train'
 
     def __init__(self):
         super().__init__()
 
-    @property
-    def batch_size(self): return 4
+        # Training
+        self.batch_size = 16
+        self.start_epoch = 1
+        self.end_epoch = 60
+        self.eval_freq = 5
+        self.log_freq = 1
+        self.save_freq = 1
+        self.batch_log_freq = 100
 
-    @property
-    def start_epoch(self): return 1
+        # Dataset
+        self.dataset_dir = './alacgan_colorization_data'
+        self.a_to_b = True
 
-    @property
-    def end_epoch(self): return 100
-
-    @property
-    def eval_freq(self): return 10
-
-    @property
-    def log_freq(self): return 1
-
-    @property
-    def save_freq(self): return 10
-
-    @property
-    def batch_log_freq(self): return 100
-
-    @property
-    def num_workers(self): return 4
-
-    @property
-    def pin_memory(self): return True
-
-    @property
-    def shuffle(self): return True
-
-    @property
-    def a_to_b(self): return True
+        # Optimizer
+        self.lr = 0.0002

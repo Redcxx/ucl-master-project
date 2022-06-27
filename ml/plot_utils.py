@@ -33,6 +33,15 @@ def plot_inp_tar_out(inp, tar, out, save_file=None):
     return plot_h_images(
         [inp, tar, out],
         ['input', 'target', 'output'],
-        (10, 10),
+        (5, 10),
+        save_file=save_file
+    )
+
+
+def plot_inp_tar(inp, tar, save_file=None):
+    return plot_h_images(
+        [inp, tar],
+        ['input', 'target'],
+        (5, 10),
         save_file=save_file
     )

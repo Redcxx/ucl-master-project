@@ -5,48 +5,22 @@ from PIL import Image
 from torchvision import transforms
 from torchvision.transforms import InterpolationMode
 
-from ml.datasets.base_dataset import BaseDataset
+from ml.datasets.base import BaseDataset
+from ml.datasets.default import DefaultTestDataset
 from ml.file_utils import get_all_image_paths
 from ml.options.pix2pix import Pix2pixTrainOptions
 
 
-# def to_float_tensor(pil_im):
-#     arr = np.array(pil_im)
-#     # print(arr.shape)
-#     if np.issubdtype(arr.dtype, np.int):
-#         arr = arr.astype(np.float32) / 255
-#     else:
-#         arr = arr.astype(np.float32)
-#     tensor = torch.from_numpy(arr).permute(2, 0, 1)
-#     # print(tensor.shape)
-#     return tensor
-
-
-class Pix2pixTestDataset(BaseDataset):
-
+class Pix2pixTestDataset(DefaultTestDataset):
     def __init__(self, opt: Pix2pixTrainOptions):
-        super().__init__()
-        root = os.path.join(opt.dataset_dir, opt.dataset_test_folder)
-        self.paths = sorted(get_all_image_paths(root))
-        self.a_to_b = opt.a_to_b
-        self.transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ])
-
-    def __len__(self):
-        return len(self.paths)
-
-    def __getitem__(self, i):
-        A, B = self._split_image(self._read_im(self.paths[i]))
-        A, B = self.transform(A), self.transform(B)
-        return (A, B) if self.a_to_b else (B, A)
+        super().__init__(opt)
 
 
 class Pix2pixTrainDataset(BaseDataset):
 
     def __init__(self, opt: Pix2pixTrainOptions):
-        super().__init__()
+        super().__init__(opt)
+        self.opt = opt
         root = os.path.join(opt.dataset_dir, opt.dataset_train_folder)
         self.paths = sorted(get_all_image_paths(root))
         self.a_to_b = opt.a_to_b
@@ -69,8 +43,8 @@ class Pix2pixTrainDataset(BaseDataset):
         additional_transforms = []
 
         if self.random_jitter:
-            new_size = 572
-            old_size = 512
+            old_size = self.opt.image_size
+            new_size = int(old_size * 1.2)
 
             rand_x = random.randint(0, new_size - old_size)
             rand_y = random.randint(0, new_size - old_size)
@@ -80,23 +54,21 @@ class Pix2pixTrainDataset(BaseDataset):
                 transforms.Lambda(lambda im: self._crop(im, (rand_x, rand_y), (old_size, old_size)))
             ]
 
-        if self.random_mirror:
-            flip = random.random() > 0.5
+        if self.random_mirror and random.random() > 0.5:
             additional_transforms += [
-                transforms.Lambda(lambda im: self._flip(im, flip)),
+                transforms.Lambda(lambda im: self._flip(im)),
             ]
 
         return transforms.Compose([
+            transforms.Resize(self.opt.image_size, interpolation=InterpolationMode.BICUBIC, antialias=True),
             *additional_transforms,
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
 
     @staticmethod
-    def _flip(im, flip):
-        if flip:
-            return im.transpose(Image.FLIP_LEFT_RIGHT)
-        return im
+    def _flip(im):
+        return im.transpose(Image.FLIP_LEFT_RIGHT)
 
     @staticmethod
     def _crop(im, pos, size):

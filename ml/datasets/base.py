@@ -6,7 +6,15 @@ from torch.utils.data.dataset import Dataset
 
 class BaseDataset(Dataset, ABC):
 
-    def __init__(self):
+    def __init__(self, opt):
+        self.opt = opt
+
+    @abstractmethod
+    def __len__(self):
+        pass
+
+    @abstractmethod
+    def __getitem__(self, i):
         pass
 
     @staticmethod
@@ -21,11 +29,3 @@ class BaseDataset(Dataset, ABC):
         B = AB.crop((w2, 0, w, h))
 
         return A, B
-
-    @abstractmethod
-    def __len__(self):
-        pass
-
-    @abstractmethod
-    def __getitem__(self, i):
-        pass

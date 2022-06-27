@@ -1,6 +1,6 @@
 from abc import ABC
 
-from ml.options.base_options import BaseTrainOptions
+from ml.options.base import BaseTrainOptions
 
 
 class Pix2pixOptions(ABC):
@@ -17,8 +17,18 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
     def __init__(self):
         super().__init__()
 
+        # Training
+        self.batch_size = 16
+        self.start_epoch = 1
+        self.end_epoch = 60
+        self.eval_freq = 5
+        self.log_freq = 1
+        self.save_freq = 1
+        self.batch_log_freq = 100
+
         # Dataset
         self.dataset_dir = './alacgan_colorization_data'
+        self.a_to_b = True
 
         # Model
         self.generator_config = _generator_config()
@@ -39,42 +49,6 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # transforms
         self.random_jitter = True
         self.random_mirror = True
-
-    @property
-    def a_to_b(self): return True
-
-    @property
-    def batch_size(self): return 16
-
-    @property
-    def start_epoch(self): return 1
-
-    @property
-    def end_epoch(self): return 60
-
-    @property
-    def eval_freq(self): return 5
-
-    @property
-    def log_freq(self): return 1
-
-    @property
-    def save_freq(self): return 1
-
-    @property
-    def batch_log_freq(self): return 100
-
-    @property
-    def num_workers(self):
-        return 4
-
-    @property
-    def pin_memory(self):
-        return True
-
-    @property
-    def shuffle(self):
-        return True
 
 
 def _discriminator_config():

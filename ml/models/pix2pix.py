@@ -4,15 +4,18 @@ from matplotlib import pyplot as plt
 from torch import optim, nn
 from torchsummaryX import summary
 
-from ml.models.base_model import BaseTrainModel
+from ml.models.base import BaseTrainModel
 from .pix2pix_partials import Generator, Discriminator
 from ..criterion.GANBCELoss import GANBCELoss
 from ..options.pix2pix import Pix2pixTrainOptions
+from ..plot_utils import plot_inp_tar
 
 
 class Pix2pixTrainModel(BaseTrainModel):
 
     def __init__(self, opt: Pix2pixTrainOptions, train_loader, test_loader):
+        super().__init__(opt, train_loader, test_loader)
+
         self.opt = opt
 
         # network
@@ -36,8 +39,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         self.net_G_l1_losses = []
         self.net_D_losses = []
 
-        # declare before init
-        super().__init__(opt, train_loader, test_loader)
+        self.setup()
 
     def _init_fixed(self):
         self.crt_gan = GANBCELoss().to(self.opt.device)
@@ -45,38 +47,32 @@ class Pix2pixTrainModel(BaseTrainModel):
         self.sch_G = optim.lr_scheduler.LambdaLR(self.opt_G, lr_lambda=self._decay_rule)
         self.sch_D = optim.lr_scheduler.LambdaLR(self.opt_D, lr_lambda=self._decay_rule)
 
-    def init_from_train_checkpoint(self, checkpoint):
+    def setup_from_train_checkpoint(self, checkpoint):
         _prev_opt, self.net_G, self.net_D, self.opt_G, self.opt_D = checkpoint
         self._init_fixed()
 
-    def init_from_opt(self):
+    def setup_from_opt(self, opt):
         # generator
-        self.net_G = Generator(self.opt).to(self.opt.device).apply(self._gaussian_init_weight)
-        self.net_D = Discriminator(self.opt).to(self.opt.device).apply(self._gaussian_init_weight)
-        self.opt_G = optim.Adam(self.net_G.parameters(), lr=self.opt.lr,
-                                betas=(self.opt.optimizer_beta1, self.opt.optimizer_beta2),
-                                weight_decay=self.opt.weight_decay)
-        self.opt_D = optim.Adam(self.net_D.parameters(), lr=self.opt.lr,
-                                betas=(self.opt.optimizer_beta1, self.opt.optimizer_beta2),
-                                weight_decay=self.opt.weight_decay)
+        self.net_G = Generator(opt).to(opt.device).apply(self._gaussian_init_weight)
+        self.net_D = Discriminator(opt).to(opt.device).apply(self._gaussian_init_weight)
+        self.opt_G = optim.Adam(self.net_G.parameters(), lr=opt.lr,
+                                betas=(opt.optimizer_beta1, opt.optimizer_beta2),
+                                weight_decay=opt.weight_decay)
+        self.opt_D = optim.Adam(self.net_D.parameters(), lr=opt.lr,
+                                betas=(opt.optimizer_beta1, opt.optimizer_beta2),
+                                weight_decay=opt.weight_decay)
         self._init_fixed()
 
     def _sanity_check(self):
         print('Generating Sanity Checks')
         # see if model architecture is alright
-        summary(self.net_G, torch.rand(4, 3, 512, 512).to(self.opt.device))
-        summary(self.net_D, torch.rand(4, 6, 512, 512).to(self.opt.device))
+        summary(self.net_G, torch.rand(self.opt.batch_size, 3, self.opt.image_size, self.opt.image_size).to(self.opt.device))
+        summary(self.net_D, torch.rand(self.opt.batch_size, 6, self.opt.image_size, self.opt.image_size).to(self.opt.device))
         # get some data and see if it looks good
         i = 0
         for inp_batch, tar_batch in self.train_loader:
             for inp, tar in zip(inp_batch, tar_batch):
-                fig = plt.figure(figsize=(3, 6))
-                plt.subplot(1, 2, 1)
-                plt.imshow(inp.permute(1, 2, 0))
-                plt.subplot(1, 2, 2)
-                plt.imshow(tar.permute(1, 2, 0))
-                plt.savefig(f'sanity_check-{i}.jpg', bbox_inches='tight')
-                plt.close(fig)
+                plot_inp_tar(inp, tar)
                 i += 1
                 if i > 5:
                     break
@@ -206,8 +202,7 @@ class Pix2pixTrainModel(BaseTrainModel):
 
         opt_dict = checkpoint['opt']
         loaded_opt = Pix2pixTrainOptions()
-        for k, v in opt_dict:
-            setattr(loaded_opt, k, v)
+        loaded_opt.load_saved_dict(opt_dict)
 
         net_G = Generator(loaded_opt).to(self.opt.device)
         net_D = Discriminator(loaded_opt).to(self.opt.device)

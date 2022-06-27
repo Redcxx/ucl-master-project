@@ -1,4 +1,4 @@
-from ml.models.base_model import BaseTrainModel
+from ml.models.base import BaseTrainModel
 from ml.file_utils import _find_cls_using_name
 
 

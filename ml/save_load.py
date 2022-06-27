@@ -5,12 +5,12 @@ from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 from pydrive2.settings import LoadSettingsFile
 
-from ml.options.base_options import BaseOptions
+from ml.options.base import BaseOptions
 
 _DRIVE_AND_FOLDER = None
 
 
-def ensure_folder_on_drive(drive, folder_name, parent_id=None):
+def ensure_folder_on_drive(drive, folder_name, parent_folder=None):
     folders = drive.ListFile({
         # see https://developers.google.com/drive/api/guides/search-files
         'q': "mimeType = 'application/vnd.google-apps.folder'"
@@ -26,14 +26,14 @@ def ensure_folder_on_drive(drive, folder_name, parent_id=None):
         raise AssertionError('Multiple Folders of the same name detected')
 
     # folder not found, create a new one at root
-    print(f'Folder {folder_name} with parent id {parent_id} not found, creating... ', end='')
+    print(f'Folder {folder_name} with parent {parent_folder["name"]} not found, creating... ', end='')
 
     folder = drive.CreateFile({
         'title': folder_name,
         "parents": [{
             "kind": "drive#fileLink",
-            "id": parent_id
-        }] if parent_id else [],
+            "id": parent_folder['id']
+        }] if parent_folder else [],
         "mimeType": "application/vnd.google-apps.folder"
     })
     folder.Upload()
@@ -58,7 +58,7 @@ def init_drive_and_folder(opt):
         g_auth.CommandLineAuth()
         drive = GoogleDrive(g_auth)
         working_folder = ensure_folder_on_drive(drive, opt.working_folder)
-        session_folder = ensure_folder_on_drive(drive, opt.run_id, working_folder['id'])
+        session_folder = ensure_folder_on_drive(drive, opt.run_id, parent_folder=working_folder)
         print(f'Authentication Finished')
 
         _DRIVE_AND_FOLDER = drive, session_folder

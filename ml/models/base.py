@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from ml.misc_utils import format_time, get_center_text
-from ml.options.base_options import BaseOptions, BaseTrainOptions, BaseInferenceOptions
+from ml.options.base import BaseOptions, BaseTrainOptions, BaseInferenceOptions
 from ml.plot_utils import plot_inp_tar_out
 from ml.save_load import init_drive_and_folder, save_file, load_file
 
@@ -23,20 +23,6 @@ class BaseModel(ABC):
         self.opt = opt
         init_drive_and_folder(self.opt)  # for saving and loading
 
-    # def pre_train(self):
-    #     shutil.rmtree(self.opt.inference_save_folder, ignore_errors=True)
-
-    @abstractmethod
-    def get_checkpoint(self) -> Dict:
-        pass
-
-    def save_checkpoint(self, tag) -> None:
-        print('Saving checkpoint ... ', end='')
-        file_name = f'{self.opt.run_id}_{tag}.ckpt'
-        torch.save(self.get_checkpoint(), file_name)
-        save_file(self.opt, file_name, local=False)
-        print(f'done: {file_name}')
-
     def load_checkpoint(self, tag):
         print('Loading checkpoint ... ', end='')
         file_name = f'{self.opt.run_id}_{tag}.ckpt'
@@ -44,26 +30,48 @@ class BaseModel(ABC):
         print(f'done: {file_name}')
         return torch.load(file_name)
 
+    # abstract subclass should implement this method
+    # concrete subclass should call this method in __init__
+    @abstractmethod
+    def setup(self):
+        pass
+
 
 class BaseInferenceModel(BaseModel, ABC):
-    def __init__(self, opt: BaseInferenceOptions):
+    def __init__(self, opt: BaseInferenceOptions, inference_loader: DataLoader):
         super().__init__(opt)
         self.opt = opt
 
-        self.init_from_checkpoint(self.load_checkpoint('latest'))
-        self.inference_loader = self.create_inference_loader()
+        self.inference_loader = inference_loader
 
-    @abstractmethod
-    def create_inference_loader(self):
-        pass
+    def setup(self):
+        self.init_from_checkpoint(self.load_checkpoint('latest'))
 
     @abstractmethod
     def init_from_checkpoint(self, checkpoint):
         pass
 
     @abstractmethod
-    def inference(self):
+    def inference_batch(self, i, batch_data) -> Tuple[Tensor, Tensor, Tensor]:
         pass
+
+    def inference(self):
+        # create output directory, delete existing one
+        save_path = Path(self.opt.output_images_path)
+        save_path.mkdir(exist_ok=True, parents=True)
+
+        iterator = enumerate(self.inference_loader)
+        i = 0
+        if self.opt.show_progress:
+            iterator = tqdm(iterator, total=len(self.inference_loader), desc='Inference')
+        for i, batch_data in iterator:
+
+            inp_batch, tar_batch, out_batch = self.inference_batch(i, batch_data)
+
+            for inp_im, tar_im, out_im in zip(inp_batch, tar_batch, out_batch):
+                save_filename = os.path.join(self.opt.output_images_path, f'inference-{i}.png')
+                plot_inp_tar_out(inp_im, tar_im, out_im, save_file=save_filename)
+                i += 1
 
 
 class BaseTrainModel(BaseModel, ABC):
@@ -71,17 +79,6 @@ class BaseTrainModel(BaseModel, ABC):
     def __init__(self, opt: BaseTrainOptions, train_loader: DataLoader, test_loader: DataLoader):
         super().__init__(opt)
         self.opt = opt
-
-        if self.opt.start_epoch > 1:
-            # try resume training
-            print('Loading training checkpoint ...', end='')
-            self.init_from_train_checkpoint(self.load_checkpoint(tag=f'{opt.start_epoch - 1}'))
-            print('done')
-
-        else:
-            print('Initializing new model ...', end='')
-            self.init_from_opt()
-            print('done')
 
         self.train_loader = train_loader
         self.test_loader = test_loader
@@ -97,12 +94,35 @@ class BaseTrainModel(BaseModel, ABC):
 
         self.epoch_eval_loss = None
 
+    def setup(self):
+        if self.opt.resume_training or self.opt.start_epoch > 1:
+            # try resume training
+            print('Loading training checkpoint ...', end='')
+            self.setup_from_train_checkpoint(self.load_checkpoint(tag=f'{self.opt.start_epoch - 1}'))
+            print('done')
+
+        else:
+            print('Initializing new model ...', end='')
+            self.setup_from_opt(self.opt)
+            print('done')
+
     @abstractmethod
-    def init_from_train_checkpoint(self, checkpoint):
+    def get_checkpoint(self) -> Dict:
+        pass
+
+    def save_checkpoint(self, tag) -> None:
+        print('Saving checkpoint ... ', end='')
+        file_name = f'{self.opt.run_id}_{tag}.ckpt'
+        torch.save(self.get_checkpoint(), file_name)
+        save_file(self.opt, file_name, local=False)
+        print(f'done: {file_name}')
+
+    @abstractmethod
+    def setup_from_train_checkpoint(self, checkpoint):
         pass
 
     @abstractmethod
-    def init_from_opt(self):
+    def setup_from_opt(self, opt):
         pass
 
     def _print_title(self):
@@ -179,7 +199,7 @@ class BaseTrainModel(BaseModel, ABC):
             eval_loss, inp_batch, tar_batch, out_batch = self.evaluate_batch(i, batch_data)
             eval_losses.append(eval_loss)
 
-            for inp_im, tar_im, out_im in zip(inp_batch, tar_batch, out_batch)
+            for inp_im, tar_im, out_im in zip(inp_batch, tar_batch, out_batch):
                 if displayed_images < self.opt.eval_n_display_samples:
                     plot_inp_tar_out(inp_im, tar_im, out_im, save_file=None)
                     displayed_images += 1
@@ -279,3 +299,4 @@ class BaseTrainModel(BaseModel, ABC):
     def _set_requires_grad(net, requires_grad):
         for param in net.parameters():
             param.requires_grad = requires_grad
+        return net

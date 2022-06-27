@@ -1,4 +1,4 @@
-from ml.options.base_options import BaseTrainOptions
+from ml.options.base import BaseTrainOptions
 from ml.file_utils import _find_cls_using_name
 
 

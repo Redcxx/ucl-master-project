@@ -1,27 +1,20 @@
-import os
-from pathlib import Path
-from typing import Union
+from typing import Tuple
 
 import numpy as np
 import torch
 from scipy.stats import stats
-from torch import optim, nn
+from torch import optim, nn, Tensor
 from torch.autograd import grad
-from tqdm import tqdm
 
+from ml.models.base import BaseTrainModel
 from .alac_gan_partials import NetG, NetD, NetF, NetI, WarmUpLRScheduler
-from ml.models.base_model import BaseTrainModel
-from ml.options.base_options import BaseTrainOptions, BaseInferenceOptions
-from ..plot_utils import plot_inp_tar_out
+from ..options.alac_gan import AlacGANTrainOptions
 
 
 class AlacTrainModel(BaseTrainModel):
 
-    def __init__(self, opt: Union[BaseTrainOptions, BaseInferenceOptions]):
-        super().__init__(opt)
-
-        # set later in pre-train, cannot initialize here because its init calls step()
-        # which may requires attribute from TrainOptions that does not exist in InferenceOptions
+    def __init__(self, opt: AlacGANTrainOptions, train_loader, test_loader):
+        super().__init__(opt, train_loader, test_loader)
 
         # network
         self.net_G = None
@@ -52,39 +45,74 @@ class AlacTrainModel(BaseTrainModel):
         mu, sigma = 1, 0.005
         self.X = stats.truncnorm((0 - mu) / sigma, (1 - mu) / sigma, loc=mu, scale=sigma)
 
+        self.setup()
+
+    def get_checkpoint(self):
+        return {
+            'net_G_state_dict': self.net_G.state_dict(),
+            'net_D_state_dict': self.net_D.state_dict(),
+            'opt_G_state_dict': self.opt_G.state_dict(),
+            'opt_D_state_dict': self.opt_D.state_dict(),
+            'opt': self.opt.saved_dict,
+        }
+
+    def setup_from_train_checkpoint(self, checkpoint):
+        loaded_opt = AlacGANTrainOptions()
+        loaded_opt.load_saved_dict(checkpoint['opt'])
+
+        self.setup_from_opt(loaded_opt)
+
+        self.net_G.load_state_dict(checkpoint['net_G_state_dict'])
+        self.net_D.load_state_dict(checkpoint['net_D_state_dict'])
+
+        self.opt_G.load_state_dict(checkpoint['opt_G_state_dict'])
+        self.opt_D.load_state_dict(checkpoint['opt_D_state_dict'])
+
+    def setup_from_opt(self, opt):
+        # generator
+        self.net_G = NetG(opt).to(self.opt.device)
+        self.net_D = NetD(opt).to(self.opt.device)
+
+        self.opt_G = optim.Adam(self.net_G.parameters(), lr=opt.lr, betas=(0.5, 0.999))
+        self.opt_D = optim.Adam(self.net_D.parameters(), lr=opt.lr, betas=(0.5, 0.999))
+
+        self._init_fixed()
+
+    def evaluate_batch(self, i, batch_data) -> Tuple[float, Tensor, Tensor, Tensor]:
+        real_cim, real_vim, real_sim = batch_data
+
+        real_cim = real_cim.to(self.opt.device)
+        real_vim = real_vim.to(self.opt.device)
+        real_sim = real_sim.to(self.opt.device)
+
+        mask = self._mask_gen()
+        hint = torch.cat((real_vim * mask, mask), 1)
+        with torch.no_grad():
+            # get sketch feature
+            feat_sim = self.net_I(real_sim).detach()
+
+        fake_cim = self.net_G(real_sim, hint, feat_sim)
+        loss = self.crt_mse(fake_cim, real_cim)
+
+        return loss, real_sim, real_cim, fake_cim
+
     def _init_fixed(self):
         self.net_F = NetF(self.opt).to(self.opt.device)
         self.net_I = NetI(self.opt).to(self.opt.device).eval()
 
-        self.sch_D = WarmUpLRScheduler(self.opt_D, base_lr=0.0001, warmup_steps=0,
+        self.sch_D = WarmUpLRScheduler(self.opt_D, base_lr=self.opt.lr, warmup_steps=0,
                                        warmup_lr=0, last_iter=self.opt.start_epoch - 1)
-        self.sch_G = WarmUpLRScheduler(self.opt_G, base_lr=0.0001, warmup_steps=0,
+        self.sch_G = WarmUpLRScheduler(self.opt_G, base_lr=self.opt.lr, warmup_steps=0,
                                        warmup_lr=0, last_iter=self.opt.start_epoch - 1)
 
         self._set_requires_grad(self.net_F, False)
+        self._set_requires_grad(self.net_I, False)
+
         self.crt_mse = nn.MSELoss()
 
         self.fixed_sketch = torch.tensor(0, device=self.opt.device).float()
         self.fixed_hint = torch.tensor(0, device=self.opt.device).float()
         self.fixed_sketch_feat = torch.tensor(0, device=self.opt.device).float()
-
-    def _init_from_inference_checkpoint(self, checkpoint):
-        self.opt, self.net_G, self.net_D, self.opt_G, self.opt_D = checkpoint
-        self._init_fixed()
-
-    def _init_from_train_checkpoint(self, checkpoint):
-        _prev_opt, self.net_G, self.net_D, self.opt_G, self.opt_D = checkpoint
-        self._init_fixed()
-
-    def _init_from_opt(self):
-        # generator
-        self.net_G = NetG(self.opt).to(self.opt.device)
-        self.net_D = NetD(self.opt).to(self.opt.device)
-
-        self.opt_G = optim.Adam(self.net_G.parameters(), lr=self.opt.lr, betas=(0.5, 0.9))
-        self.opt_D = optim.Adam(self.net_D.parameters(), lr=self.opt.lr, betas=(0.5, 0.9))
-
-        self._init_fixed()
 
     def pre_train(self):
         super().pre_train()
@@ -125,7 +153,6 @@ class AlacTrainModel(BaseTrainModel):
         return gradient_penalty
 
     def train_batch(self, batch, batch_data):
-
         self.net_G.train()
         self.net_D.train()
 
@@ -227,7 +254,6 @@ class AlacTrainModel(BaseTrainModel):
         content_loss.backward()
 
         self.opt_G.step()
-        # batch_time.update(time.time() - end)
 
         return errG.item(), errD.item()
 
@@ -243,38 +269,8 @@ class AlacTrainModel(BaseTrainModel):
         self.sch_G.step(epoch)
         self.sch_D.step(epoch)
 
-    def evaluate(self, epoch, progress=False):
-        self.net_G.eval()
-        if self.opt.evaluate_save_images:
-            Path(self.opt.eval_images_save_folder).mkdir(exist_ok=True, parents=True)
-
-        eval_losses = []
-        iterator = enumerate(self.opt.test_loader)
-        if progress:
-            iterator = tqdm(iterator, total=len(self.opt.test_loader))
-        for i, (real_cim, real_vim, real_sim) in iterator:
-            real_cim = real_cim.to(self.opt.device)
-            real_vim = real_vim.to(self.opt.device)
-            real_sim = real_sim.to(self.opt.device)
-
-            mask = self._mask_gen()
-            hint = torch.cat((real_vim * mask, mask), 1)
-            with torch.no_grad():
-                # get sketch feature
-                feat_sim = self.net_I(real_sim).detach()
-
-            fake_cim = self.net_G(real_sim, hint, feat_sim)
-            loss = self.crt_mse(fake_cim, real_cim)
-            eval_losses.append(loss.item())
-
-            if i < self.opt.eval_n_display_samples:
-                plot_inp_tar_out(real_sim, real_cim, fake_cim, save_file=None)
-
-            if self.opt.evaluate_save_images:
-                save_filename = os.path.join(self.opt.eval_images_save_folder, f'epoch-{epoch}-eval-{i}.png')
-                plot_inp_tar_out(real_sim, real_cim, fake_cim, save_file=save_filename)
-
-        self.epoch_eval_loss = np.mean(eval_losses)
+    def post_train(self):
+        super().post_train()
 
     def log_epoch(self, epoch):
         return super().log_epoch(epoch) + \
@@ -288,33 +284,3 @@ class AlacTrainModel(BaseTrainModel):
         return super().log_batch(batch) + \
                f'[G_loss={np.mean(self.net_G_losses[from_batch - 1:batch]):.4f}] ' + \
                f'[D_loss={np.mean(self.net_D_losses[from_batch - 1:batch]):.4f}] '
-
-    def get_checkpoint(self):
-        return {
-            'net_G_state_dict': self.net_G.state_dict(),
-            'net_D_state_dict': self.net_D.state_dict(),
-            'opt_G_state_dict': self.opt_G.state_dict(),
-            'opt_D_state_dict': self.opt_D.state_dict(),
-            'opt': self.opt.__dict__,
-            'opt_name': self.opt.__class__.__name__
-        }
-
-    def load_checkpoint(self, tag):
-        checkpoint = super().load_checkpoint(tag)
-
-        opt_dict = checkpoint['opt']
-        opt_name = checkpoint['opt_name']
-        loaded_opt = BaseInferenceOptions(**opt_dict) if opt_name == 'InferenceOptions' else BaseTrainOptions(**opt_dict)
-
-        net_G = NetG(loaded_opt).to(self.opt.device)
-        net_D = NetD(loaded_opt).to(self.opt.device)
-        net_G.load_state_dict(checkpoint['net_G_state_dict'])
-        net_D.load_state_dict(checkpoint['net_D_state_dict'])
-
-        opt_G = optim.Adam(net_G.parameters(), lr=loaded_opt.lr, betas=(0.5, 0.9))
-        opt_D = optim.Adam(net_D.parameters(), lr=loaded_opt.lr, betas=(0.5, 0.9))
-        opt_G.load_state_dict(checkpoint['opt_G_state_dict'])
-        opt_D.load_state_dict(checkpoint['opt_D_state_dict'])
-
-        print('Successfully created network with loaded checkpoint')
-        return loaded_opt, net_G, net_D, opt_G, opt_D

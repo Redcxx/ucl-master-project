@@ -28,6 +28,11 @@ class BaseOptions(ABC):
 
         # Dataset
         self.a_to_b = True
+        self.batch_size = 16
+        self.num_workers = 4
+        self.pin_memory = True
+        self.shuffle = True
+        self.image_size = 256
 
         # reproducibility
         random.seed(self.random_seed)
@@ -41,6 +46,10 @@ class BaseOptions(ABC):
             self.saved_dict[key] = value
         super().__setattr__(key, value)
 
+    def load_saved_dict(self, saved_dict):
+        for k, v in saved_dict:
+            setattr(self, k, v)
+
     def __str__(self):
         return pprint.pformat(self.saved_dict)
 
@@ -53,7 +62,10 @@ class BaseInferenceOptions(BaseOptions, ABC):
 
     def __init__(self):
         super().__init__()
-        self.images_folder_path = None
+        self.input_images_path = 'BaseInferenceOptionsInputPath'
+        self.shuffle = False
+        self.output_images_path = 'BaseInferenceOptionsOutputPath'
+        self.show_progress = True
 
 
 class BaseTrainOptions(BaseOptions, ABC):
@@ -61,6 +73,7 @@ class BaseTrainOptions(BaseOptions, ABC):
         super().__init__()
 
         # Training
+        self.lr = 0.0001
         self.batch_size = 16
         self.start_epoch = 1
         self.end_epoch = 100
@@ -68,11 +81,10 @@ class BaseTrainOptions(BaseOptions, ABC):
         self.log_freq = 1
         self.save_freq = 10
         self.batch_log_freq = 100
+        self.resume_training = False
 
         # Dataset
-        self.num_workers = 4
-        self.pin_memory = True
-        self.shuffle = True
+        self.dataset_root = 'BaseTrainOptionDatasetRoot'
         self.dataset_train_folder = 'train'
         self.dataset_test_folder = 'test'
 
@@ -81,4 +93,3 @@ class BaseTrainOptions(BaseOptions, ABC):
         self.eval_n_save_samples = 10
         self.eval_images_save_folder = f'eval-images'
         self.eval_show_progress = True
-

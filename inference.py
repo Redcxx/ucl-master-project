@@ -1,6 +1,6 @@
 from ml.datasets import create_inference_dataloaders
 from ml.models import create_train_model
-from ml.options.base_options import BaseInferenceOptions
+from ml.options.base import BaseInferenceOptions
 
 
 def main():

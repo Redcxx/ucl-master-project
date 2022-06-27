@@ -41,6 +41,7 @@ class AlacGANTrainModel(BaseTrainModel):
         # housekeeping
         self.net_G_losses = []
         self.net_D_losses = []
+        self.grad_penalties = []
         self.epoch_eval_loss = None
 
         # for generating mask
@@ -131,7 +132,7 @@ class AlacGANTrainModel(BaseTrainModel):
             torch.rand(self.opt.batch_size, 512, 32, 32).to(self.opt.device),
         )
         # get some data and see if it looks good
-        i = 0
+        i = 1
         for real_cim, _, real_sim in self.train_loader:
             for inp, tar in zip(real_sim, real_cim):
                 plot_inp_tar(inp, tar, save_file=f'sanity-check-im-{i}.jpg')
@@ -150,6 +151,7 @@ class AlacGANTrainModel(BaseTrainModel):
         super().pre_epoch()
         self.net_G_losses = []
         self.net_D_losses = []
+        self.grad_penalties = []
 
     def pre_batch(self, epoch, batch):
         super().pre_batch(epoch, batch)
@@ -284,13 +286,14 @@ class AlacGANTrainModel(BaseTrainModel):
 
         self.opt_G.step()
 
-        return errG.item(), errD.item()
+        return errG.item(), errD_realer.item(), gradient_penalty.item()
 
     def post_batch(self, epoch, batch, batch_out):
         super().post_batch(epoch, batch, batch_out)
 
         self.net_G_losses.append(batch_out[0])
         self.net_D_losses.append(batch_out[1])
+        self.grad_penalties.append(batch_out[2])
 
     def post_epoch(self, epoch):
         super().post_epoch(epoch)
@@ -306,10 +309,12 @@ class AlacGANTrainModel(BaseTrainModel):
                f'[lr={self._get_lr(self.opt_G):.6f}] ' + \
                f'[G_loss={np.mean(self.net_G_losses):.4f}] ' + \
                f'[D_loss={np.mean(self.net_D_losses):.4f}] ' + \
+               f'[grad_pen={np.mean(self.grad_penalties):.4f}] ' + \
                (f'[eval_loss={self.epoch_eval_loss:.4f}]' if self.this_epoch_evaluated else '')
 
     def log_batch(self, batch):
         from_batch = self._get_last_batch(batch)
         return super().log_batch(batch) + \
                f'[G_loss={np.mean(self.net_G_losses[from_batch - 1:batch]):.4f}] ' + \
-               f'[D_loss={np.mean(self.net_D_losses[from_batch - 1:batch]):.4f}] '
+               f'[D_loss={np.mean(self.net_D_losses[from_batch - 1:batch]):.4f}] ' + \
+               f'[grad_pen={np.mean(self.grad_penalties[from_batch - 1:batch]):.4f}] '

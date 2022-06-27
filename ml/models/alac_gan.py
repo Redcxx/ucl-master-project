@@ -134,7 +134,6 @@ class AlacGANTrainModel(BaseTrainModel):
         i = 0
         for real_cim, _, real_sim in self.train_loader:
             for inp, tar in zip(real_sim, real_cim):
-                print(inp.shape, tar.shape)
                 plot_inp_tar(inp, tar)
                 i += 1
                 if i > 5:

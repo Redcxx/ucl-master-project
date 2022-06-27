@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 
 
 def plot_im(tensor):
-    im = tensor.squeeze().cpu().detach().numpy()
+    im = tensor.cpu().detach().numpy()
     im = unnormalize_im(im)
     im = im.transpose(1, 2, 0)
     plt.imshow(im)

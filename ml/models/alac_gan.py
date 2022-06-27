@@ -2,7 +2,7 @@ from typing import Tuple
 
 import numpy as np
 import torch
-from scipy.stats import stats
+import scipy.stats as stats
 from torch import optim, nn, Tensor
 from torch.autograd import grad
 

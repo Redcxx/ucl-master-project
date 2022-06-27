@@ -217,17 +217,20 @@ class BaseTrainModel(BaseModel, ABC):
 
     @abstractmethod
     def post_epoch(self, epoch):
+
+        if self.opt.save_freq > 0 and (epoch % self.opt.save_freq == 0 or epoch == self.opt.start_epoch):
+            self.save_checkpoint(epoch)
+            self.save_checkpoint('latest')
+
+        if self.opt.log_freq > 0 and (epoch % self.opt.log_freq == 0 or epoch == self.opt.start_epoch):
+            print(self.log_epoch(epoch))
+
         if self.opt.eval_freq > 0 and (epoch % self.opt.eval_freq == 0 or epoch == self.opt.start_epoch):
             self.epoch_eval_loss = self.evaluate(epoch)
         else:
             self.epoch_eval_loss = None
 
-        if self.opt.log_freq > 0 and (epoch % self.opt.log_freq == 0 or epoch == self.opt.start_epoch):
-            print(self.log_epoch(epoch))
 
-        if self.opt.save_freq > 0 and (epoch % self.opt.save_freq == 0 or epoch == self.opt.start_epoch):
-            self.save_checkpoint(epoch)
-            self.save_checkpoint('latest')
 
     @abstractmethod
     def post_train(self):

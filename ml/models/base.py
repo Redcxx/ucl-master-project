@@ -155,6 +155,10 @@ class BaseTrainModel(BaseModel, ABC):
 
         self._print_title()
 
+        eval_path = Path(self.opt.eval_images_save_folder)
+        if eval_path.is_dir():
+            shutil.rmtree(str(eval_path))
+
     @abstractmethod
     def pre_epoch(self):
         self.last_batch_time = time.time()
@@ -182,10 +186,7 @@ class BaseTrainModel(BaseModel, ABC):
     def evaluate(self, epoch):
         if self.opt.eval_n_save_samples > 0:
             # create directory, delete existing one
-            eval_path = Path(self.opt.eval_images_save_folder)
-            if eval_path.is_dir():
-                shutil.rmtree(str(eval_path))
-            eval_path.mkdir(parents=True)
+            Path(self.opt.eval_images_save_folder).mkdir(exist_ok=True, parents=True)
 
         eval_losses = []
         displayed_images = 0

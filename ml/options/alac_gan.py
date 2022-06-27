@@ -27,3 +27,7 @@ class AlacGANTrainOptions(BaseTrainOptions):
 
         # Optimizer
         self.lr = 0.0002
+
+        # Other
+        self.VGG16_PATH = 'vgg16-397923af.pth'
+        self.I2V_PATH = 'i2v.pth'

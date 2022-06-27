@@ -12,7 +12,7 @@ class AlacGANTrainOptions(BaseTrainOptions):
         super().__init__()
 
         # Training
-        self.batch_size = 16
+        self.batch_size = 8
         self.start_epoch = 1
         self.end_epoch = 30
         self.eval_freq = 5

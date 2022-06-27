@@ -46,8 +46,8 @@ class BaseOptions(ABC):
             self.saved_dict[key] = value
         super().__setattr__(key, value)
 
-    def load_saved_dict(self, saved_dict):
-        for k, v in saved_dict:
+    def load_saved_dict(self, saved_dict: dict):
+        for k, v in saved_dict.items():
             setattr(self, k, v)
 
     def __str__(self):

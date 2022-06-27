@@ -21,7 +21,7 @@ class AlacGANInferenceModel(BaseInferenceModel):
         self.net_D = None
         self.net_G = None
         self.net_F = None
-        self.opt = None
+        self.opt = opt
 
         mu, sigma = 1, 0.005
         self.X = stats.truncnorm((0 - mu) / sigma, (1 - mu) / sigma, loc=mu, scale=sigma)
@@ -29,15 +29,14 @@ class AlacGANInferenceModel(BaseInferenceModel):
         self.setup()
 
     def init_from_checkpoint(self, checkpoint):
-        opt = AlacGANTrainOptions()
-        opt.load_saved_dict(checkpoint['opt'])
-        self.opt = opt
+        loaded_opt = AlacGANTrainOptions()
+        loaded_opt.load_saved_dict(checkpoint['opt'])
 
-        self.net_G = NetG().to(self.opt.device)
-        self.net_D = NetD().to(self.opt.device)
+        self.net_G = NetG().to(self.opt.device).eval()
+        self.net_D = NetD().to(self.opt.device).eval()
 
-        self.net_F = NetF(self.opt).to(self.opt.device)
-        self.net_I = NetI(self.opt).to(self.opt.device).eval()
+        self.net_F = NetF(loaded_opt).to(self.opt.device).eval()
+        self.net_I = NetI(loaded_opt).to(self.opt.device).eval()
 
         self.net_G.load_state_dict(checkpoint['net_G_state_dict'])
         self.net_D.load_state_dict(checkpoint['net_D_state_dict'])

@@ -49,6 +49,7 @@ class AlacGANTrainDataset(BaseDataset):
         A, B = self._split_image(self._read_im(self.paths[i]))
         s_im, c_im = (A, B) if self.a_to_b else (B, A)
 
+        s_im = s_im.convert('L')
         # color_im, sketch_im = RandomCrop(512)(Cimg, Simg)
         if random.random() < 0.5:
             c_im, s_im = c_im.transpose(Image.FLIP_LEFT_RIGHT), s_im.transpose(Image.FLIP_LEFT_RIGHT)
@@ -56,7 +57,6 @@ class AlacGANTrainDataset(BaseDataset):
         c_im, v_im, s_im = self.c_trans(c_im), self.v_trans(c_im), self.s_trans(s_im)
 
         return c_im, v_im, s_im
-
 
 
 class AlacGANTestDataset(BaseDataset):
@@ -92,6 +92,7 @@ class AlacGANTestDataset(BaseDataset):
         A, B = self._split_image(self._read_im(self.paths[i]))
         s_im, c_im = (A, B) if self.a_to_b else (B, A)
 
+        s_im = s_im.convert('L')
         c_im, v_im, s_im = self.c_trans(c_im), self.v_trans(c_im), self.s_trans(s_im)
 
         return c_im, v_im, s_im

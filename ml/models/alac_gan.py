@@ -7,10 +7,69 @@ from torch import optim, nn, Tensor
 from torch.autograd import grad
 from torchsummaryX import summary
 
-from ml.models.base import BaseTrainModel
+from ml.models.base import BaseTrainModel, BaseInferenceModel
 from .alac_gan_partials import NetG, NetD, NetF, NetI, WarmUpLRScheduler
-from ..options.alac_gan import AlacGANTrainOptions
+from ..options.alac_gan import AlacGANTrainOptions, AlacGANInferenceOptions
 from ..plot_utils import plot_inp_tar
+
+
+class AlacGANInferenceModel(BaseInferenceModel):
+    def __init__(self, opt: AlacGANInferenceOptions, inference_loader):
+        super().__init__(opt, inference_loader)
+
+        self.net_I = None
+        self.net_D = None
+        self.net_G = None
+        self.net_F = None
+        self.opt = None
+
+        mu, sigma = 1, 0.005
+        self.X = stats.truncnorm((0 - mu) / sigma, (1 - mu) / sigma, loc=mu, scale=sigma)
+
+        self.setup()
+
+    def init_from_checkpoint(self, checkpoint):
+        opt = AlacGANTrainOptions()
+        opt.load_saved_dict(checkpoint['opt'])
+        self.opt = opt
+
+        self.net_G = NetG().to(self.opt.device)
+        self.net_D = NetD().to(self.opt.device)
+
+        self.net_F = NetF(self.opt).to(self.opt.device)
+        self.net_I = NetI(self.opt).to(self.opt.device).eval()
+
+        self.net_G.load_state_dict(checkpoint['net_G_state_dict'])
+        self.net_D.load_state_dict(checkpoint['net_D_state_dict'])
+
+    def _mask_gen(self):
+        image_size = self.opt.image_size
+        maskS = image_size // 4
+
+        mask1 = torch.cat(
+            [torch.rand(1, 1, maskS, maskS).ge(self.X.rvs(1)[0]).float() for _ in range(self.opt.batch_size // 2)], 0)
+        mask2 = torch.cat([torch.zeros(1, 1, maskS, maskS).float() for _ in range(self.opt.batch_size // 2)], 0)
+        mask = torch.cat([mask1, mask2], 0)
+
+        return mask.to(self.opt.device)
+
+    def inference_batch(self, i, batch_data) -> Tuple[Tensor, Tensor, Tensor]:
+        real_cim, real_vim, real_sim = batch_data
+
+        real_cim = real_cim.to(self.opt.device)
+        real_vim = real_vim.to(self.opt.device)
+        real_sim = real_sim.to(self.opt.device)
+
+        mask = self._mask_gen()
+        hint = torch.cat((real_vim * mask, mask), 1)
+        with torch.no_grad():
+            # get sketch feature
+            feat_sim = self.net_I(real_sim).detach()
+
+        fake_cim = self.net_G(real_sim, hint, feat_sim)
+
+        return real_sim, real_cim, fake_cim
+
 
 
 class AlacGANTrainModel(BaseTrainModel):
@@ -97,7 +156,7 @@ class AlacGANTrainModel(BaseTrainModel):
         fake_cim = self.net_G(real_sim, hint, feat_sim)
         loss = self.crt_mse(fake_cim, real_cim)
 
-        return loss, real_sim, real_cim, fake_cim
+        return loss.item(), real_sim, real_cim, fake_cim
 
     def _init_fixed(self):
         self.net_F = NetF(self.opt).to(self.opt.device)

@@ -230,8 +230,6 @@ class BaseTrainModel(BaseModel, ABC):
         else:
             self.epoch_eval_loss = None
 
-
-
     @abstractmethod
     def post_train(self):
         training_end_time = time.time()

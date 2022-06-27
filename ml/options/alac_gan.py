@@ -1,5 +1,20 @@
-from ml.options.base import BaseTrainOptions
-from ml.options.pix2pix import Pix2pixOptions
+from ml.options.base import BaseTrainOptions, BaseInferenceOptions
+
+
+class AlacGANInferenceOptions(BaseInferenceOptions):
+
+    def __init__(self):
+        super().__init__()
+        self.input_images_path = 'inference_images'
+        self.output_images_path = 'output_images'
+        self.image_size = 512
+        self.a_to_b = True
+
+        self.run_id = r'alacGAN-train-2022-06-27-Monday-18h-22m-13s'
+
+    @property
+    def tag(self):
+        return 'alac_gan_inference'
 
 
 class AlacGANTrainOptions(BaseTrainOptions):

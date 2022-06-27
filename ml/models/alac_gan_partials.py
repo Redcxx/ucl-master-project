@@ -122,7 +122,7 @@ class NetG(nn.Module):
         x = self.tunnel3(torch.cat([x, x3], 1))
         x = self.tunnel2(torch.cat([x, x2], 1))
         x = self.tunnel1(torch.cat([x, x1], 1))
-        x = F.tanh(self.exit(torch.cat([x, x0], 1)))
+        x = torch.tanh(self.exit(torch.cat([x, x0], 1)))
 
         return x
 

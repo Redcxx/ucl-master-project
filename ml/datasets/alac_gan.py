@@ -63,7 +63,7 @@ class AlacGANTestDataset(BaseDataset):
 
     def __init__(self, opt: AlacGANTrainOptions):
         super().__init__(opt)
-        root = os.path.join(opt.dataset_root, opt.dataset_train_folder)
+        root = os.path.join(opt.dataset_root, opt.dataset_test_folder)
         self.paths = sorted(get_all_image_paths(root))
         self.a_to_b = opt.a_to_b
 

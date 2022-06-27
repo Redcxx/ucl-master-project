@@ -101,9 +101,9 @@ class AlacGANTrainModel(BaseTrainModel):
         self.net_I = NetI(self.opt).to(self.opt.device).eval()
 
         self.sch_D = WarmUpLRScheduler(self.opt_D, base_lr=self.opt.lr, warmup_steps=0,
-                                       warmup_lr=0, last_iter=self.opt.start_epoch - 1)
+                                       warmup_lr=0, last_iter=self.opt.start_epoch - 2)
         self.sch_G = WarmUpLRScheduler(self.opt_G, base_lr=self.opt.lr, warmup_steps=0,
-                                       warmup_lr=0, last_iter=self.opt.start_epoch - 1)
+                                       warmup_lr=0, last_iter=self.opt.start_epoch - 2)
 
         self._set_requires_grad(self.net_F, False)
         self._set_requires_grad(self.net_I, False)

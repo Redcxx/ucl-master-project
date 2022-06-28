@@ -7,10 +7,10 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
         super().__init__()
         self.input_images_path = 'inference_images'
         self.output_images_path = 'output_images'
-        self.image_size = 512
+        self.image_size = 256
         self.a_to_b = True
 
-        self.run_id = r'alacGAN-train-2022-06-27-Monday-18h-22m-13s'
+        # self.run_id = r'alacGAN-train-2022-06-27-Monday-18h-22m-13s'
 
     @property
     def tag(self):
@@ -34,7 +34,7 @@ class AlacGANTrainOptions(BaseTrainOptions):
         self.log_freq = 1
         self.save_freq = 1
         self.batch_log_freq = 100
-        self.image_size = 512
+        self.image_size = 256
 
         # Dataset
         self.dataset_root = './alacgan_colorization_data'

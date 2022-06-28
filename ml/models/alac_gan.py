@@ -1,8 +1,8 @@
 from typing import Tuple
 
 import numpy as np
-import torch
 import scipy.stats as stats
+import torch
 from torch import optim, nn, Tensor
 from torch.autograd import grad
 from torchsummaryX import summary
@@ -70,7 +70,6 @@ class AlacGANInferenceModel(BaseInferenceModel):
         return real_sim, real_cim, fake_cim
 
 
-
 class AlacGANTrainModel(BaseTrainModel):
 
     def __init__(self, opt: AlacGANTrainOptions, train_loader, test_loader):
@@ -92,6 +91,7 @@ class AlacGANTrainModel(BaseTrainModel):
 
         # loss
         self.crt_mse = None
+        self.crt_l1 = None
         self.fixed_sketch = None
         self.fixed_hint = None
         self.fixed_sketch_feat = None
@@ -153,7 +153,7 @@ class AlacGANTrainModel(BaseTrainModel):
             feat_sim = self.net_I(real_sim).detach()
 
         fake_cim = self.net_G(real_sim, hint, feat_sim)
-        loss = self.crt_mse(fake_cim, real_cim)
+        loss = self.crt_l1(fake_cim, real_cim)
 
         return loss.item(), real_sim, real_cim, fake_cim
 
@@ -170,6 +170,7 @@ class AlacGANTrainModel(BaseTrainModel):
         self._set_requires_grad(self.net_I, False)
 
         self.crt_mse = nn.MSELoss()
+        self.crt_l1 = nn.L1Loss()
 
         self.fixed_sketch = torch.tensor(0, device=self.opt.device).float()
         self.fixed_hint = torch.tensor(0, device=self.opt.device).float()

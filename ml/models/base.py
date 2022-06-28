@@ -61,7 +61,6 @@ class BaseInferenceModel(BaseModel, ABC):
         save_path.mkdir(exist_ok=True, parents=True)
 
         iterator = enumerate(self.inference_loader)
-        i = 0
         if self.opt.show_progress:
             iterator = tqdm(iterator, total=len(self.inference_loader), desc='Inference')
         for i, batch_data in iterator:
@@ -71,7 +70,6 @@ class BaseInferenceModel(BaseModel, ABC):
             for inp_im, tar_im, out_im in zip(inp_batch, tar_batch, out_batch):
                 save_filename = os.path.join(self.opt.output_images_path, f'inference-{i}.png')
                 plot_inp_tar_out(inp_im, tar_im, out_im, save_file=save_filename)
-                i += 1
 
 
 class BaseTrainModel(BaseModel, ABC):

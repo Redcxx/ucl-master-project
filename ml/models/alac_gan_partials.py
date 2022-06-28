@@ -14,11 +14,11 @@ class ResNeXtBottleneck(nn.Module):
 
         self.out_channels = out_channels
         self.reduce = nn.Conv2d(in_channels, D, kernel_size=(1, 1), stride=(stride, stride),
-                                padding='same', bias=False)
+                                padding=0, bias=False)
         self.c_conv = nn.Conv2d(D, D, kernel_size=(3, 3), stride=(1, 1), dilation=(dilate, dilate), groups=cardinality,
-                                padding='same', bias=False)
+                                padding=dilate, bias=False)
         self.expand = nn.Conv2d(D, out_channels, kernel_size=(1, 1), stride=(stride, stride),
-                                padding='same', bias=False)
+                                padding=0, bias=False)
         self.shortcut = nn.Sequential()
 
         if stride != 1:

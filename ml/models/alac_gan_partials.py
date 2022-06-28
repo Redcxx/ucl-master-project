@@ -128,7 +128,7 @@ class NetG(nn.Module):
 
 
 class NetD(nn.Module):
-    def __init__(self, ndf=64):
+    def __init__(self, opt, ndf=64):
         super(NetD, self).__init__()
 
         self.feed = nn.Sequential(

@@ -5,32 +5,32 @@ import torch.nn.functional as F
 import torchvision.models as M
 from torch import nn
 
-VGG16_PATH = 'resources/vgg16-397923af.pth'
-I2V_PATH = 'resources/i2v.pth'
-
 
 class ResNeXtBottleneck(nn.Module):
-    def __init__(self, in_channels=256, out_channels=256, stride=1, cardinality=32, dilate=1):
+    def __init__(self, in_channels=256, out_channels=256, stride=1, dilate=1, cardinality=32):
         super().__init__()
+
         D = out_channels // 2
+
         self.out_channels = out_channels
-        self.conv_reduce = nn.Conv2d(in_channels, D, kernel_size=1, stride=1, padding=0, bias=False)
-        self.conv_conv = nn.Conv2d(D, D, kernel_size=2 + stride, stride=stride, padding=dilate, dilation=dilate,
-                                   groups=cardinality,
-                                   bias=False)
-        self.conv_expand = nn.Conv2d(D, out_channels, kernel_size=1, stride=1, padding=0, bias=False)
+        self.reduce = nn.Conv2d(in_channels, D, kernel_size=(1, 1), stride=(stride, stride),
+                                padding='same', bias=False)
+        self.c_conv = nn.Conv2d(D, D, kernel_size=(3, 3), stride=(1, 1), dilation=(dilate, dilate), groups=cardinality,
+                                padding='same', bias=False)
+        self.expand = nn.Conv2d(D, out_channels, kernel_size=(1, 1), stride=(stride, stride),
+                                padding='same', bias=False)
         self.shortcut = nn.Sequential()
+
         if stride != 1:
-            self.shortcut.add_module('shortcut',
-                                     nn.AvgPool2d(2, stride=2))
+            self.shortcut.add_module('shortcut', nn.AvgPool2d(2, stride=2))
 
     def forward(self, x):
-        bottleneck = self.conv_reduce.forward(x)
+        bottleneck = self.reduce(x)
         bottleneck = F.leaky_relu(bottleneck, 0.2, True)
-        bottleneck = self.conv_conv.forward(bottleneck)
+        bottleneck = self.c_conv(bottleneck)
         bottleneck = F.leaky_relu(bottleneck, 0.2, True)
-        bottleneck = self.conv_expand.forward(bottleneck)
-        x = self.shortcut.forward(x)
+        bottleneck = self.expand(bottleneck)
+        x = self.shortcut(x)
         return x + bottleneck
 
 
@@ -38,28 +38,28 @@ class NetG(nn.Module):
     def __init__(self, opt, ngf=64):
         super(NetG, self).__init__()
 
-        self.toH = nn.Sequential(nn.Conv2d(4, ngf, kernel_size=7, stride=1, padding=3), nn.LeakyReLU(0.2, True))
+        def conv_block(in_channels, out_channels, k_size, stride, padding):
+            return nn.Sequential(
+                nn.Conv2d(in_channels, out_channels, k_size, stride, padding),
+                nn.LeakyReLU(0.2, True)
+            )
 
-        self.to0 = nn.Sequential(nn.Conv2d(1, ngf // 2, kernel_size=3, stride=1, padding=1),  # 512
-                                 nn.LeakyReLU(0.2, True))
-        self.to1 = nn.Sequential(nn.Conv2d(ngf // 2, ngf, kernel_size=4, stride=2, padding=1),  # 256
-                                 nn.LeakyReLU(0.2, True))
-        self.to2 = nn.Sequential(nn.Conv2d(ngf, ngf * 2, kernel_size=4, stride=2, padding=1),  # 128
-                                 nn.LeakyReLU(0.2, True))
-        self.to3 = nn.Sequential(nn.Conv2d(ngf * 3, ngf * 4, kernel_size=4, stride=2, padding=1),  # 64
-                                 nn.LeakyReLU(0.2, True))
-        self.to4 = nn.Sequential(nn.Conv2d(ngf * 4, ngf * 8, kernel_size=4, stride=2, padding=1),  # 32
-                                 nn.LeakyReLU(0.2, True))
+        self.toH = conv_block(4, ngf, k_size=7, stride=1, padding=3)
+        self.to0 = conv_block(1, ngf // 2, k_size=3, stride=1, padding=1)
+        self.to1 = conv_block(ngf // 2, ngf, k_size=4, stride=2, padding=1)
+        self.to2 = conv_block(ngf, ngf * 2, k_size=4, stride=2, padding=1)
+        self.to3 = conv_block(ngf * 3, ngf * 4, k_size=4, stride=2, padding=1)
+        self.to4 = conv_block(ngf * 4, ngf * 8, k_size=4, stride=2, padding=1)
 
-        tunnel4 = nn.Sequential(*[ResNeXtBottleneck(ngf * 8, ngf * 8, cardinality=32, dilate=1) for _ in range(20)])
+        tunnel4 = nn.Sequential(*[ResNeXtBottleneck(ngf * 8, ngf * 8, cardinality=32) for _ in range(20)])
 
-        self.tunnel4 = nn.Sequential(nn.Conv2d(ngf * 8 + 512, ngf * 8, kernel_size=3, stride=1, padding=1),
-                                     nn.LeakyReLU(0.2, True),
-                                     tunnel4,
-                                     nn.Conv2d(ngf * 8, ngf * 4 * 4, kernel_size=3, stride=1, padding=1),
-                                     nn.PixelShuffle(2),
-                                     nn.LeakyReLU(0.2, True)
-                                     )  # 64
+        self.tunnel4 = nn.Sequential(
+            conv_block(ngf * 8 + 512, ngf * 8, k_size=3, stride=1, padding=1),
+            tunnel4,
+            nn.Conv2d(ngf * 8, ngf * 4 * 4, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),
+            nn.PixelShuffle(2),
+            nn.LeakyReLU(0.2, True)
+        )  # 64
 
         depth = 2
         tunnel = [ResNeXtBottleneck(ngf * 4, ngf * 4, cardinality=32, dilate=1) for _ in range(depth)]
@@ -69,8 +69,7 @@ class NetG(nn.Module):
                    ResNeXtBottleneck(ngf * 4, ngf * 4, cardinality=32, dilate=1)]
         tunnel3 = nn.Sequential(*tunnel)
 
-        self.tunnel3 = nn.Sequential(nn.Conv2d(ngf * 8, ngf * 4, kernel_size=3, stride=1, padding=1),
-                                     nn.LeakyReLU(0.2, True),
+        self.tunnel3 = nn.Sequential(conv_block(ngf * 8, ngf * 4, k_size=3, stride=1, padding=1),
                                      tunnel3,
                                      nn.Conv2d(ngf * 4, ngf * 2 * 4, kernel_size=3, stride=1, padding=1),
                                      nn.PixelShuffle(2),

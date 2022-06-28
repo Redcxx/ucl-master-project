@@ -4,13 +4,43 @@ import numpy as np
 import scipy.stats as stats
 import torch
 from torch import optim, nn, Tensor
-from torch.autograd import grad
 from torchsummaryX import summary
 
 from ml.models.base import BaseTrainModel, BaseInferenceModel
-from .alac_gan_partials import NetG, NetD, NetF, NetI, WarmUpLRScheduler
+from .alac_gan_partials import NetG, NetD, NetF, NetI
+from ..criterion.GANBCELoss import GANBCELoss
 from ..options.alac_gan import AlacGANTrainOptions, AlacGANInferenceOptions
 from ..plot_utils import plot_inp_tar
+
+
+def _mask_gen(opt, X):
+    maskS = opt.image_size // 4
+
+    mask1 = torch.cat(
+        [torch.rand(1, 1, maskS, maskS).ge(X.rvs(1)[0]).float() for _ in range(opt.batch_size // 2)], 0)
+    mask2 = torch.cat([torch.zeros(1, 1, maskS, maskS).float() for _ in range(opt.batch_size // 2)], 0)
+    mask = torch.cat([mask1, mask2], 0)
+
+    return mask.to(opt.device)
+
+
+def gradient_penalty(opt, critic, real, fake, gp_weight=10):
+    bs, c, h, w = real.shape
+    epsilon = torch.rand((bs, 1, 1, 1)).to(opt.device)
+    interpolated_images = real * epsilon + fake * (1 - epsilon)
+    interpolated_images.requires_grad = True
+    mixed_scores = critic(interpolated_images)
+
+    gradient = torch.autograd.grad(
+        inputs=interpolated_images,
+        outputs=mixed_scores,
+        grad_outputs=torch.ones_like(mixed_scores).to(opt.device),
+        create_graph=True,
+        retain_graph=True,
+        only_inputs=True
+    )[0]
+
+    return torch.mean((gradient.norm(2, dim=1) - 1) ** 2) * gp_weight
 
 
 class AlacGANInferenceModel(BaseInferenceModel):
@@ -41,17 +71,6 @@ class AlacGANInferenceModel(BaseInferenceModel):
         self.net_G.load_state_dict(checkpoint['net_G_state_dict'])
         self.net_D.load_state_dict(checkpoint['net_D_state_dict'])
 
-    def _mask_gen(self):
-        image_size = self.opt.image_size
-        maskS = image_size // 4
-
-        mask1 = torch.cat(
-            [torch.rand(1, 1, maskS, maskS).ge(self.X.rvs(1)[0]).float() for _ in range(self.opt.batch_size // 2)], 0)
-        mask2 = torch.cat([torch.zeros(1, 1, maskS, maskS).float() for _ in range(self.opt.batch_size // 2)], 0)
-        mask = torch.cat([mask1, mask2], 0)
-
-        return mask.to(self.opt.device)
-
     def inference_batch(self, i, batch_data) -> Tuple[Tensor, Tensor, Tensor]:
         real_cim, real_vim, real_sim = batch_data
 
@@ -59,7 +78,7 @@ class AlacGANInferenceModel(BaseInferenceModel):
         real_vim = real_vim.to(self.opt.device)
         real_sim = real_sim.to(self.opt.device)
 
-        mask = self._mask_gen()
+        mask = _mask_gen(self.opt, self.X)
         hint = torch.cat((real_vim * mask, mask), 1)
         with torch.no_grad():
             # get sketch feature
@@ -92,6 +111,7 @@ class AlacGANTrainModel(BaseTrainModel):
         # loss
         self.crt_mse = None
         self.crt_l1 = None
+        self.crt_bce = None
         self.fixed_sketch = None
         self.fixed_hint = None
         self.fixed_sketch_feat = None
@@ -99,7 +119,7 @@ class AlacGANTrainModel(BaseTrainModel):
         # housekeeping
         self.net_G_losses = []
         self.net_D_losses = []
-        self.grad_penalties = []
+        # self.grad_penalties = []
         self.epoch_eval_loss = None
 
         # for generating mask
@@ -130,14 +150,29 @@ class AlacGANTrainModel(BaseTrainModel):
         self.opt_D.load_state_dict(checkpoint['opt_D_state_dict'])
 
     def setup_from_opt(self, opt):
-        # generator
+        # network
         self.net_G = NetG(opt).to(self.opt.device)
         self.net_D = NetD(opt).to(self.opt.device)
 
         self.opt_G = optim.Adam(self.net_G.parameters(), lr=opt.lr, betas=(0.5, 0.999))
         self.opt_D = optim.Adam(self.net_D.parameters(), lr=opt.lr, betas=(0.5, 0.999))
 
-        self._init_fixed()
+        # backbones
+        self.net_F = NetF(self.opt).to(self.opt.device)
+        self.net_I = NetI(self.opt).to(self.opt.device).eval()
+
+        # configs
+        self._set_requires_grad(self.net_F, False)
+        self._set_requires_grad(self.net_I, False)
+
+        # criterion
+        self.crt_mse = nn.MSELoss()
+        self.crt_l1 = nn.L1Loss()
+        self.crt_bce = GANBCELoss()
+
+        self.fixed_sketch = torch.tensor(0, device=self.opt.device).float()
+        self.fixed_hint = torch.tensor(0, device=self.opt.device).float()
+        self.fixed_sketch_feat = torch.tensor(0, device=self.opt.device).float()
 
     def evaluate_batch(self, i, batch_data) -> Tuple[float, Tensor, Tensor, Tensor]:
         real_cim, real_vim, real_sim = batch_data
@@ -146,7 +181,7 @@ class AlacGANTrainModel(BaseTrainModel):
         real_vim = real_vim.to(self.opt.device)
         real_sim = real_sim.to(self.opt.device)
 
-        mask = self._mask_gen()
+        mask = _mask_gen(self.opt, self.X)
         hint = torch.cat((real_vim * mask, mask), 1)
         with torch.no_grad():
             # get sketch feature
@@ -156,25 +191,6 @@ class AlacGANTrainModel(BaseTrainModel):
         loss = self.crt_l1(fake_cim, real_cim)
 
         return loss.item(), real_sim, real_cim, fake_cim
-
-    def _init_fixed(self):
-        self.net_F = NetF(self.opt).to(self.opt.device)
-        self.net_I = NetI(self.opt).to(self.opt.device).eval()
-
-        self.sch_D = WarmUpLRScheduler(self.opt_D, base_lr=self.opt.lr, warmup_steps=0,
-                                       warmup_lr=0, last_iter=self.opt.start_epoch - 2)
-        self.sch_G = WarmUpLRScheduler(self.opt_G, base_lr=self.opt.lr, warmup_steps=0,
-                                       warmup_lr=0, last_iter=self.opt.start_epoch - 2)
-
-        self._set_requires_grad(self.net_F, False)
-        self._set_requires_grad(self.net_I, False)
-
-        self.crt_mse = nn.MSELoss()
-        self.crt_l1 = nn.L1Loss()
-
-        self.fixed_sketch = torch.tensor(0, device=self.opt.device).float()
-        self.fixed_hint = torch.tensor(0, device=self.opt.device).float()
-        self.fixed_sketch_feat = torch.tensor(0, device=self.opt.device).float()
 
     def _sanity_check(self):
         print('Generating Sanity Checks')
@@ -210,37 +226,10 @@ class AlacGANTrainModel(BaseTrainModel):
         super().pre_epoch()
         self.net_G_losses = []
         self.net_D_losses = []
-        self.grad_penalties = []
+        # self.grad_penalties = []
 
     def pre_batch(self, epoch, batch):
         super().pre_batch(epoch, batch)
-
-    def _mask_gen(self):
-        image_size = self.opt.image_size
-        maskS = image_size // 4
-
-        mask1 = torch.cat(
-            [torch.rand(1, 1, maskS, maskS).ge(self.X.rvs(1)[0]).float() for _ in range(self.opt.batch_size // 2)], 0)
-        mask2 = torch.cat([torch.zeros(1, 1, maskS, maskS).float() for _ in range(self.opt.batch_size // 2)], 0)
-        mask = torch.cat([mask1, mask2], 0)
-
-        return mask.to(self.opt.device)
-
-    def calc_gradient_penalty(self, real_data, fake_data, sketch_feat):
-        alpha = torch.rand(self.opt.batch_size, 1, 1, 1, device=self.opt.device)
-
-        interpolates = alpha * real_data + ((1 - alpha) * fake_data)
-
-        interpolates.requires_grad = True
-
-        disc_interpolates = self.net_D(interpolates, sketch_feat)
-
-        gradients = grad(outputs=disc_interpolates, inputs=interpolates,
-                         grad_outputs=torch.ones(disc_interpolates.size(), device=self.opt.device), create_graph=True,
-                         retain_graph=True, only_inputs=True)[0]
-
-        gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean() * 10  # config.gpW  gradient penalty weight
-        return gradient_penalty
 
     def train_batch(self, batch, batch_data):
         self.net_G.train()
@@ -257,13 +246,9 @@ class AlacGANTrainModel(BaseTrainModel):
         ###########################
         self._set_requires_grad(self.net_D, True)
         self._set_requires_grad(self.net_G, False)
-
-        # for p in self.net_G_losses.parameters():
-        #     p.requires_grad = False  # to avoid computation ft_params
-
         self.net_D.zero_grad()
 
-        mask = self._mask_gen()
+        mask = _mask_gen(self.opt, self.X)
         hint = torch.cat((real_vim * mask, mask), 1)
 
         with torch.no_grad():
@@ -275,21 +260,17 @@ class AlacGANTrainModel(BaseTrainModel):
 
         # ask discriminator to calculate loss
         errD_fake = self.net_D(fake_cim, feat_sim)
-        errD_fake = errD_fake.mean(0).view(1)
-
-        errD_fake.backward(retain_graph=True)  # backward on score on real
+        errD_fake = self.crt_bce(errD_fake, False)
 
         # train with real
         errD_real = self.net_D(real_cim, feat_sim)
-        errD_real = errD_real.mean(0).view(1)
-        errD = errD_real - errD_fake
+        errD_real = self.crt_bce(errD_real, True)
 
-        errD_realer = -1 * errD_real + errD_real.pow(2) * 0.001  # config.drift
+        errD = (errD_fake + errD_real) * 0.5
+        errD.backward()
 
-        errD_realer.backward(retain_graph=True)  # backward on score on real
-
-        gradient_penalty = self.calc_gradient_penalty(real_cim, fake_cim, feat_sim)
-        gradient_penalty.backward()
+        # grad_pen = gradient_penalty(self.opt, self.net_D, real_cim, fake_cim)
+        # grad_pen.backward()
 
         self.opt_D.step()
 
@@ -301,38 +282,12 @@ class AlacGANTrainModel(BaseTrainModel):
         self._set_requires_grad(self.net_G, True)
         self.net_G.zero_grad()
 
-        real_cim, real_vim, real_sim = batch_data
-        real_cim = real_cim.to(self.opt.device)
-        real_vim = real_vim.to(self.opt.device)
-        real_sim = real_sim.to(self.opt.device)
-
-        # if flag:  # fix samples
-        #     mask = mask_gen()
-        #     hint = torch.cat((real_vim * mask, mask), 1)
-        #     with torch.no_grad():
-        #         feat_sim = netI(real_sim).detach()
-        #
-        #     tb_logger.add_image('target imgs', vutils.make_grid(real_cim.mul(0.5).add(0.5), nrow=4))
-        #     tb_logger.add_image('sketch imgs', vutils.make_grid(real_sim.mul(0.5).add(0.5), nrow=4))
-        #     tb_logger.add_image('hint', vutils.make_grid((real_vim * mask).mul(0.5).add(0.5), nrow=4))
-        #
-        #     fixed_sketch.resize_as_(real_sim).copy_(real_sim)
-        #     fixed_hint.resize_as_(hint).copy_(hint)
-        #     fixed_sketch_feat.resize_as_(feat_sim).copy_(feat_sim)
-        #
-        #     flag -= 1
-
-        # discriminator loss
-        mask = self._mask_gen()
-        hint = torch.cat((real_vim * mask, mask), 1)
-
-        with torch.no_grad():
-            feat_sim = self.net_I(real_sim).detach()
-
+        # generate a fake image
         fake = self.net_G(real_sim, hint, feat_sim)
 
-        errd = self.net_D(fake, feat_sim)
-        errG = errd.mean() * 0.0001 * -1  # config.advW 0.0001
+        # discriminator loss
+        errG = self.net_D(fake, feat_sim)
+        self.crt_mse(errG, real_cim)
         errG.backward(retain_graph=True)
 
         # content loss
@@ -345,14 +300,14 @@ class AlacGANTrainModel(BaseTrainModel):
 
         self.opt_G.step()
 
-        return errG.item(), errD_realer.item(), gradient_penalty.item()
+        return errG.item(), errD.item()
 
     def post_batch(self, epoch, batch, batch_out):
         super().post_batch(epoch, batch, batch_out)
 
         self.net_G_losses.append(batch_out[0])
         self.net_D_losses.append(batch_out[1])
-        self.grad_penalties.append(batch_out[2])
+        # self.grad_penalties.append(batch_out[2])
 
     def post_epoch(self, epoch):
         super().post_epoch(epoch)
@@ -368,12 +323,12 @@ class AlacGANTrainModel(BaseTrainModel):
                f'[lr={self._get_lr(self.opt_G):.6f}] ' + \
                f'[G_loss={np.mean(self.net_G_losses):.4f}] ' + \
                f'[D_loss={np.mean(self.net_D_losses):.4f}] ' + \
-               f'[grad_pen={np.mean(self.grad_penalties):.4f}] ' + \
                (f'[eval_loss={self.epoch_eval_loss:.4f}]' if self.this_epoch_evaluated else '')
+        # f'[grad_pen={np.mean(self.grad_penalties):.4f}] ' + \
 
     def log_batch(self, batch):
         from_batch = self._get_last_batch(batch)
         return super().log_batch(batch) + \
                f'[G_loss={np.mean(self.net_G_losses[from_batch - 1:batch]):.4f}] ' + \
-               f'[D_loss={np.mean(self.net_D_losses[from_batch - 1:batch]):.4f}] ' + \
-               f'[grad_pen={np.mean(self.grad_penalties[from_batch - 1:batch]):.4f}] '
+               f'[D_loss={np.mean(self.net_D_losses[from_batch - 1:batch]):.4f}] '
+        # f'[grad_pen={np.mean(self.grad_penalties[from_batch - 1:batch]):.4f}] '

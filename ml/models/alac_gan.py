@@ -106,8 +106,8 @@ class AlacGANTrainModel(BaseTrainModel):
         self.opt_D = None
 
         # scheduler
-        self.sch_G = None
-        self.sch_D = None
+        # self.sch_G = None
+        # self.sch_D = None
 
         # loss
         self.crt_mse = None
@@ -313,8 +313,8 @@ class AlacGANTrainModel(BaseTrainModel):
     def post_epoch(self, epoch):
         super().post_epoch(epoch)
 
-        self.sch_G.step(epoch)
-        self.sch_D.step(epoch)
+        # self.sch_G.step(epoch)
+        # self.sch_D.step(epoch)
 
     def post_train(self):
         super().post_train()

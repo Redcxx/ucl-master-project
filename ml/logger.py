@@ -14,9 +14,7 @@ def log(text, save_local=True, end=os.linesep):
     if save_local:
         global FIRST_TIME
         if FIRST_TIME:
-            path = Path(LOG_FILE)
-            path.unlink(missing_ok=True)
-            path.touch()
+            open(LOG_FILE, 'w').close()  # erase content
             FIRST_TIME = False
         with open(LOG_FILE, 'a') as file:
             file.write(text)

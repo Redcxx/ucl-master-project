@@ -28,7 +28,7 @@ class AlacGANTrainOptions(BaseTrainOptions):
 
         # Training
         self.batch_size = 8
-        self.start_epoch = 1
+        self.start_epoch = 2
         self.end_epoch = 30
         self.eval_freq = 1
         self.log_freq = 1

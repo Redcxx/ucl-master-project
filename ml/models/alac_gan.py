@@ -168,7 +168,7 @@ class AlacGANTrainModel(BaseTrainModel):
         # criterion
         self.crt_mse = nn.MSELoss()
         self.crt_l1 = nn.L1Loss()
-        self.crt_bce = GANBCELoss()
+        self.crt_bce = GANBCELoss().to(opt.device)
 
         self.fixed_sketch = torch.tensor(0, device=self.opt.device).float()
         self.fixed_hint = torch.tensor(0, device=self.opt.device).float()

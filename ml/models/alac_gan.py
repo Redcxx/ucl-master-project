@@ -9,6 +9,7 @@ from torchsummaryX import summary
 from ml.models.base import BaseTrainModel, BaseInferenceModel
 from .alac_gan_partials import NetG, NetD, NetF, NetI
 from ..criterion.GANBCELoss import GANBCELoss
+from ..logger import log
 from ..options.alac_gan import AlacGANTrainOptions, AlacGANInferenceOptions
 from ..plot_utils import plot_inp_tar
 
@@ -193,31 +194,30 @@ class AlacGANTrainModel(BaseTrainModel):
         return loss.item(), real_sim, real_cim, fake_cim
 
     def _sanity_check(self):
-        # log('Generating Sanity Checks')
-        # # see if model architecture is alright
-        # summary(
-        #     self.net_G,
-        #     torch.rand(self.opt.batch_size, 1, self.opt.image_size, self.opt.image_size).to(self.opt.device),
-        #     torch.rand(self.opt.batch_size, 4, self.opt.image_size // 4, self.opt.image_size // 4).to(self.opt.device),
-        #     torch.rand(self.opt.batch_size, 512, 32, 32).to(self.opt.device),
-        # )
-        # summary(
-        #     self.net_D,
-        #     torch.rand(self.opt.batch_size, 3, self.opt.image_size, self.opt.image_size).to(self.opt.device),
-        #     torch.rand(self.opt.batch_size, 512, 32, 32).to(self.opt.device),
-        # )
-        # # get some data and see if it looks good
-        # i = 1
-        # for real_cim, _, real_sim in self.train_loader:
-        #     for inp, tar in zip(real_sim, real_cim):
-        #         plot_inp_tar(inp, tar, save_file=f'sanity-check-im-{i}.jpg')
-        #         i += 1
-        #         if i > 5:
-        #             break
-        #     if i > 5:
-        #         break
-        # log('Sanity Checks Generated')
-        pass
+        log('Generating Sanity Checks')
+        # see if model architecture is alright
+        summary(
+            self.net_G,
+            torch.rand(self.opt.batch_size, 1, self.opt.image_size, self.opt.image_size).to(self.opt.device),
+            torch.rand(self.opt.batch_size, 4, self.opt.image_size // 4, self.opt.image_size // 4).to(self.opt.device),
+            torch.rand(self.opt.batch_size, 512, 32, 32).to(self.opt.device),
+        )
+        summary(
+            self.net_D,
+            torch.rand(self.opt.batch_size, 3, self.opt.image_size, self.opt.image_size).to(self.opt.device),
+            torch.rand(self.opt.batch_size, 512, 32, 32).to(self.opt.device),
+        )
+        # get some data and see if it looks good
+        i = 1
+        for real_cim, _, real_sim in self.train_loader:
+            for inp, tar in zip(real_sim, real_cim):
+                plot_inp_tar(inp, tar, save_file=f'sanity-check-im-{i}.jpg')
+                i += 1
+                if i > 5:
+                    break
+            if i > 5:
+                break
+        log('Sanity Checks Generated')
 
     def pre_train(self):
         super().pre_train()

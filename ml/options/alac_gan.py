@@ -35,8 +35,8 @@ class AlacGANTrainOptions(BaseTrainOptions):
         self.save_freq = 1
         self.batch_log_freq = 100
 
-        self.image_size = 256
-        self.cardinality = 16
+        self.image_size = 512
+        self.cardinality = 32
 
         # Dataset
         self.dataset_root = './alacgan_colorization_data'

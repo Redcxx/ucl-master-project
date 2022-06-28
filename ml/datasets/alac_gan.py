@@ -13,6 +13,11 @@ from ml.options.alac_gan import AlacGANTrainOptions, AlacGANInferenceOptions
 
 class AlacGANTrainDataset(BaseDataset):
 
+    @staticmethod
+    def jitter(x):
+        ran = random.uniform(0.7, 1)
+        return x * ran + 1 - ran
+
     def __init__(self, opt: AlacGANTrainOptions):
         super().__init__(opt)
         root = os.path.join(opt.dataset_root, opt.dataset_train_folder)
@@ -31,14 +36,10 @@ class AlacGANTrainDataset(BaseDataset):
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
 
-        def jitter(x):
-            ran = random.uniform(0.7, 1)
-            return x * ran + 1 - ran
-
         self.s_trans = transforms.Compose([
             transforms.Resize(opt.image_size, InterpolationMode.BICUBIC),
             transforms.ToTensor(),
-            transforms.Lambda(jitter),
+            transforms.Lambda(self.jitter),
             transforms.Normalize(0.5, 0.5)
         ])
 

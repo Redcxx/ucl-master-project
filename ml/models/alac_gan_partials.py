@@ -35,7 +35,7 @@ class ResNeXtBottleneck(nn.Module):
 
 
 class NetG(nn.Module):
-    def __init__(self, ngf=64):
+    def __init__(self, opt, ngf=64):
         super(NetG, self).__init__()
 
         self.toH = nn.Sequential(nn.Conv2d(4, ngf, kernel_size=7, stride=1, padding=3), nn.LeakyReLU(0.2, True))
@@ -51,7 +51,7 @@ class NetG(nn.Module):
         self.to4 = nn.Sequential(nn.Conv2d(ngf * 4, ngf * 8, kernel_size=4, stride=2, padding=1),  # 32
                                  nn.LeakyReLU(0.2, True))
 
-        tunnel4 = nn.Sequential(*[ResNeXtBottleneck(ngf * 8, ngf * 8, cardinality=32, dilate=1) for _ in range(20)])
+        tunnel4 = nn.Sequential(*[ResNeXtBottleneck(ngf * 8, ngf * 8, cardinality=opt.cardinality, dilate=1) for _ in range(20)])
 
         self.tunnel4 = nn.Sequential(nn.Conv2d(ngf * 8 + 512, ngf * 8, kernel_size=3, stride=1, padding=1),
                                      nn.LeakyReLU(0.2, True),
@@ -62,11 +62,11 @@ class NetG(nn.Module):
                                      )  # 64
 
         depth = 2
-        tunnel = [ResNeXtBottleneck(ngf * 4, ngf * 4, cardinality=32, dilate=1) for _ in range(depth)]
-        tunnel += [ResNeXtBottleneck(ngf * 4, ngf * 4, cardinality=32, dilate=2) for _ in range(depth)]
-        tunnel += [ResNeXtBottleneck(ngf * 4, ngf * 4, cardinality=32, dilate=4) for _ in range(depth)]
-        tunnel += [ResNeXtBottleneck(ngf * 4, ngf * 4, cardinality=32, dilate=2),
-                   ResNeXtBottleneck(ngf * 4, ngf * 4, cardinality=32, dilate=1)]
+        tunnel = [ResNeXtBottleneck(ngf * 4, ngf * 4, cardinality=opt.cardinality, dilate=1) for _ in range(depth)]
+        tunnel += [ResNeXtBottleneck(ngf * 4, ngf * 4, cardinality=opt.cardinality, dilate=2) for _ in range(depth)]
+        tunnel += [ResNeXtBottleneck(ngf * 4, ngf * 4, cardinality=opt.cardinality, dilate=4) for _ in range(depth)]
+        tunnel += [ResNeXtBottleneck(ngf * 4, ngf * 4, cardinality=opt.cardinality, dilate=2),
+                   ResNeXtBottleneck(ngf * 4, ngf * 4, cardinality=opt.cardinality, dilate=1)]
         tunnel3 = nn.Sequential(*tunnel)
 
         self.tunnel3 = nn.Sequential(nn.Conv2d(ngf * 8, ngf * 4, kernel_size=3, stride=1, padding=1),
@@ -77,11 +77,11 @@ class NetG(nn.Module):
                                      nn.LeakyReLU(0.2, True)
                                      )  # 128
 
-        tunnel = [ResNeXtBottleneck(ngf * 2, ngf * 2, cardinality=32, dilate=1) for _ in range(depth)]
-        tunnel += [ResNeXtBottleneck(ngf * 2, ngf * 2, cardinality=32, dilate=2) for _ in range(depth)]
-        tunnel += [ResNeXtBottleneck(ngf * 2, ngf * 2, cardinality=32, dilate=4) for _ in range(depth)]
-        tunnel += [ResNeXtBottleneck(ngf * 2, ngf * 2, cardinality=32, dilate=2),
-                   ResNeXtBottleneck(ngf * 2, ngf * 2, cardinality=32, dilate=1)]
+        tunnel = [ResNeXtBottleneck(ngf * 2, ngf * 2, cardinality=opt.cardinality, dilate=1) for _ in range(depth)]
+        tunnel += [ResNeXtBottleneck(ngf * 2, ngf * 2, cardinality=opt.cardinality, dilate=2) for _ in range(depth)]
+        tunnel += [ResNeXtBottleneck(ngf * 2, ngf * 2, cardinality=opt.cardinality, dilate=4) for _ in range(depth)]
+        tunnel += [ResNeXtBottleneck(ngf * 2, ngf * 2, cardinality=opt.cardinality, dilate=2),
+                   ResNeXtBottleneck(ngf * 2, ngf * 2, cardinality=opt.cardinality, dilate=1)]
         tunnel2 = nn.Sequential(*tunnel)
 
         self.tunnel2 = nn.Sequential(nn.Conv2d(ngf * 4, ngf * 2, kernel_size=3, stride=1, padding=1),
@@ -92,11 +92,11 @@ class NetG(nn.Module):
                                      nn.LeakyReLU(0.2, True)
                                      )
 
-        tunnel = [ResNeXtBottleneck(ngf, ngf, cardinality=16, dilate=1)]
-        tunnel += [ResNeXtBottleneck(ngf, ngf, cardinality=16, dilate=2)]
-        tunnel += [ResNeXtBottleneck(ngf, ngf, cardinality=16, dilate=4)]
-        tunnel += [ResNeXtBottleneck(ngf, ngf, cardinality=16, dilate=2),
-                   ResNeXtBottleneck(ngf, ngf, cardinality=16, dilate=1)]
+        tunnel = [ResNeXtBottleneck(ngf, ngf, cardinality=opt.cardinality//2, dilate=1)]
+        tunnel += [ResNeXtBottleneck(ngf, ngf, cardinality=opt.cardinality//2, dilate=2)]
+        tunnel += [ResNeXtBottleneck(ngf, ngf, cardinality=opt.cardinality//2, dilate=4)]
+        tunnel += [ResNeXtBottleneck(ngf, ngf, cardinality=opt.cardinality//2, dilate=2),
+                   ResNeXtBottleneck(ngf, ngf, cardinality=opt.cardinality//2, dilate=1)]
         tunnel1 = nn.Sequential(*tunnel)
 
         self.tunnel1 = nn.Sequential(nn.Conv2d(ngf * 2, ngf, kernel_size=3, stride=1, padding=1),

@@ -32,8 +32,8 @@ class AlacGANInferenceModel(BaseInferenceModel):
         loaded_opt = AlacGANTrainOptions()
         loaded_opt.load_saved_dict(checkpoint['opt'])
 
-        self.net_G = NetG().to(self.opt.device).eval()
-        self.net_D = NetD().to(self.opt.device).eval()
+        self.net_G = NetG(loaded_opt).to(self.opt.device).eval()
+        self.net_D = NetD(loaded_opt).to(self.opt.device).eval()
 
         self.net_F = NetF(loaded_opt).to(self.opt.device).eval()
         self.net_I = NetI(loaded_opt).to(self.opt.device).eval()
@@ -131,8 +131,8 @@ class AlacGANTrainModel(BaseTrainModel):
 
     def setup_from_opt(self, opt):
         # generator
-        self.net_G = NetG().to(self.opt.device)
-        self.net_D = NetD().to(self.opt.device)
+        self.net_G = NetG(opt).to(self.opt.device)
+        self.net_D = NetD(opt).to(self.opt.device)
 
         self.opt_G = optim.Adam(self.net_G.parameters(), lr=opt.lr, betas=(0.5, 0.999))
         self.opt_D = optim.Adam(self.net_D.parameters(), lr=opt.lr, betas=(0.5, 0.999))

@@ -7,30 +7,27 @@ from torch import nn
 
 
 class ResNeXtBottleneck(nn.Module):
-    def __init__(self, in_channels=256, out_channels=256, stride=1, dilate=1, cardinality=32):
-        super().__init__()
-
+    def __init__(self, in_channels=256, out_channels=256, stride=1, cardinality=32, dilate=1):
+        super(ResNeXtBottleneck, self).__init__()
         D = out_channels // 2
-
         self.out_channels = out_channels
-        self.reduce = nn.Conv2d(in_channels, D, kernel_size=(1, 1), stride=(stride, stride),
-                                padding=0, bias=False)
-        self.c_conv = nn.Conv2d(D, D, kernel_size=(3, 3), stride=(1, 1), dilation=(dilate, dilate), groups=cardinality,
-                                padding=dilate, bias=False)
-        self.expand = nn.Conv2d(D, out_channels, kernel_size=(1, 1), stride=(stride, stride),
-                                padding=0, bias=False)
+        self.conv_reduce = nn.Conv2d(in_channels, D, kernel_size=1, stride=1, padding=0, bias=False)
+        self.conv_conv = nn.Conv2d(D, D, kernel_size=2 + stride, stride=stride, padding=dilate, dilation=dilate,
+                                   groups=cardinality,
+                                   bias=False)
+        self.conv_expand = nn.Conv2d(D, out_channels, kernel_size=1, stride=1, padding=0, bias=False)
         self.shortcut = nn.Sequential()
-
         if stride != 1:
-            self.shortcut.add_module('shortcut', nn.AvgPool2d(2, stride=2))
+            self.shortcut.add_module('shortcut',
+                                     nn.AvgPool2d(2, stride=2))
 
     def forward(self, x):
-        bottleneck = self.reduce(x)
+        bottleneck = self.conv_reduce.forward(x)
         bottleneck = F.leaky_relu(bottleneck, 0.2, True)
-        bottleneck = self.c_conv(bottleneck)
+        bottleneck = self.conv_conv.forward(bottleneck)
         bottleneck = F.leaky_relu(bottleneck, 0.2, True)
-        bottleneck = self.expand(bottleneck)
-        x = self.shortcut(x)
+        bottleneck = self.conv_expand.forward(bottleneck)
+        x = self.shortcut.forward(x)
         return x + bottleneck
 
 

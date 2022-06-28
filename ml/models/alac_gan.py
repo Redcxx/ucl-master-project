@@ -193,7 +193,7 @@ class AlacGANTrainModel(BaseTrainModel):
         return loss.item(), real_sim, real_cim, fake_cim
 
     def _sanity_check(self):
-        # print('Generating Sanity Checks')
+        # log('Generating Sanity Checks')
         # # see if model architecture is alright
         # summary(
         #     self.net_G,
@@ -216,7 +216,7 @@ class AlacGANTrainModel(BaseTrainModel):
         #             break
         #     if i > 5:
         #         break
-        # print('Sanity Checks Generated')
+        # log('Sanity Checks Generated')
         pass
 
     def pre_train(self):

@@ -11,6 +11,7 @@ from torch import Tensor
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+from ml.logger import log
 from ml.misc_utils import format_time, get_center_text
 from ml.options.base import BaseOptions, BaseTrainOptions, BaseInferenceOptions
 from ml.plot_utils import plot_inp_tar_out
@@ -24,10 +25,10 @@ class BaseModel(ABC):
         init_drive_and_folder(self.opt)  # for saving and loading
 
     def load_checkpoint(self, tag):
-        print('Loading checkpoint ... ', end='')
+        log('Loading checkpoint ... ', end='')
         file_name = f'{self.opt.run_id}_{tag}.ckpt'
         load_file(self.opt, file_name)  # ensure exists locally, will raise error if not exists
-        print(f'done: {file_name}')
+        log(f'done: {file_name}')
         return torch.load(file_name)
 
     # abstract subclass should implement this method
@@ -95,25 +96,25 @@ class BaseTrainModel(BaseModel, ABC):
     def setup(self):
         if self.opt.resume_training or self.opt.start_epoch > 1:
             # try resume training
-            print('Loading training checkpoint ...', end='')
+            log('Loading training checkpoint ...', end='')
             self.setup_from_train_checkpoint(self.load_checkpoint(tag=f'{self.opt.start_epoch - 1}'))
-            print('done')
+            log('done')
 
         else:
-            print('Initializing new model ...', end='')
+            log('Initializing new model ...', end='')
             self.setup_from_opt(self.opt)
-            print('done')
+            log('done')
 
     @abstractmethod
     def get_checkpoint(self) -> Dict:
         pass
 
     def save_checkpoint(self, tag) -> None:
-        print('Saving checkpoint ... ', end='')
+        log('Saving checkpoint ... ', end='')
         file_name = f'{self.opt.run_id}_{tag}.ckpt'
         torch.save(self.get_checkpoint(), file_name)
         save_file(self.opt, file_name, local=False)
-        print(f'done: {file_name}')
+        log(f'done: {file_name}')
 
     @abstractmethod
     def setup_from_train_checkpoint(self, checkpoint):
@@ -129,18 +130,18 @@ class BaseTrainModel(BaseModel, ABC):
         option_text = 'OPTIONS'
         run_start_text = f'RUN ID: {self.opt.run_id}'
 
-        print(fill_char * width)
-        print(get_center_text(option_text, width, fill_char))
-        print(fill_char * width)
-        print(self.opt)
-        print(fill_char * width)
-        print(get_center_text(run_start_text, width, fill_char))
-        print(fill_char * width)
-        print(f'Train loader size: {len(self.train_loader)}')
-        print(f'Test loader size: {len(self.test_loader)}')
-        print(f'Using device {self.opt.device}')
-        print(f'Run started at {format_time(self.training_start_time)}')
-        print(fill_char * width)
+        log(fill_char * width)
+        log(get_center_text(option_text, width, fill_char))
+        log(fill_char * width)
+        log(self.opt)
+        log(fill_char * width)
+        log(get_center_text(run_start_text, width, fill_char))
+        log(fill_char * width)
+        log(f'Train loader size: {len(self.train_loader)}')
+        log(f'Test loader size: {len(self.test_loader)}')
+        log(f'Using device {self.opt.device}')
+        log(f'Run started at {format_time(self.training_start_time)}')
+        log(fill_char * width)
 
     ###
     # Pre & Post method, subclass override to extend its functionalities
@@ -172,7 +173,7 @@ class BaseTrainModel(BaseModel, ABC):
     @abstractmethod
     def post_batch(self, epoch, batch, batch_out):
         if self.opt.batch_log_freq > 0 and (batch % self.opt.batch_log_freq == 0 or batch == 2):
-            print(self.log_batch(batch))
+            log(self.log_batch(batch))
             self.this_batch_logged = True
         else:
             self.this_batch_logged = False
@@ -221,7 +222,7 @@ class BaseTrainModel(BaseModel, ABC):
             self.save_checkpoint('latest')
 
         if self.opt.log_freq > 0 and (epoch % self.opt.log_freq == 0 or epoch == self.opt.start_epoch):
-            print(self.log_epoch(epoch))
+            log(self.log_epoch(epoch))
 
         if self.opt.eval_freq > 0 and (epoch % self.opt.eval_freq == 0 or epoch == self.opt.start_epoch):
             self.epoch_eval_loss = self.evaluate(epoch)
@@ -231,8 +232,8 @@ class BaseTrainModel(BaseModel, ABC):
     @abstractmethod
     def post_train(self):
         training_end_time = time.time()
-        print(f'Training finished at {format_time(training_end_time)}')
-        print(f'Time taken: {format_time(training_end_time - self.training_start_time)}')
+        log(f'Training finished at {format_time(training_end_time)}')
+        log(f'Time taken: {format_time(training_end_time - self.training_start_time)}')
         self.save_checkpoint(tag='final')
 
     ##

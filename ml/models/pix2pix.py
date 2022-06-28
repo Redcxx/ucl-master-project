@@ -64,7 +64,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         self._init_fixed()
 
     def _sanity_check(self):
-        print('Generating Sanity Checks')
+        log('Generating Sanity Checks')
         # see if model architecture is alright
         summary(self.net_G, torch.rand(self.opt.batch_size, 3, self.opt.image_size, self.opt.image_size).to(self.opt.device))
         summary(self.net_D, torch.rand(self.opt.batch_size, 6, self.opt.image_size, self.opt.image_size).to(self.opt.device))
@@ -78,7 +78,7 @@ class Pix2pixTrainModel(BaseTrainModel):
                     break
             if i > 5:
                 break
-        print('Sanity Checks Generated')
+        log('Sanity Checks Generated')
 
     def pre_train(self):
         super().pre_train()
@@ -216,7 +216,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         opt_G.load_state_dict(checkpoint['opt_G_state_dict'])
         opt_D.load_state_dict(checkpoint['opt_D_state_dict'])
 
-        print('Successfully created network with loaded checkpoint')
+        log('Successfully created network with loaded checkpoint')
         return loaded_opt, net_G, net_D, opt_G, opt_D
 
     def _gaussian_init_weight(self, m):

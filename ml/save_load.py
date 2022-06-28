@@ -1,10 +1,11 @@
 import os
-from pprint import pprint
+import pprint
 
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 from pydrive2.settings import LoadSettingsFile
 
+from ml.logger import log
 from ml.options.base import BaseOptions
 
 _DRIVE_AND_FOLDER = None
@@ -22,12 +23,12 @@ def ensure_folder_on_drive(drive, folder_name, parent_folder=None):
         return folders[0]
 
     if len(folders) > 1:
-        pprint(folders)
+        log(pprint.pformat(folders))
         raise AssertionError('Multiple Folders of the same name detected')
 
     # folder not found, create a new one at root
     # pprint(parent_folder)
-    print(f'Folder {folder_name} with parent {parent_folder["title"]} not found, creating... ', end='')
+    log(f'Folder {folder_name} with parent {parent_folder["title"]} not found, creating... ', end='')
 
     folder = drive.CreateFile({
         'title': folder_name,
@@ -39,7 +40,7 @@ def ensure_folder_on_drive(drive, folder_name, parent_folder=None):
     })
     folder.Upload()
 
-    print('done')
+    log('done')
     return folder
 
 
@@ -47,12 +48,12 @@ def init_drive_and_folder(opt):
     global _DRIVE_AND_FOLDER
 
     if _DRIVE_AND_FOLDER is None:
-        print(f'Connecting to Google Drive for Saving and Backup')
+        log(f'Connecting to Google Drive for Saving and Backup')
         g_auth = GoogleAuth(settings_file=opt.pydrive2_settings_file)
         # pydrive2 swallow error, we load it again to ensure it really works
-        print('Loading settings file ... ', end='')
+        log('Loading settings file ... ', end='')
         LoadSettingsFile(opt.pydrive2_settings_file)
-        print('done')
+        log('done')
         # print('Save & Load Settings:')
         # print(g_auth.settings)
         # g_auth.LocalWebserverAuth()
@@ -60,7 +61,7 @@ def init_drive_and_folder(opt):
         drive = GoogleDrive(g_auth)
         working_folder = ensure_folder_on_drive(drive, opt.working_folder)
         session_folder = ensure_folder_on_drive(drive, opt.run_id, parent_folder=working_folder)
-        print(f'Authentication Finished')
+        log(f'Authentication Finished')
 
         _DRIVE_AND_FOLDER = drive, session_folder
 
@@ -88,7 +89,7 @@ def load_file(opt, file_name):
     drive, folder = init_drive_and_folder(opt)
 
     if os.path.isfile(file_name):
-        print(f'"{file_name}" already exists, not downloading')
+        log(f'"{file_name}" already exists, not downloading')
         return True
     files = drive.ListFile({
         'q': f"'{folder['id']}' in parents"

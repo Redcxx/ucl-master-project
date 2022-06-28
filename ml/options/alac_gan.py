@@ -26,11 +26,11 @@ class AlacGANTrainOptions(BaseTrainOptions):
     def __init__(self):
         super().__init__()
 
-        self.run_id = r'alacGAN-train-2022-06-28-Tuesday-19h-02m-04s'
+        # self.run_id = r'alacGAN-train-2022-06-28-Tuesday-19h-02m-04s'
 
         # Training
         self.batch_size = 8
-        self.start_epoch = 2
+        self.start_epoch = 1
         self.end_epoch = 30
         self.eval_freq = 1
         self.log_freq = 1

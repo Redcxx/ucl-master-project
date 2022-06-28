@@ -287,7 +287,7 @@ class AlacGANTrainModel(BaseTrainModel):
 
         # discriminator loss
         errG = self.net_D(fake, feat_sim)
-        self.crt_mse(errG, real_cim)
+        errG = self.crt_bce(errG, False)
         errG.backward(retain_graph=True)
 
         # content loss

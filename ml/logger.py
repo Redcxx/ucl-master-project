@@ -9,7 +9,7 @@ FIRST_TIME = True
 def log(text, save_local=True, end=os.linesep):
     text = str(text) + str(end)
 
-    logging.info(text)
+    print(text)
 
     if save_local:
         global FIRST_TIME

@@ -4,7 +4,7 @@ import numpy as np
 import scipy.stats as stats
 import torch
 from torch import optim, nn, Tensor
-from torchsummaryX import summary
+from torch.autograd import grad
 
 from ml.models.base import BaseTrainModel, BaseInferenceModel
 from .alac_gan_partials import NetG, NetD, NetF, NetI
@@ -25,23 +25,20 @@ def _mask_gen(opt, X):
     return mask.to(opt.device)
 
 
-def gradient_penalty(opt, critic, real, fake, gp_weight=10):
-    bs, c, h, w = real.shape
-    epsilon = torch.rand((bs, 1, 1, 1)).to(opt.device)
-    interpolated_images = real * epsilon + fake * (1 - epsilon)
-    interpolated_images.requires_grad = True
-    mixed_scores = critic(interpolated_images)
+def calc_gradient_penalty(opt, netD, real_data, fake_data, sketch_feat):
+    alpha = torch.rand(opt.batch_size, 1, 1, 1, device=opt.device)
 
-    gradient = torch.autograd.grad(
-        inputs=interpolated_images,
-        outputs=mixed_scores,
-        grad_outputs=torch.ones_like(mixed_scores).to(opt.device),
-        create_graph=True,
-        retain_graph=True,
-        only_inputs=True
-    )[0]
+    interpolates = alpha * real_data + ((1 - alpha) * fake_data)
 
-    return torch.mean((gradient.norm(2, dim=1) - 1) ** 2) * gp_weight
+    interpolates.requires_grad = True
+
+    disc_interpolates = netD(interpolates, sketch_feat)
+
+    gradients = grad(outputs=disc_interpolates, inputs=interpolates,
+                     grad_outputs=torch.ones(disc_interpolates.size(), device=opt.device), create_graph=True,
+                     retain_graph=True, only_inputs=True)[0]
+
+    return ((gradients.norm(2, dim=1) - 1) ** 2).mean() * 10
 
 
 class AlacGANInferenceModel(BaseInferenceModel):
@@ -261,17 +258,20 @@ class AlacGANTrainModel(BaseTrainModel):
 
         # ask discriminator to calculate loss
         errD_fake = self.net_D(fake_cim, feat_sim)
-        errD_fake = self.crt_bce(errD_fake, False)
+        errD_fake = errD_fake.mean(0).view(1)
 
-        # train with real
+        errD_fake.backward(retain_graph=True)  # backward on score on real
+
         errD_real = self.net_D(real_cim, feat_sim)
-        errD_real = self.crt_bce(errD_real, True)
+        errD_real = errD_real.mean(0).view(1)
+        errD = errD_real - errD_fake
 
-        errD = (errD_fake + errD_real) * 0.5
-        errD.backward()
+        errD_realer = -1 * errD_real + errD_real.pow(2) * 0.001
 
-        # grad_pen = gradient_penalty(self.opt, self.net_D, real_cim, fake_cim)
-        # grad_pen.backward()
+        errD_realer.backward(retain_graph=True)  # backward on score on real
+
+        grad_pen = calc_gradient_penalty(self.opt, self.net_D, real_cim, fake_cim, feat_sim)
+        grad_pen.backward()
 
         self.opt_D.step()
 
@@ -287,17 +287,15 @@ class AlacGANTrainModel(BaseTrainModel):
         fake = self.net_G(real_sim, hint, feat_sim)
 
         # discriminator loss
-        errG = self.net_D(fake, feat_sim)
-        errG = self.crt_bce(errG, False)
+        errd = self.net_D(fake, feat_sim)
+        errG = errd.mean() * 0.0001 * -1
         errG.backward(retain_graph=True)
-
-        # content loss
         feat1 = self.net_F(fake)
         with torch.no_grad():
             feat2 = self.net_F(real_cim)
 
-        content_loss = self.crt_mse(feat1, feat2)
-        content_loss.backward()
+        contentLoss = self.crt_mse(feat1, feat2)
+        contentLoss.backward()
 
         self.opt_G.step()
 

@@ -42,10 +42,10 @@ class BaseDataset(Dataset, ABC):
     @staticmethod
     def _split_image_cv(AB: np.array):
         assert len(AB.shape) == 3
-        h, w = AB.shape[-2:]
+        w = AB.shape[1]
         w2 = int(w / 2)
-        A = AB[:, :, 0:w2]
-        B = AB[:, :, w2:w]
+        A = AB[:, 0:w2]
+        B = AB[:, w2:w]
 
         return A, B
 

@@ -6,7 +6,7 @@ LOG_FILE = 'log.txt'
 FIRST_TIME = True
 
 
-def log(text, save_local=True, end=os.linesep * 2):
+def log(text, save_local=True, end=os.linesep):
     text = str(text) + str(end)
 
     print(text, end='')

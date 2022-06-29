@@ -6,6 +6,7 @@ import random
 from PIL import Image
 from torchvision.transforms import transforms, InterpolationMode
 
+from ml.algorithms.xdog import extract_edges_cv
 from ml.datasets import BaseDataset
 from ml.file_utils import get_all_image_paths
 from ml.options.alac_gan import AlacGANTrainOptions, AlacGANInferenceOptions
@@ -47,7 +48,19 @@ class AlacGANTrainDataset(BaseDataset):
         return len(self.paths)
 
     def __getitem__(self, i):
-        A, B = self._split_image(self._read_im(self.paths[i]))
+        r = random.random()
+        # if r < 0.25:
+        #     # use sketch from extract sketch model
+        #     A, B = self._split_image_pil(self._read_im_pil(self.paths[i]))
+        # else:
+        # create own sketch using xdog
+        sigma = 0.3 if r < 0.333 else (0.4 if r < 0.666 else 0.5)
+
+        _, B = self._split_image_cv(self._read_im_cv(self.paths[i]))
+        A = extract_edges_cv(B, sigma=sigma)
+        A, B = self._cv2pil_im(A), self._cv2pil_im(B)
+        # A, B = self._split_image_pil(self._read_im_pil(self.paths[i]))
+
         s_im, c_im = (A, B) if self.a_to_b else (B, A)
 
         s_im = s_im.convert('L')
@@ -90,7 +103,10 @@ class AlacGANTestDataset(BaseDataset):
         return len(self.paths)
 
     def __getitem__(self, i):
-        A, B = self._split_image(self._read_im(self.paths[i]))
+        _, B = self._split_image_cv(self._read_im_cv(self.paths[i]))
+        A = extract_edges_cv(B, sigma=0.4)
+        A, B = self._cv2pil_im(A), self._cv2pil_im(B)
+
         s_im, c_im = (A, B) if self.a_to_b else (B, A)
 
         s_im = s_im.convert('L')
@@ -202,7 +218,7 @@ class AlacGANInferenceDataset(BaseDataset):
         return len(self.paths)
 
     def __getitem__(self, i):
-        A, B = self._split_image(self._read_im(self.paths[i]))
+        A, B = self._split_image_pil(self._read_im_pil(self.paths[i]))
         s_im, c_im = (A, B) if self.a_to_b else (B, A)
 
         s_im = s_im.convert('L')

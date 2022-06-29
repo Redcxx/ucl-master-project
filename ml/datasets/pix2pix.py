@@ -31,7 +31,7 @@ class Pix2pixTrainDataset(BaseDataset):
         return len(self.paths)
 
     def __getitem__(self, i):
-        A, B = self._split_image(self._read_im(self.paths[i]))
+        A, B = self._split_image_pil(self._read_im_pil(self.paths[i]))
 
         transform = self._generate_transform()
 

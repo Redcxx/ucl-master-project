@@ -38,6 +38,7 @@ class BaseDataset(Dataset, ABC):
 
     @staticmethod
     def _split_image_cv(AB: np.array):
+        print(AB.shape)
         h, w = AB.shape[:-2]
         w2 = int(w / 2)
         A = AB[:, 0:w2]

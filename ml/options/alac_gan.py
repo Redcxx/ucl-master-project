@@ -30,7 +30,7 @@ class AlacGANTrainOptions(BaseTrainOptions):
     def __init__(self):
         super().__init__()
 
-        # self.run_id = r'alacGAN-train-2022-06-28-Tuesday-19h-02m-04s'
+        self.run_id = r'alacGAN-train-2022-06-29-Wednesday-17h-23m-26s'
 
         # Training
         self.batch_size = 8

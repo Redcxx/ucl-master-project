@@ -189,5 +189,6 @@ class RandomSizedCrop(object):
 
 class AlacGANInferenceDataset(AlacGANTestDataset):
 
-    def __init__(self, opt):
+    def __init__(self, opt: AlacGANInferenceOptions):
         super().__init__(opt)
+        self.paths = sorted(get_all_image_paths(opt.input_images_path))

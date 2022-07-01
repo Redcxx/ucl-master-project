@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 from typing import Tuple
 
 import numpy as np
@@ -5,13 +7,14 @@ import scipy.stats as stats
 import torch
 from torch import optim, nn, Tensor
 from torch.autograd import grad
+from tqdm import tqdm
 
 from ml.models.base import BaseTrainModel, BaseInferenceModel
 from .alac_gan_partials import NetG, NetD, NetF, NetI
 from ..criterion.GANBCELoss import GANBCELoss
 from ..logger import log
 from ..options.alac_gan import AlacGANTrainOptions, AlacGANInferenceOptions
-from ..plot_utils import plt_input_target
+from ..plot_utils import plt_input_target, plt_horizontals
 
 
 def _mask_gen(opt, X):
@@ -69,7 +72,7 @@ class AlacGANInferenceModel(BaseInferenceModel):
         self.net_G.load_state_dict(checkpoint['net_G_state_dict'])
         self.net_D.load_state_dict(checkpoint['net_D_state_dict'])
 
-    def inference_batch(self, i, batch_data) -> Tuple[Tensor, Tensor, Tensor]:
+    def inference_batch(self, i, batch_data) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor]:
         real_cim, real_vim, real_sim = batch_data
 
         real_cim = real_cim.to(self.opt.device)
@@ -84,7 +87,28 @@ class AlacGANInferenceModel(BaseInferenceModel):
 
         fake_cim = self.net_G(real_sim, hint, feat_sim)
 
-        return real_sim, real_cim, fake_cim
+        return real_sim, real_cim, fake_cim, real_vim * mask, mask
+
+    def inference(self):
+        # create output directory, delete existing one
+        save_path = Path(self.opt.output_images_path)
+        save_path.mkdir(exist_ok=True, parents=True)
+
+        iterator = enumerate(self.inference_loader)
+        if self.opt.show_progress:
+            iterator = tqdm(iterator, total=len(self.inference_loader), desc='Inference')
+        for i, batch_data in iterator:
+
+            inp_batch, tar_batch, out_batch, hint, mask = self.inference_batch(i, batch_data)
+
+            for inp_im, tar_im, out_im in zip(inp_batch, tar_batch, out_batch):
+                save_filename = os.path.join(self.opt.output_images_path, f'inference-{i}.png')
+                plt_horizontals(
+                    [inp_im, tar_im, out_im, hint, mask],
+                    titles=['input', 'target', 'output', 'hint', 'mask'],
+                    figsize=(5, 1),
+                    save_file=save_filename
+                )
 
 
 class AlacGANTrainModel(BaseTrainModel):

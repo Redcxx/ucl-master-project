@@ -12,8 +12,9 @@ def plt_tensor(im):
 
 
 def unnormalize_im(im):
-    mean = torch.tensor([0.5, 0.5, 0.5], dtype=torch.float32)
-    std = torch.tensor([0.5, 0.5, 0.5], dtype=torch.float32)
+    num_dims = len(im)
+    mean = torch.tensor([0.5 for _ in range(num_dims)], dtype=torch.float32)
+    std = torch.tensor([0.5 for _ in range(num_dims)], dtype=torch.float32)
     return transforms.Normalize((-mean / std).tolist(), (1.0 / std).tolist())(im)
 
 

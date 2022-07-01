@@ -28,6 +28,14 @@ def _mask_gen(opt, X):
     return mask.to(opt.device)
 
 
+def _mask_gen_all(opt, X):
+    maskS = opt.image_size // 4
+
+    mask = torch.cat([torch.rand(1, 1, maskS, maskS).ge(X.rvs(1)[0]).float() for _ in range(opt.batch_size)], 0)
+
+    return mask.to(opt.device)
+
+
 def calc_gradient_penalty(opt, netD, real_data, fake_data, sketch_feat):
     alpha = torch.rand(opt.batch_size, 1, 1, 1, device=opt.device)
 
@@ -79,7 +87,7 @@ class AlacGANInferenceModel(BaseInferenceModel):
         real_vim = real_vim.to(self.opt.device)
         real_sim = real_sim.to(self.opt.device)
 
-        mask = _mask_gen(self.opt, self.X)
+        mask = _mask_gen_all(self.opt, self.X)
         hint = torch.cat((real_vim * mask, mask), 1)
         with torch.no_grad():
             # get sketch feature

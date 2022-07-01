@@ -4,8 +4,9 @@ from matplotlib import pyplot as plt
 from torchvision.transforms import transforms
 
 
-def plt_tensor(im):
-    im = unnormalize_im(im)
+def plt_tensor(im, un_normalize=True):
+    if un_normalize:
+        im = unnormalize_im(im)
     im = im.cpu().detach().numpy()
     im = im.transpose(1, 2, 0).squeeze()
     plt.imshow(im)
@@ -18,12 +19,14 @@ def unnormalize_im(im):
     return transforms.Normalize((-mean / std).tolist(), (1.0 / std).tolist())(im)
 
 
-def plt_horizontals(images, titles=None, figsize=(1, 1), dpi=512, save_file=None):
+def plt_horizontals(images, titles=None, figsize=(1, 1), dpi=512, un_normalize=True, save_file=None):
     fig = plt.figure(figsize=figsize, dpi=dpi)
+    if type(un_normalize) == bool:
+        un_normalize = [un_normalize for _ in range(len(images))]
 
     for i, im in enumerate(images):
         plt.subplot(1, len(images), i + 1)
-        plt_tensor(im)
+        plt_tensor(im, un_normalize=un_normalize[i])
         if titles:
             plt.title(titles[i])
 

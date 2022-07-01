@@ -106,6 +106,7 @@ class AlacGANInferenceModel(BaseInferenceModel):
                 plt_horizontals(
                     [inp_im, tar_im, out_im, hint_im, mask_im],
                     titles=['input', 'target', 'output', 'hint', 'mask'],
+                    un_normalize=[True, True, True, False, False],
                     figsize=(5, 1),
                     save_file=save_filename
                 )

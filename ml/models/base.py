@@ -140,7 +140,7 @@ class BaseTrainModel(BaseModel, ABC):
         log(f'Train loader size: {len(self.train_loader)}')
         log(f'Test loader size: {len(self.test_loader)}')
         log(f'Using device {self.opt.device}')
-        log(f'Run started at {format_time(self.training_start_time)}')
+        log(f'Run started at {format_time(self.training_start_time, datetime=True)}')
         log(fill_char * width)
 
     ###
@@ -232,7 +232,7 @@ class BaseTrainModel(BaseModel, ABC):
     @abstractmethod
     def post_train(self):
         training_end_time = time.time()
-        log(f'Training finished at {format_time(training_end_time)}')
+        log(f'Training finished at {format_time(training_end_time, datetime=True)}')
         log(f'Time taken: {format_time(training_end_time - self.training_start_time)}')
         self.save_checkpoint(tag='final')
 
@@ -266,7 +266,7 @@ class BaseTrainModel(BaseModel, ABC):
         curr_time = time.time()
         time_remain = (curr_time - self.training_start_time) / epoch * (self.opt.end_epoch - epoch)
         text = f'[epoch={epoch}] ' + \
-               f'[curr_time={format_time(curr_time)}] ' + \
+               f'[curr_time={format_time(curr_time, datetime=True)}] ' + \
                f'[train_time={format_time(curr_time - self.training_start_time)}] ' + \
                f'[epoch_time={format_time(curr_time - self.last_epoch_time)}] ' + \
                f'[time_remain={format_time(time_remain)}] ' + \

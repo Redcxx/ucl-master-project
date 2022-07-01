@@ -9,6 +9,7 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
         self.output_images_path = 'output_images'
         self.image_size = 512
         self.a_to_b = True
+        self.batch_size = 8
 
     @property
     def tag(self):

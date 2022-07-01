@@ -100,6 +100,7 @@ class AlacGANInferenceModel(BaseInferenceModel):
         for i, batch_data in iterator:
 
             inp_batch, tar_batch, out_batch, hint, mask = self.inference_batch(i, batch_data)
+            print(inp_batch.shape, tar_batch.shape, out_batch.shape, hint.shape, mask.shape)
 
             for inp_im, tar_im, out_im in zip(inp_batch, tar_batch, out_batch):
                 save_filename = os.path.join(self.opt.output_images_path, f'inference-{i}.png')

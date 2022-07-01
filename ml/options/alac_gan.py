@@ -7,7 +7,7 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
         super().__init__()
         self.input_images_path = 'inference_images'
         self.output_images_path = 'output_images'
-        self.image_size = 256
+        self.image_size = 512
         self.a_to_b = True
 
     @property

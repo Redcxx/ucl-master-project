@@ -14,7 +14,7 @@ from tqdm import tqdm
 from ml.logger import log
 from ml.misc_utils import format_time, get_center_text
 from ml.options.base import BaseOptions, BaseTrainOptions, BaseInferenceOptions
-from ml.plot_utils import plot_inp_tar_out
+from ml.plot_utils import plt_model_sample
 from ml.save_load import init_drive_and_folder, save_file, load_file
 
 
@@ -70,7 +70,7 @@ class BaseInferenceModel(BaseModel, ABC):
 
             for inp_im, tar_im, out_im in zip(inp_batch, tar_batch, out_batch):
                 save_filename = os.path.join(self.opt.output_images_path, f'inference-{i}.png')
-                plot_inp_tar_out(inp_im, tar_im, out_im, save_file=save_filename)
+                plt_model_sample(inp_im, tar_im, out_im, save_file=save_filename)
 
 
 class BaseTrainModel(BaseModel, ABC):
@@ -201,7 +201,7 @@ class BaseTrainModel(BaseModel, ABC):
 
             for inp_im, tar_im, out_im in zip(inp_batch, tar_batch, out_batch):
                 if displayed_images < self.opt.eval_n_display_samples:
-                    plot_inp_tar_out(inp_im, tar_im, out_im, save_file=None)
+                    plt_model_sample(inp_im, tar_im, out_im, save_file=None)
                     displayed_images += 1
 
                 if saved_images < self.opt.eval_n_save_samples:
@@ -209,7 +209,7 @@ class BaseTrainModel(BaseModel, ABC):
                         self.opt.eval_images_save_folder,
                         f'epoch-{epoch}-eval-{saved_images}.png'
                     )
-                    plot_inp_tar_out(inp_im, tar_im, out_im, save_file=save_filename)
+                    plt_model_sample(inp_im, tar_im, out_im, save_file=save_filename)
                     saved_images += 1
 
         return np.mean(eval_losses)
@@ -264,10 +264,12 @@ class BaseTrainModel(BaseModel, ABC):
 
     def log_epoch(self, epoch):
         curr_time = time.time()
+        time_remain = (curr_time - self.training_start_time) / epoch * (self.opt.end_epoch - epoch)
         text = f'[epoch={epoch}] ' + \
                f'[curr_time={format_time(curr_time)}] ' + \
                f'[train_time={format_time(curr_time - self.training_start_time)}] ' + \
                f'[epoch_time={format_time(curr_time - self.last_epoch_time)}] ' + \
+               f'[time_remain={format_time(time_remain)}] ' + \
                (f'[eval_loss={self.epoch_eval_loss:.4f}]' if self.epoch_eval_loss is not None else '')
 
         self.last_epoch_time = curr_time

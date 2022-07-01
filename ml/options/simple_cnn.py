@@ -13,6 +13,10 @@ class SimpleCNNTrainOptions(BaseTrainOptions):
 
 
 class SimpleCNNInferenceOptions(BaseInferenceOptions):
+    @property
+    def inference_run_id(self):
+        return 'SimpleCNNInferenceOptionsRunID'
+
     def __init__(self):
         super().__init__()
 

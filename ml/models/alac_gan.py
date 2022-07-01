@@ -11,7 +11,7 @@ from .alac_gan_partials import NetG, NetD, NetF, NetI
 from ..criterion.GANBCELoss import GANBCELoss
 from ..logger import log
 from ..options.alac_gan import AlacGANTrainOptions, AlacGANInferenceOptions
-from ..plot_utils import plot_inp_tar
+from ..plot_utils import plt_input_target
 
 
 def _mask_gen(opt, X):
@@ -208,7 +208,7 @@ class AlacGANTrainModel(BaseTrainModel):
         i = 1
         for real_cim, _, real_sim in self.train_loader:
             for inp, tar in zip(real_sim, real_cim):
-                plot_inp_tar(inp, tar, save_file=f'sanity-check-im-{i}.jpg')
+                plt_input_target(inp, tar, save_file=f'sanity-check-im-{i}.jpg')
                 i += 1
                 if i > 5:
                     break

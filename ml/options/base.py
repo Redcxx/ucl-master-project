@@ -66,6 +66,12 @@ class BaseInferenceOptions(BaseOptions, ABC):
         self.shuffle = False
         self.output_images_path = 'BaseInferenceOptionsOutputPath'
         self.show_progress = True
+        self.run_id = self.inference_run_id
+
+    @property
+    @abstractmethod
+    def inference_run_id(self):
+        pass
 
 
 class BaseTrainOptions(BaseOptions, ABC):

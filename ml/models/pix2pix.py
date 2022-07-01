@@ -8,7 +8,7 @@ from ml.models.base import BaseTrainModel
 from .pix2pix_partials import Generator, Discriminator
 from ..criterion.GANBCELoss import GANBCELoss
 from ..options.pix2pix import Pix2pixTrainOptions
-from ..plot_utils import plot_inp_tar
+from ..plot_utils import plt_input_target
 
 
 class Pix2pixTrainModel(BaseTrainModel):
@@ -72,7 +72,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         i = 0
         for inp_batch, tar_batch in self.train_loader:
             for inp, tar in zip(inp_batch, tar_batch):
-                plot_inp_tar(inp, tar)
+                plt_input_target(inp, tar)
                 i += 1
                 if i > 5:
                     break

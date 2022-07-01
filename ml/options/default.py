@@ -19,3 +19,7 @@ class DefaultInferenceOptions(BaseInferenceOptions):
     @property
     def tag(self):
         return 'default-inference-tag'
+
+    @property
+    def inference_run_id(self):
+        return 'default-inference-run-id'

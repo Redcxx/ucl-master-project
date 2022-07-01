@@ -10,11 +10,13 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
         self.image_size = 256
         self.a_to_b = True
 
-        # self.run_id = r'alacGAN-train-2022-06-27-Monday-18h-22m-13s'
-
     @property
     def tag(self):
         return 'alac_gan_inference'
+
+    @property
+    def inference_run_id(self):
+        return 'alacGAN-train-2022-06-29-Wednesday-17h-23m-26s'
 
 
 class AlacGANTrainOptions(BaseTrainOptions):
@@ -38,7 +40,6 @@ class AlacGANTrainOptions(BaseTrainOptions):
         self.batch_log_freq = 100
 
         self.image_size = 512
-        self.cardinality = 32
 
         # Dataset
         self.dataset_root = './alacgan_colorization_data'
@@ -47,6 +48,6 @@ class AlacGANTrainOptions(BaseTrainOptions):
         # Optimizer
         self.lr = 0.0001
 
-        # Other
+        # Backbones checkpoint
         self.VGG16_PATH = 'vgg16-397923af.pth'
         self.I2V_PATH = 'i2v.pth'

@@ -64,7 +64,6 @@ class AlacGANTrainDataset(BaseDataset):
         s_im, c_im = (A, B) if self.a_to_b else (B, A)
 
         s_im = s_im.convert('L')
-        # color_im, sketch_im = RandomCrop(512)(Cimg, Simg)
         if random.random() < 0.5:
             c_im, s_im = c_im.transpose(Image.FLIP_LEFT_RIGHT), s_im.transpose(Image.FLIP_LEFT_RIGHT)
 
@@ -188,40 +187,7 @@ class RandomSizedCrop(object):
         return crop(scale(img))
 
 
-class AlacGANInferenceDataset(BaseDataset):
+class AlacGANInferenceDataset(AlacGANTestDataset):
 
-    def __init__(self, opt: AlacGANInferenceOptions):
+    def __init__(self, opt):
         super().__init__(opt)
-        root = opt.input_images_path
-        self.paths = sorted(get_all_image_paths(root))
-        self.a_to_b = opt.a_to_b
-
-        self.c_trans = transforms.Compose([
-            transforms.Resize(opt.image_size, InterpolationMode.BICUBIC),
-            transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ])
-
-        self.v_trans = transforms.Compose([
-            RandomSizedCrop(opt.image_size // 4, InterpolationMode.BICUBIC),
-            transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ])
-
-        self.s_trans = transforms.Compose([
-            transforms.Resize(opt.image_size, InterpolationMode.BICUBIC),
-            transforms.ToTensor(),
-            transforms.Normalize(0.5, 0.5)
-        ])
-
-    def __len__(self):
-        return len(self.paths)
-
-    def __getitem__(self, i):
-        A, B = self._split_image_pil(self._read_im_pil(self.paths[i]))
-        s_im, c_im = (A, B) if self.a_to_b else (B, A)
-
-        s_im = s_im.convert('L')
-        c_im, v_im, s_im = self.c_trans(c_im), self.v_trans(c_im), self.s_trans(s_im)
-
-        return c_im, v_im, s_im

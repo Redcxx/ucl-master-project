@@ -1,8 +1,7 @@
-import time
-
-
 def format_time(seconds):
-    return time.strftime('%Hh:%Mm:%Ss', time.gmtime(seconds))
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    return f'{hours}h:{minutes}m:{seconds}s'
 
 
 def get_center_text(text, width, fill_char='='):

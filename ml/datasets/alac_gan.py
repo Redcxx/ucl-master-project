@@ -187,8 +187,43 @@ class RandomSizedCrop(object):
         return crop(scale(img))
 
 
-class AlacGANInferenceDataset(AlacGANTestDataset):
+class AlacGANInferenceDataset(BaseDataset):
 
     def __init__(self, opt: AlacGANInferenceOptions):
         super().__init__(opt)
-        self.paths = sorted(get_all_image_paths(opt.input_images_path))
+        root = os.path.join(opt.input_images_path)
+        self.paths = sorted(get_all_image_paths(root))
+        self.a_to_b = opt.a_to_b
+
+        self.c_trans = transforms.Compose([
+            transforms.Resize(opt.image_size, InterpolationMode.BICUBIC),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
+
+        self.v_trans = transforms.Compose([
+            RandomSizedCrop(opt.image_size // 4, InterpolationMode.BICUBIC),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
+
+        self.s_trans = transforms.Compose([
+            transforms.Resize(opt.image_size, InterpolationMode.BICUBIC),
+            transforms.ToTensor(),
+            transforms.Normalize(0.5, 0.5)
+        ])
+
+    def __len__(self):
+        return len(self.paths)
+
+    def __getitem__(self, i):
+        _, B = self._split_image_cv(self._read_im_cv(self.paths[i]))
+        A = extract_edges_cv(B, sigma=0.4)
+        A, B = self._cv2pil_im(A), self._cv2pil_im(B)
+
+        s_im, c_im = (A, B) if self.a_to_b else (B, A)
+
+        s_im = s_im.convert('L')
+        c_im, v_im, s_im = self.c_trans(c_im), self.v_trans(c_im), self.s_trans(s_im)
+
+        return c_im, v_im, s_im

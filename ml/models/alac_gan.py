@@ -100,12 +100,11 @@ class AlacGANInferenceModel(BaseInferenceModel):
         for i, batch_data in iterator:
 
             inp_batch, tar_batch, out_batch, hint, mask = self.inference_batch(i, batch_data)
-            print(inp_batch.shape, tar_batch.shape, out_batch.shape, hint.shape, mask.shape)
 
-            for inp_im, tar_im, out_im in zip(inp_batch, tar_batch, out_batch):
+            for inp_im, tar_im, out_im, hint_im, mask_im in zip(inp_batch, tar_batch, out_batch, hint, mask):
                 save_filename = os.path.join(self.opt.output_images_path, f'inference-{i}.png')
                 plt_horizontals(
-                    [inp_im, tar_im, out_im, hint, mask],
+                    [inp_im, tar_im, out_im, hint_im, mask_im],
                     titles=['input', 'target', 'output', 'hint', 'mask'],
                     figsize=(5, 1),
                     save_file=save_filename

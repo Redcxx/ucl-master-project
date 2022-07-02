@@ -4,6 +4,7 @@ import numpy as np
 from torch import Tensor, nn, optim
 from torch.utils.data import DataLoader
 
+from ml.logger import log
 from ml.models import BaseTrainModel
 from ml.models.base import BaseInferenceModel
 from ml.models.sketch_simp_partials import SketchSimpModel
@@ -11,6 +12,7 @@ from ml.options import BaseTrainOptions
 from ml.options.base import BaseInferenceOptions
 from ml.options.default import DefaultTrainOptions
 from ml.options.sketch_simp import SketchSimpInferenceOptions, SketchSimpTrainOptions
+from ml.plot_utils import plt_input_target
 
 
 class SketchSimpInferenceModel(BaseInferenceModel):
@@ -50,6 +52,8 @@ class SketchSimpTrainModel(BaseTrainModel):
 
         self.losses = []
 
+        self.setup()
+
     def setup_from_train_checkpoint(self, checkpoint):
         loaded_opt = SketchSimpTrainOptions()
         loaded_opt.load_saved_dict(checkpoint['option_saved_dict'])
@@ -69,8 +73,23 @@ class SketchSimpTrainModel(BaseTrainModel):
             gamma=opt.opt_gamma
         )
 
+    def _sanity_check(self):
+        log('Generating Sanity Checks')
+        i = 1
+        n = 10
+        for inp_batch, tar_batch in self.train_loader:
+            for inp, tar in zip(inp_batch, tar_batch):
+                plt_input_target(inp, tar, save_file=f'sanity-check-im-{i}.jpg')
+                i += 1
+                if i > n:
+                    break
+            if i > n:
+                break
+        log('Sanity Checks Generated')
+
     def pre_train(self):
         super().pre_train()
+        self._sanity_check()
 
     def pre_epoch(self):
         super().pre_epoch()

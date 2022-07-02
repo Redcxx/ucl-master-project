@@ -37,7 +37,7 @@ class AlacGANTrainOptions(BaseTrainOptions):
         self.eval_freq = 25
         self.log_freq = 1
         self.save_freq = 50
-        self.batch_log_freq = None
+        self.batch_log_freq = 0
         self.resume_ckpt_file = 'alacGAN-train-2022-06-29-Wednesday-17h-23m-26s_latest.ckpt'
 
         # Dataset

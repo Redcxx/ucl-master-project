@@ -102,7 +102,7 @@ class BaseTrainModel(BaseModel, ABC):
             self.setup_from_train_checkpoint(self.load_checkpoint(file_name=self.opt.resume_ckpt_file))
             log('done')
 
-        if self.opt.start_epoch > 1:
+        elif self.opt.start_epoch > 1:
             # try resume training
             log(f'Loading training checkpoint (start epoch {self.opt.start_epoch} > 1) ...', end='')
             self.setup_from_train_checkpoint(self.load_checkpoint(tag=f'{self.opt.start_epoch - 1}'))

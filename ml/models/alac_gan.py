@@ -198,10 +198,8 @@ class AlacGANTrainModel(BaseTrainModel):
         self.crt_l1 = nn.L1Loss()
         self.crt_bce = GANBCELoss().to(opt.device)
 
-        self.sch_G = optim.lr_scheduler.StepLR(self.opt_G, step_size=opt.scheduler_step_size,
-                                               gamma=opt.scheduler_gamma, last_epoch=opt.start_epoch-2)
-        self.sch_D = optim.lr_scheduler.StepLR(self.opt_D, step_size=opt.scheduler_step_size,
-                                               gamma=opt.scheduler_gamma, last_epoch=opt.start_epoch - 2)
+        self.sch_G = optim.lr_scheduler.StepLR(self.opt_G, step_size=opt.scheduler_step_size, gamma=opt.scheduler_gamma)
+        self.sch_D = optim.lr_scheduler.StepLR(self.opt_D, step_size=opt.scheduler_step_size, gamma=opt.scheduler_gamma)
 
     def evaluate_batch(self, i, batch_data) -> Tuple[float, Tensor, Tensor, Tensor]:
         real_cim, real_vim, real_sim = batch_data

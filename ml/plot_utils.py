@@ -16,7 +16,6 @@ def unnormalize_im(im):
     num_dims = im.shape[0]
     mean = torch.tensor([0.5 for _ in range(num_dims)], dtype=torch.float32)
     std = torch.tensor([0.5 for _ in range(num_dims)], dtype=torch.float32)
-    print(im.shape, mean.shape, std.shape)
     return transforms.Normalize((-mean / std).tolist(), (1.0 / std).tolist())(im)
 
 

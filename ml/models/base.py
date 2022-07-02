@@ -24,9 +24,12 @@ class BaseModel(ABC):
         self.opt = opt
         init_drive_and_folder(self.opt)  # for saving and loading
 
-    def load_checkpoint(self, tag):
-        log('Loading checkpoint ... ', end='')
-        file_name = f'{self.opt.run_id}_{tag}.ckpt'
+    def load_checkpoint(self, tag=None, file_name=None):
+        if file_name is None:
+            assert tag is not None, "either file_name or tag must be supplied"
+            file_name = f'{self.opt.run_id}_{tag}.ckpt'
+
+        log(f'Loading checkpoint (file=\"{file_name}\") ... ', end='')
         load_file(self.opt, file_name)  # ensure exists locally, will raise error if not exists
         log(f'done: {file_name}')
         return torch.load(file_name)
@@ -94,9 +97,14 @@ class BaseTrainModel(BaseModel, ABC):
         self.epoch_eval_loss = None
 
     def setup(self):
-        if self.opt.resume_training or self.opt.start_epoch > 1:
+        if self.opt.resume_ckpt_file is not None:
+            log(f'Loading training checkpoint (resume id \"{self.opt.resume_ckpt_file}\" is not none) ...', end='')
+            self.setup_from_train_checkpoint(self.load_checkpoint(file_name=self.opt.resume_ckpt_file))
+            log('done')
+
+        if self.opt.start_epoch > 1:
             # try resume training
-            log('Loading training checkpoint ...', end='')
+            log(f'Loading training checkpoint (start epoch {self.opt.start_epoch} > 1) ...', end='')
             self.setup_from_train_checkpoint(self.load_checkpoint(tag=f'{self.opt.start_epoch - 1}'))
             log('done')
 

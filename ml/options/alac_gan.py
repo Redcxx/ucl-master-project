@@ -30,25 +30,27 @@ class AlacGANTrainOptions(BaseTrainOptions):
     def __init__(self):
         super().__init__()
 
-        self.run_id = r'alacGAN-train-2022-06-29-Wednesday-17h-23m-26s'
-
         # Training
         self.batch_size = 8
-        self.start_epoch = 31
-        self.end_epoch = 40
-        self.eval_freq = 1
+        self.start_epoch = 1
+        self.end_epoch = 250
+        self.eval_freq = 25
         self.log_freq = 1
-        self.save_freq = 1
-        self.batch_log_freq = 100
-
-        self.image_size = 512
+        self.save_freq = 50
+        self.batch_log_freq = None
+        self.resume_ckpt_file = 'alacGAN-train-2022-06-29-Wednesday-17h-23m-26s_latest.ckpt'
 
         # Dataset
-        self.dataset_root = './alacgan_colorization_data'
+        self.image_size = 512
+        self.dataset_root = './colorization'
         self.a_to_b = True
 
         # Optimizer
         self.lr = 0.00001
+
+        # Scheduler
+        self.scheduler_step_size = 200
+        self.scheduler_gamma = 0.1
 
         # Backbones checkpoint
         self.VGG16_PATH = 'vgg16-397923af.pth'

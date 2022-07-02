@@ -136,16 +136,13 @@ class AlacGANTrainModel(BaseTrainModel):
         self.opt_D = None
 
         # scheduler
-        # self.sch_G = None
-        # self.sch_D = None
+        self.sch_G = None
+        self.sch_D = None
 
         # loss
         self.crt_mse = None
         self.crt_l1 = None
         self.crt_bce = None
-        self.fixed_sketch = None
-        self.fixed_hint = None
-        self.fixed_sketch_feat = None
 
         # housekeeping
         self.net_G_losses = []
@@ -182,8 +179,8 @@ class AlacGANTrainModel(BaseTrainModel):
 
     def setup_from_opt(self, opt):
         # network
-        self.net_G = NetG(opt).to(self.opt.device)
-        self.net_D = NetD(opt).to(self.opt.device)
+        self.net_G = NetG(opt).to(opt.device)
+        self.net_D = NetD(opt).to(opt.device)
 
         self.opt_G = optim.Adam(self.net_G.parameters(), lr=opt.lr, betas=(0.5, 0.999))
         self.opt_D = optim.Adam(self.net_D.parameters(), lr=opt.lr, betas=(0.5, 0.999))
@@ -201,9 +198,10 @@ class AlacGANTrainModel(BaseTrainModel):
         self.crt_l1 = nn.L1Loss()
         self.crt_bce = GANBCELoss().to(opt.device)
 
-        self.fixed_sketch = torch.tensor(0, device=self.opt.device).float()
-        self.fixed_hint = torch.tensor(0, device=self.opt.device).float()
-        self.fixed_sketch_feat = torch.tensor(0, device=self.opt.device).float()
+        self.sch_G = optim.lr_scheduler.StepLR(self.opt_G, step_size=opt.scheduler_step_size,
+                                               gamma=opt.scheduler_gamma, last_epoch=opt.start_epoch-2)
+        self.sch_D = optim.lr_scheduler.StepLR(self.opt_D, step_size=opt.scheduler_step_size,
+                                               gamma=opt.scheduler_gamma, last_epoch=opt.start_epoch - 2)
 
     def evaluate_batch(self, i, batch_data) -> Tuple[float, Tensor, Tensor, Tensor]:
         real_cim, real_vim, real_sim = batch_data
@@ -229,7 +227,8 @@ class AlacGANTrainModel(BaseTrainModel):
         # summary(
         #     self.net_G,
         #     torch.rand(self.opt.batch_size, 1, self.opt.image_size, self.opt.image_size).to(self.opt.device),
-        #     torch.rand(self.opt.batch_size, 4, self.opt.image_size // 4, self.opt.image_size // 4).to(self.opt.device),
+        #     torch.rand(self.opt.batch_size, 4, self.opt.image_size // 4, self.opt.image_size // 4)
+        #                   .to(self.opt.device),
         #     torch.rand(self.opt.batch_size, 512, 32, 32).to(self.opt.device),
         # )
         # summary(
@@ -344,8 +343,8 @@ class AlacGANTrainModel(BaseTrainModel):
     def post_epoch(self, epoch):
         super().post_epoch(epoch)
 
-        # self.sch_G.step(epoch)
-        # self.sch_D.step(epoch)
+        self.sch_G.step()
+        self.sch_D.step()
 
     def post_train(self):
         super().post_train()

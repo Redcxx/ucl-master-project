@@ -87,7 +87,7 @@ class BaseTrainOptions(BaseOptions, ABC):
         self.log_freq = 1
         self.save_freq = 10
         self.batch_log_freq = 100
-        self.resume_training = False
+        self.resume_ckpt_file = None
 
         # Dataset
         self.dataset_root = 'BaseTrainOptionDatasetRoot'

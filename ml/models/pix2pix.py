@@ -6,6 +6,7 @@ from torchsummaryX import summary
 from ml.models.base import BaseTrainModel
 from .pix2pix_partials import Generator, Discriminator
 from ml.models.criterion.GANBCELoss import GANBCELoss
+from ..logger import log
 from ..options.pix2pix import Pix2pixTrainOptions
 from ..plot_utils import plt_input_target
 
@@ -65,8 +66,10 @@ class Pix2pixTrainModel(BaseTrainModel):
     def _sanity_check(self):
         log('Generating Sanity Checks')
         # see if model architecture is alright
-        summary(self.net_G, torch.rand(self.opt.batch_size, 3, self.opt.image_size, self.opt.image_size).to(self.opt.device))
-        summary(self.net_D, torch.rand(self.opt.batch_size, 6, self.opt.image_size, self.opt.image_size).to(self.opt.device))
+        summary(self.net_G, torch.rand(self.opt.batch_size, 3, self.opt.image_size, self.opt.image_size)
+                .to(self.opt.device))
+        summary(self.net_D, torch.rand(self.opt.batch_size, 6, self.opt.image_size, self.opt.image_size)
+                .to(self.opt.device))
         # get some data and see if it looks good
         i = 0
         for inp_batch, tar_batch in self.train_loader:
@@ -196,8 +199,8 @@ class Pix2pixTrainModel(BaseTrainModel):
             'opt': self.opt.saved_dict,
         }
 
-    def load_checkpoint(self, tag):
-        checkpoint = super().load_checkpoint(tag)
+    def load_checkpoint(self, tag, file_name=None):
+        checkpoint = super().load_checkpoint(tag, file_name)
 
         opt_dict = checkpoint['opt']
         loaded_opt = Pix2pixTrainOptions()

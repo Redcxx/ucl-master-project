@@ -66,8 +66,7 @@ class SketchSimpTrainModel(BaseTrainModel):
         self.scheduler = optim.lr_scheduler.StepLR(
             self.optimizer,
             step_size=opt.opt_step_size,
-            gamma=opt.opt_gamma,
-            last_epoch=self.opt.start_epoch - 1
+            gamma=opt.opt_gamma
         )
 
     def pre_train(self):

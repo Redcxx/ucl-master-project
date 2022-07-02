@@ -7,19 +7,19 @@ class SketchSimpTrainOptions(BaseTrainOptions):
     def __init__(self):
         super().__init__()
         # Training
-        self.batch_size = 8
+        self.batch_size = 32
         self.start_epoch = 1
-        self.end_epoch = 100
-        self.eval_freq = 5
-        self.log_freq = 1
-        self.save_freq = 1
-        self.batch_log_freq = 100
+        self.end_epoch = 250_000
+        self.eval_freq = 10_000
+        self.log_freq = 1_000
+        self.save_freq = 10_000
+        self.batch_log_freq = 0
         # Optimizer
-        self.opt_step_size = 50
-        self.opt_gamma = 0.5
+        self.opt_step_size = 200_000
+        self.opt_gamma = 0.1
 
         # Dataset
-        self.dataset_dir = 'sketch-simp-train-dataset-root'
+        self.dataset_dir = 'sketch_simp_pretrain_data'
         self.a_to_b = True
 
         # Optimizer

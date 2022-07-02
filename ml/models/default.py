@@ -24,7 +24,7 @@ class DefaultInferenceModel(BaseInferenceModel):
         loaded_opt = DefaultTrainOptions()
         loaded_opt.load_saved_dict(checkpoint['option_saved_dict'])
 
-        self.network = nn.Conv2d(3, 3, (5, 5), padding='same').to(loaded_opt.device)
+        self.network = ...
         self.network.load_state_dict(checkpoint['network_state_dict'])
 
     def inference_batch(self, i, batch_data):
@@ -58,7 +58,7 @@ class DefaultTrainModel(BaseTrainModel):
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
     def setup_from_opt(self, opt):
-        self.network = nn.Conv2d(3, 3, (5, 5), padding='same').to(opt.device)
+        self.network = ...
         self.optimizer = optim.Adam(self.network.parameters(), lr=opt.lr)
         self.criterion = nn.MSELoss()
         self.scheduler = optim.lr_scheduler.StepLR(

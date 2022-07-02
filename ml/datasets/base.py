@@ -55,4 +55,8 @@ class BaseDataset(Dataset, ABC):
 
     @staticmethod
     def _pil2cv_im(im: Image):
-        return np.asarray(im)
+        im = np.asarray(im)
+        if im.dtype == np.uint8:
+            im = im.astype(float) / 255
+        return im
+

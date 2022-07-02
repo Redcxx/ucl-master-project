@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 from ml.models.base import BaseTrainModel, BaseInferenceModel
 from .alac_gan_partials import NetG, NetD, NetF, NetI
-from ..criterion.GANBCELoss import GANBCELoss
+from ml.models.criterion.GANBCELoss import GANBCELoss
 from ..logger import log
 from ..options.alac_gan import AlacGANTrainOptions, AlacGANInferenceOptions
 from ..plot_utils import plt_input_target, plt_horizontals

@@ -1,12 +1,11 @@
 import numpy as np
 import torch
-from matplotlib import pyplot as plt
 from torch import optim, nn
 from torchsummaryX import summary
 
 from ml.models.base import BaseTrainModel
 from .pix2pix_partials import Generator, Discriminator
-from ..criterion.GANBCELoss import GANBCELoss
+from ml.models.criterion.GANBCELoss import GANBCELoss
 from ..options.pix2pix import Pix2pixTrainOptions
 from ..plot_utils import plt_input_target
 

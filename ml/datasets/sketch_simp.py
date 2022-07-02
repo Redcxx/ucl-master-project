@@ -58,6 +58,9 @@ class SketchSimpTrainDataset(BaseDataset):
         A, B = self._split_image_cv(self._read_im_cv(self.paths[i]))
         A, B = cv.cvtColor(A, cv.COLOR_RGB2GRAY), cv.cvtColor(B, cv.COLOR_RGB2GRAY)
 
+        if random.random() < 0.1:
+            A, B = B, B  # encourage model to not change cleaned image
+
         flip = random.random() < 0.5
         rotate_deg = random.randint(0, 180)
 

@@ -29,7 +29,7 @@ class BaseModel(ABC):
             assert tag is not None, "either file_name or tag must be supplied"
             file_name = f'{self.opt.run_id}_{tag}.ckpt'
 
-        log(f'Loading checkpoint (file=\"{file_name}\") ... ', end='')
+        log(f'Loading checkpoint ... ', end='')
         load_file(self.opt, file_name)  # ensure exists locally, will raise error if not exists
         log(f'done: {file_name}')
         return torch.load(file_name)

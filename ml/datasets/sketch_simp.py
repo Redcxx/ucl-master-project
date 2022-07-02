@@ -17,7 +17,7 @@ class SketchSimpDataset(BaseDataset):
         self.a_to_b = opt.a_to_b
         self.transform = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Resize(size=opt.image_size),
+            transforms.Resize(size=(opt.image_size, opt.image_size)),
             transforms.Normalize(0.5, 0.5),
         ])
 

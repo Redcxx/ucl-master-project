@@ -16,17 +16,17 @@ class SketchSimpDataset(BaseDataset):
         self.paths = sorted(get_all_image_paths(root))
         self.a_to_b = opt.a_to_b
         self.transform = transforms.Compose([
-            transforms.Resize(size=opt.image_size),
             transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+            transforms.Resize(size=opt.image_size),
+            transforms.Normalize(0.5, 0.5),
         ])
 
     def __len__(self):
         return len(self.paths)
 
     def __getitem__(self, i):
-        A, B = self._split_image_pil(self._read_im_pil(self.paths[i]))
-        A, B = A.convert('L'), B.convert('L')
+        A, B = self._split_image_cv(self._read_im_cv(self.paths[i]))
+        A, B = cv.cvtColor(A, cv.COLOR_RGB2GRAY), cv.cvtColor(B, cv.COLOR_RGB2GRAY)
         A, B = self.transform(A), self.transform(B)
         return (A, B) if self.a_to_b else (B, A)
 

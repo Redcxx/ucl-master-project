@@ -6,7 +6,7 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
     def __init__(self):
         super().__init__()
         self.input_images_path = r'./colorization/test'
-        self.output_images_path = 'output_images_noghost'
+        self.output_images_path = 'output_images_noghost_maskless'
         self.image_size = 512
         self.a_to_b = True
         self.batch_size = 8

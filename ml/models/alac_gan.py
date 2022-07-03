@@ -10,8 +10,8 @@ from torch.autograd import grad
 from tqdm import tqdm
 
 from ml.models.base import BaseTrainModel, BaseInferenceModel
-from .alac_gan_partials import NetG, NetD, NetF, NetI
 from ml.models.criterion.GANBCELoss import GANBCELoss
+from .alac_gan_partials import NetG, NetD, NetF, NetI
 from ..logger import log
 from ..options.alac_gan import AlacGANTrainOptions, AlacGANInferenceOptions
 from ..plot_utils import plt_input_target, plt_horizontals
@@ -32,6 +32,14 @@ def _mask_gen_all(opt, X):
     maskS = opt.image_size // 4
 
     mask = torch.cat([torch.rand(1, 1, maskS, maskS).ge(X.rvs(1)[0]).float() for _ in range(opt.batch_size)], 0)
+
+    return mask.to(opt.device)
+
+
+def _mask_gen_none(opt):
+    maskS = opt.image_size // 4
+
+    mask = torch.cat([torch.zeros(1, 1, maskS, maskS).float() for _ in range(opt.batch_size)], 0)
 
     return mask.to(opt.device)
 
@@ -87,7 +95,10 @@ class AlacGANInferenceModel(BaseInferenceModel):
         real_vim = real_vim.to(self.opt.device)
         real_sim = real_sim.to(self.opt.device)
 
-        mask = _mask_gen_all(self.opt, self.X)
+        if self.opt.hint_mask:
+            mask = _mask_gen_all(self.opt, self.X)
+        else:
+            mask = _mask_gen_none(self.opt)
         hint = torch.cat((real_vim * mask, mask), 1)
         with torch.no_grad():
             # get sketch feature

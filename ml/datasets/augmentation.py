@@ -96,72 +96,19 @@ def rotated_crop_dims(w, h, angle):
 # I did this by moving get_params to __init__ instead of forward
 class FixedRandomResizedCrop(nn.Module):
 
-    def __init__(self, height, width, size, scale=(0.08, 1.0), ratio=(3.0 / 4.0, 4.0 / 3.0),
-                 interpolation=InterpolationMode.BILINEAR):
+    def __init__(self, in_size, out_size, interpolation=InterpolationMode.BILINEAR):
         super().__init__()
-        self.size = _setup_size(size, error_msg="Please provide only two dimensions (h, w) for size.")
-
-        if not isinstance(scale, Sequence):
-            raise TypeError("Scale should be a sequence")
-        if not isinstance(ratio, Sequence):
-            raise TypeError("Ratio should be a sequence")
-        if (scale[0] > scale[1]) or (ratio[0] > ratio[1]):
-            warnings.warn("Scale and ratio should be of kind (min, max)")
-
-        # Backward compatibility with integer value
-        if isinstance(interpolation, int):
-            warnings.warn(
-                "Argument 'interpolation' of type int is deprecated since 0.13 and will be removed in 0.15. "
-                "Please use InterpolationMode enum."
-            )
-            interpolation = _interpolation_modes_from_int(interpolation)
-
         self.interpolation = interpolation
-        self.scale = scale
-        self.ratio = ratio
 
-        self.i, self.j, self.h, self.w = self.get_params(height, width, self.scale, self.ratio)
+        in_w, in_h = in_size
+        out_w, out_h = out_size
 
-    @staticmethod
-    def get_params(height, width, scale: List[float], ratio: List[float]) -> Tuple[int, int, int, int]:
 
-        area = height * width
 
-        log_ratio = torch.log(torch.tensor(ratio))
-        for _ in range(10):
-            target_area = area * torch.empty(1).uniform_(scale[0], scale[1]).item()
-            aspect_ratio = torch.exp(torch.empty(1).uniform_(log_ratio[0], log_ratio[1])).item()
 
-            w = int(round(math.sqrt(target_area * aspect_ratio)))
-            h = int(round(math.sqrt(target_area / aspect_ratio)))
 
-            if 0 < w <= width and 0 < h <= height:
-                i = torch.randint(0, height - h + 1, size=(1,)).item()
-                j = torch.randint(0, width - w + 1, size=(1,)).item()
-                return i, j, h, w
-
-        # Fallback to central crop
-        in_ratio = float(width) / float(height)
-        if in_ratio < min(ratio):
-            w = width
-            h = int(round(w / min(ratio)))
-        elif in_ratio > max(ratio):
-            h = height
-            w = int(round(h * max(ratio)))
-        else:  # whole image
-            w = width
-            h = height
-        i = (height - h) // 2
-        j = (width - w) // 2
-        return i, j, h, w
 
     def forward(self, img):
         return F.resized_crop(img, self.i, self.j, self.h, self.w, self.size, self.interpolation)
 
-    def __repr__(self) -> str:
-        interpolate_str = self.interpolation.value
-        format_string = self.__class__.__name__ + f"(size={self.size}"
-        format_string += f", scale={tuple(round(s, 4) for s in self.scale)}"
-        format_string += f", ratio={tuple(round(r, 4) for r in self.ratio)}"
-        format_string += f", interpolation={interpolate_str})"
-        return format_string
+

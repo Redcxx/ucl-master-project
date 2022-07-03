@@ -202,7 +202,7 @@ class AlacGANInferenceDataset(BaseDataset):
         ])
 
         self.v_trans = transforms.Compose([
-            RandomSizedCrop(opt.image_size // 4, InterpolationMode.BICUBIC),
+            transforms.Resize(opt.image_size // 4, InterpolationMode.BICUBIC),
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])

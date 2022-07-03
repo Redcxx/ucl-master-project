@@ -5,12 +5,11 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
 
     def __init__(self):
         super().__init__()
-        self.input_images_path = 'inference_images'
-        self.output_images_path = 'output_images_with_hint_mask'
+        self.input_images_path = r'./colorization/test'
+        self.output_images_path = 'output_images_noghost'
         self.image_size = 512
         self.a_to_b = True
         self.batch_size = 8
-        self.num_workers = 8
 
     @property
     def tag(self):
@@ -18,7 +17,7 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
 
     @property
     def inference_run_id(self):
-        return 'alacGAN-train-2022-06-29-Wednesday-17h-23m-26s'
+        return 'alacGAN-train-2022-07-02-Saturday-12h-25m-53s'
 
 
 class AlacGANTrainOptions(BaseTrainOptions):

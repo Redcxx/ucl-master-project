@@ -21,6 +21,7 @@ class SketchSimpTrainOptions(BaseTrainOptions):
         # Dataset
         self.dataset_root = 'sketch_simp'
         self.a_to_b = True
+        self.image_size = 512
 
         # Optimizer
         self.lr = 0.0002

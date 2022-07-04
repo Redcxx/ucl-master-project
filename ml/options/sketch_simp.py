@@ -19,7 +19,7 @@ class SketchSimpTrainOptions(BaseTrainOptions):
         self.opt_gamma = 0.1
 
         # Dataset
-        self.dataset_root = 'sketch_simp_pretrain_data'
+        self.dataset_root = 'sketch_simp'
         self.a_to_b = True
 
         # Optimizer

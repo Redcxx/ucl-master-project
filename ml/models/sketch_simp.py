@@ -8,8 +8,6 @@ from ml.logger import log
 from ml.models import BaseTrainModel
 from ml.models.base import BaseInferenceModel
 from ml.models.sketch_simp_partials import SketchSimpModel
-from ml.options import BaseTrainOptions
-from ml.options.base import BaseInferenceOptions
 from ml.options.default import DefaultTrainOptions
 from ml.options.sketch_simp import SketchSimpInferenceOptions, SketchSimpTrainOptions
 from ml.plot_utils import plt_input_target

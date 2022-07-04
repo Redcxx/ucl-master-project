@@ -5,7 +5,7 @@ import cv2 as cv
 from torchvision.transforms import transforms
 
 from ml.datasets import BaseDataset
-from ml.datasets.augmentation import rotate_crop_max_cv, FixedRandomResizedCrop, flip_horizontal_cv
+from ml.datasets.augmentation import cv_rotate_crop_max, FixedRandomResizedCrop, cv_flip_horizontal
 from ml.file_utils import get_all_image_paths
 from ml.options.sketch_simp import SketchSimpInferenceOptions, SketchSimpTrainOptions
 
@@ -59,14 +59,14 @@ class SketchSimpTrainDataset(BaseDataset):
         A, B = cv.cvtColor(A, cv.COLOR_RGB2GRAY), cv.cvtColor(B, cv.COLOR_RGB2GRAY)
 
         if random.random() < 0.1:
-            A, B = B, B  # encourage model to not change cleaned image
+            A, B = B, B  # with some probability, encourage model to not change cleaned image
 
         flip = random.random() < 0.5
         rotate_deg = random.randint(0, 180)
 
         transform1 = transforms.Compose([
-            transforms.Lambda(lambda im: rotate_crop_max_cv(im, rotate_deg)),
-            transforms.Lambda(lambda im: flip_horizontal_cv(im, flip)),
+            transforms.Lambda(lambda im: cv_rotate_crop_max(im, rotate_deg)),
+            transforms.Lambda(lambda im: cv_flip_horizontal(im, flip)),
         ])
 
         A, B = transform1(A), transform1(B)

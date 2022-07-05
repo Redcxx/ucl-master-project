@@ -15,16 +15,16 @@ class SketchSimpTrainOptions(BaseTrainOptions):
         self.save_freq = 100
         self.batch_log_freq = 0
         # Optimizer
+        self.lr = 0.0002
         self.opt_step_size = 1500
         self.opt_gamma = 0.1
+        self.VGG16_PATH = 'vgg16-397923af.pth'
 
         # Dataset
         self.dataset_root = 'sketch_simp'
         self.a_to_b = True
         self.image_size = 512
 
-        # Optimizer
-        self.lr = 0.0002
 
     @property
     def tag(self):

@@ -98,3 +98,14 @@
     - gathered 20k images
     - extract line segments using various methods
     - implemented xdog, line extraction using some models as well
+
+
+
+### 1 Jul
+
+- done pretraining alacgan
+
+### 3 Jul
+
+- done finetuning
+

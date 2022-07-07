@@ -123,12 +123,12 @@ class SketchSimpTrainModel(BaseTrainModel):
             real_feat = self.net_F(real)
         content_loss = self.crt_mse(fake_feat, real_feat)
 
-        loss = (l1_loss + content_loss) / 2
+        loss = content_loss
         loss.backward()
 
         self.optimizer.step()
 
-        return l1_loss.item(), content_loss.item()
+        return -1, content_loss.item()
 
     def post_batch(self, epoch, batch, batch_out):
         super().post_batch(epoch, batch, batch_out)

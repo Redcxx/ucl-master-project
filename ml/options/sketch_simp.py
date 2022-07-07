@@ -21,10 +21,9 @@ class SketchSimpTrainOptions(BaseTrainOptions):
         self.VGG16_PATH = 'vgg16-397923af.pth'
 
         # Dataset
-        self.dataset_root = 'sketch_simp'
+        self.dataset_root = 'sketch_simplification'
         self.a_to_b = True
         self.image_size = 512
-
 
     @property
     def tag(self):

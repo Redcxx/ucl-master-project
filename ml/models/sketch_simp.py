@@ -116,13 +116,15 @@ class SketchSimpTrainModel(BaseTrainModel):
         fake = self.network(inp)
         # l1 loss
         l1_loss = self.crt_l1(fake, real)
-        l1_loss.backward(retain_graph=True)
+
         # content loss
         fake_feat = self.net_F(fake)
         with torch.no_grad():
             real_feat = self.net_F(real)
         content_loss = self.crt_mse(fake_feat, real_feat)
-        content_loss.backward()
+
+        loss = (l1_loss + content_loss) / 2
+        loss.backward()
 
         self.optimizer.step()
 

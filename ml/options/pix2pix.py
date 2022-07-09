@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-pretrain-colorization'
+        return 'pix2pix-sketch-simplification'
 
 
 class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
@@ -20,14 +20,14 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # Training
         self.batch_size = 16
         self.start_epoch = 1
-        self.end_epoch = 60
-        self.eval_freq = 5
-        self.log_freq = 1
-        self.save_freq = 1
-        self.batch_log_freq = 100
+        self.end_epoch = 1500
+        self.eval_freq = 100
+        self.log_freq = 10
+        self.save_freq = 100
+        self.batch_log_freq = 0
 
         # Dataset
-        self.dataset_dir = './alacgan_colorization_data'
+        self.dataset_dir = './sketch_simplification'
         self.a_to_b = True
 
         # Model
@@ -40,15 +40,18 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.optimizer_beta2 = 0.999
         self.init_gain = 0.02
         self.weight_decay = 0
-        self.decay_epochs = 10
+        self.decay_epochs = 500
 
         # Loss
         self.l1_lambda = 100.0  # encourage l1 distance to actual output
         self.d_loss_factor = 0.5  # slow down discriminator learning
 
         # transforms
-        self.random_jitter = True
-        self.random_mirror = True
+        # self.random_jitter = True
+        # self.random_mirror = True
+        self.VGG16_PATH = 'vgg16-397923af.pth'
+        self.a_to_b = True
+        self.image_size = 512
 
 
 def _discriminator_config():
@@ -58,9 +61,9 @@ def _discriminator_config():
             # {
             #     'filters': 512,
             # },
-            # {
-            #     'filters': 512,
-            # },
+            {
+                'filters': 512,
+            },
             {
                 'filters': 512,
             },
@@ -101,6 +104,16 @@ def _generator_config():
                 'skip_connection': True
             },
             {
+                'filters': 256,
+                'dropout': False,
+                'skip_connection': True
+            },
+            {
+                'filters': 256,
+                'dropout': False,
+                'skip_connection': True
+            },
+            {
                 'filters': 512,
                 'dropout': False,
                 'skip_connection': True
@@ -115,15 +128,5 @@ def _generator_config():
                 'dropout': True,
                 'skip_connection': True
             },
-            # {
-            #     'filters': 512,
-            #     'dropout': True,
-            #     'skip_connection': True
-            # },
-            # {
-            #     'filters': 512,
-            #     'dropout': True,
-            #     'skip_connection': True
-            # },
         ]
     }

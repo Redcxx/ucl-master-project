@@ -4,6 +4,7 @@ from torch import optim, nn
 from torchsummaryX import summary
 
 from ml.models.base import BaseTrainModel
+from .alac_gan_partials import NetF
 from .pix2pix_partials import Generator, Discriminator
 from ml.models.criterion.GANBCELoss import GANBCELoss
 from ..logger import log
@@ -21,6 +22,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         # network
         self.net_G = None
         self.net_D = None
+        self.net_F = None
 
         # optimizer
         self.opt_G = None
@@ -46,6 +48,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         self.crt_l1 = nn.L1Loss()
         self.sch_G = optim.lr_scheduler.LambdaLR(self.opt_G, lr_lambda=self._decay_rule)
         self.sch_D = optim.lr_scheduler.LambdaLR(self.opt_D, lr_lambda=self._decay_rule)
+        self.net_F = NetF(self.opt).to(self.opt.device)
 
     def setup_from_train_checkpoint(self, checkpoint):
         _prev_opt, self.net_G, self.net_D, self.opt_G, self.opt_D = checkpoint
@@ -76,9 +79,9 @@ class Pix2pixTrainModel(BaseTrainModel):
             for inp, tar in zip(inp_batch, tar_batch):
                 plt_input_target(inp, tar)
                 i += 1
-                if i > 5:
+                if i > 10:
                     break
-            if i > 5:
+            if i > 10:
                 break
         log('Sanity Checks Generated')
 
@@ -141,8 +144,14 @@ class Pix2pixTrainModel(BaseTrainModel):
         # l1 loss between generated and real image for more accurate output
         loss_G_l1 = self.crt_l1(fake_B, real_B) * self.opt.l1_lambda
 
+        # content loss
+        fake_feat = self.net_F(fake_AB)
+        with torch.no_grad():
+            real_feat = self.net_F(real_AB)
+        content_loss = self.crt_l1(fake_feat, real_feat)
+
         # backward & optimize
-        loss_G = loss_G_fake + loss_G_l1
+        loss_G = loss_G_fake + loss_G_l1 + content_loss
         loss_G.backward()
         self.opt_G.step()
 

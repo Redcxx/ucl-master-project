@@ -57,7 +57,7 @@ class SketchSimpTrainDataset(BaseDataset):
     def __getitem__(self, i):
         A, B = self._split_image_cv(self._read_im_cv(self.paths[i]))
         A, B = cv.cvtColor(A, cv.COLOR_RGB2GRAY), cv.cvtColor(B, cv.COLOR_RGB2GRAY)
-
+        print(A.shape, B.shape)
         if random.random() < 0.1:
             A, B = B, B  # with some probability, encourage model to not change cleaned image
 
@@ -70,7 +70,7 @@ class SketchSimpTrainDataset(BaseDataset):
         ])
 
         A, B = transform1(A), transform1(B)
-
+        print(A.shape, B.shape)
         transform2 = transforms.Compose([
             transforms.ToTensor(),
             FixedRandomResizedCrop(A.shape[1], A.shape[0], self.opt.image_size, scale=(0.3, 1.0), ratio=(1, 1)),
@@ -78,5 +78,5 @@ class SketchSimpTrainDataset(BaseDataset):
         ])
 
         A, B = transform2(A), transform2(B)
-
+        print(A.shape, B.shape)
         return (A, B) if self.a_to_b else (B, A)

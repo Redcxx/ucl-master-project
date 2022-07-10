@@ -75,6 +75,7 @@ class UnetBlock(nn.Module):
         self.skip_connection = skip_connection
 
     def forward(self, x):
+        print(x.shape)
         if self.skip_connection:
             return torch.cat([x, self.model(x)], dim=1)
         else:

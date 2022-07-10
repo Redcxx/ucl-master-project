@@ -27,7 +27,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.batch_log_freq = 0
 
         # Dataset
-        self.dataset_dir = './sketch_simplification'
+        self.dataset_root = './sketch_simplification'
         self.a_to_b = True
 
         # Model

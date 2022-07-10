@@ -85,8 +85,8 @@ def _discriminator_config():
 
 def _generator_config():
     return {
-        'in_channels': 3,
-        'out_channels': 3,
+        'in_channels': 1,
+        'out_channels': 1,
         'blocks': [
             {
                 'filters': 64,

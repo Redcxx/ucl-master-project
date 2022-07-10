@@ -69,9 +69,11 @@ class Pix2pixTrainModel(BaseTrainModel):
     def _sanity_check(self):
         log('Generating Sanity Checks')
         # see if model architecture is alright
-        summary(self.net_G, torch.rand(self.opt.batch_size, 3, self.opt.image_size, self.opt.image_size)
+        summary(self.net_G, torch.rand(self.opt.batch_size, self.opt.generator_config['in_channels'],
+                                       self.opt.image_size, self.opt.image_size)
                 .to(self.opt.device))
-        summary(self.net_D, torch.rand(self.opt.batch_size, 6, self.opt.image_size, self.opt.image_size)
+        summary(self.net_D, torch.rand(self.opt.batch_size, self.opt.generator_config['in_channels'] * 2,
+                                       self.opt.image_size, self.opt.image_size)
                 .to(self.opt.device))
         # get some data and see if it looks good
         i = 0
@@ -104,7 +106,6 @@ class Pix2pixTrainModel(BaseTrainModel):
 
         real_A, real_B = batch_data
         real_A, real_B = real_A.to(self.opt.device), real_B.to(self.opt.device)
-        print(real_A.shape, real_B.shape)
         # forward pass
         # generate fake image using generator
         fake_B = self.net_G(real_A)

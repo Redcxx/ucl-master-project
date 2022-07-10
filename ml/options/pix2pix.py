@@ -56,7 +56,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
 
 def _discriminator_config():
     return {
-        'in_channels': 3 * 2,  # conditionalGAN takes both real and fake image
+        'in_channels': 1 * 2,  # conditionalGAN takes both real and fake image
         'blocks': [
             # {
             #     'filters': 512,
@@ -68,7 +68,7 @@ def _discriminator_config():
                 'filters': 512,
             },
             {
-                'filters': 512,
+                'filters': 256,
             },
             {
                 'filters': 256,

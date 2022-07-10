@@ -104,7 +104,7 @@ class Pix2pixTrainModel(BaseTrainModel):
 
         real_A, real_B = batch_data
         real_A, real_B = real_A.to(self.opt.device), real_B.to(self.opt.device)
-
+        print(real_A.shape, real_B.shape)
         # forward pass
         # generate fake image using generator
         fake_B = self.net_G(real_A)

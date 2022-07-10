@@ -4,10 +4,9 @@ from ml.options import create_train_options
 
 
 def main():
-    name = 'sketch_simp'
     opt = create_train_options('pix2pix')
-    train_loader, test_loader = create_train_dataloaders(opt, 'pix2pix')
-    model = create_train_model(opt, train_loader, test_loader, 'sketch_simp')
+    train_loader, test_loader = create_train_dataloaders(opt, 'sketch_simp')
+    model = create_train_model(opt, train_loader, test_loader, 'pix2pix')
     model.train()
 
 

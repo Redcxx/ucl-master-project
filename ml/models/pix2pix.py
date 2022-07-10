@@ -151,7 +151,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         content_loss = self.crt_l1(fake_feat, real_feat)
 
         # backward & optimize
-        loss_G = loss_G_fake + loss_G_l1 + content_loss
+        loss_G = (loss_G_fake + loss_G_l1 + content_loss) / 3
         loss_G.backward()
         self.opt_G.step()
 

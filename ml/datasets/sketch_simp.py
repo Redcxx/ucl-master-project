@@ -76,6 +76,7 @@ class SketchSimpTrainDataset(BaseDataset):
         ])
 
         A, B = transform2(A), transform2(B)
+
         if self.opt.make_fake_hint:
             return (A, None, B) if self.a_to_b else (B, None, A)
         else:

@@ -246,7 +246,7 @@ class AlacGANTrainModel(BaseTrainModel):
         )
         summary(
             self.net_D,
-            torch.rand(self.opt.batch_size, 1, self.opt.image_size, self.opt.image_size).to(self.opt.device),
+            torch.rand(self.opt.batch_size, 3, self.opt.image_size, self.opt.image_size).to(self.opt.device),
             torch.rand(self.opt.batch_size, 512, 32, 32).to(self.opt.device),
         )
         # get some data and see if it looks good

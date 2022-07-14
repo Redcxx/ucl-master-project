@@ -141,7 +141,7 @@ class NetD(nn.Module):
         super(NetD, self).__init__()
 
         self.feed = nn.Sequential(
-            nn.Conv2d(1, ndf, kernel_size=7, stride=1, padding=3, bias=False),  # 512
+            nn.Conv2d(3, ndf, kernel_size=7, stride=1, padding=3, bias=False),  # 512
             nn.LeakyReLU(0.2, True),
             nn.Conv2d(ndf, ndf, kernel_size=4, stride=2, padding=1, bias=False),  # 256
             nn.LeakyReLU(0.2, True),
@@ -177,7 +177,6 @@ class NetD(nn.Module):
         self.out = nn.Linear(512, 1)
 
     def forward(self, color, sketch_feat):
-        log(color.shape, sketch_feat.shape)
         x = self.feed(color)
 
         x = self.feed2(torch.cat([x, sketch_feat], 1))

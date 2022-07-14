@@ -46,7 +46,8 @@ class AlacGANTrainOptions(BaseTrainOptions):
         # Dataset
         self.image_size = 512
         self.dataset_root = './sketch_simplification'
-        self.a_to_b = True
+        self.a_to_b = False
+        self.make_fake_hint = True
 
         # Optimizer
         self.lr = 0.00001

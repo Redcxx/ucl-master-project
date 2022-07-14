@@ -46,7 +46,7 @@ class NetG(nn.Module):
             )
         if opt.use_hint:
             self.toH = conv_block(4, ngf, k_size=7, stride=1, padding=3)
-        self.to0 = conv_block(1, ngf // 2, k_size=3, stride=1, padding=1)
+        self.to0 = conv_block(opt.in_channels, ngf // 2, k_size=3, stride=1, padding=1)
         self.to1 = conv_block(ngf // 2, ngf, k_size=4, stride=2, padding=1)
         self.to2 = conv_block(ngf, ngf * 2, k_size=4, stride=2, padding=1)
         if opt.use_hint:
@@ -110,7 +110,7 @@ class NetG(nn.Module):
                                      nn.LeakyReLU(0.2, True)
                                      )
 
-        self.exit = nn.Conv2d(ngf, 3, kernel_size=3, stride=1, padding=1)
+        self.exit = nn.Conv2d(ngf, opt.out_channels, kernel_size=3, stride=1, padding=1)
 
     def forward(self, sketch, hint, sketch_feat):
         use_hint = self.opt.use_hint
@@ -137,11 +137,11 @@ class NetG(nn.Module):
 
 
 class NetD(nn.Module):
-    def __init__(self, opt, ndf=64):
+    def __init__(self, opt: AlacGANTrainOptions, ndf=64):
         super(NetD, self).__init__()
 
         self.feed = nn.Sequential(
-            nn.Conv2d(3, ndf, kernel_size=7, stride=1, padding=3, bias=False),  # 512
+            nn.Conv2d(opt.in_channels, ndf, kernel_size=7, stride=1, padding=3, bias=False),  # 512
             nn.LeakyReLU(0.2, True),
             nn.Conv2d(ndf, ndf, kernel_size=4, stride=2, padding=1, bias=False),  # 256
             nn.LeakyReLU(0.2, True),

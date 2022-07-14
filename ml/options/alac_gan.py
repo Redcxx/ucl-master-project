@@ -48,6 +48,8 @@ class AlacGANTrainOptions(BaseTrainOptions):
         self.dataset_root = './sketch_simplification'
         self.a_to_b = False
         self.make_fake_hint = True
+        self.in_channels = 1
+        self.out_channels = 1
 
         # Optimizer
         self.lr = 0.00001

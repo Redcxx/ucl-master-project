@@ -5,6 +5,7 @@ import torch.nn.functional as F
 import torchvision.models as M
 from torch import nn
 
+from ml.logger import log
 from ml.options.alac_gan import AlacGANTrainOptions
 
 
@@ -176,6 +177,7 @@ class NetD(nn.Module):
         self.out = nn.Linear(512, 1)
 
     def forward(self, color, sketch_feat):
+        log(color.shape, sketch_feat.shape)
         x = self.feed(color)
 
         x = self.feed2(torch.cat([x, sketch_feat], 1))

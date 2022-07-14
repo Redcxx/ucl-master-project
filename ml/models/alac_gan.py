@@ -7,6 +7,7 @@ import scipy.stats as stats
 import torch
 from torch import optim, nn, Tensor
 from torch.autograd import grad
+from torchsummaryX import summary
 from tqdm import tqdm
 
 from ml.models.base import BaseTrainModel, BaseInferenceModel
@@ -135,6 +136,7 @@ class AlacGANTrainModel(BaseTrainModel):
 
     def __init__(self, opt: AlacGANTrainOptions, train_loader, test_loader):
         super().__init__(opt, train_loader, test_loader)
+        self.opt = opt
 
         # network
         self.net_G = None
@@ -219,8 +221,11 @@ class AlacGANTrainModel(BaseTrainModel):
         real_vim = real_vim.to(self.opt.device)
         real_sim = real_sim.to(self.opt.device)
 
-        mask = _mask_gen(self.opt, self.X)
-        hint = torch.cat((real_vim * mask, mask), 1)
+        if self.opt.use_hint:
+            mask = _mask_gen(self.opt, self.X)
+            hint = torch.cat((real_vim * mask, mask), 1)
+        else:
+            hint = None
         with torch.no_grad():
             # get sketch feature
             feat_sim = self.net_I(real_sim).detach()
@@ -233,18 +238,17 @@ class AlacGANTrainModel(BaseTrainModel):
     def _sanity_check(self):
         log('Generating Sanity Checks')
         # see if model architecture is alright
-        # summary(
-        #     self.net_G,
-        #     torch.rand(self.opt.batch_size, 1, self.opt.image_size, self.opt.image_size).to(self.opt.device),
-        #     torch.rand(self.opt.batch_size, 4, self.opt.image_size // 4, self.opt.image_size // 4)
-        #                   .to(self.opt.device),
-        #     torch.rand(self.opt.batch_size, 512, 32, 32).to(self.opt.device),
-        # )
-        # summary(
-        #     self.net_D,
-        #     torch.rand(self.opt.batch_size, 3, self.opt.image_size, self.opt.image_size).to(self.opt.device),
-        #     torch.rand(self.opt.batch_size, 512, 32, 32).to(self.opt.device),
-        # )
+        summary(
+            self.net_G,
+            torch.rand(self.opt.batch_size, 1, self.opt.image_size, self.opt.image_size).to(self.opt.device),
+            torch.rand(self.opt.batch_size, 4, self.opt.image_size // 4, self.opt.image_size // 4).to(self.opt.device),
+            torch.rand(self.opt.batch_size, 512, 32, 32).to(self.opt.device),
+        )
+        summary(
+            self.net_D,
+            torch.rand(self.opt.batch_size, 1, self.opt.image_size, self.opt.image_size).to(self.opt.device),
+            torch.rand(self.opt.batch_size, 512, 32, 32).to(self.opt.device),
+        )
         # get some data and see if it looks good
         i = 1
         for real_cim, _, real_sim in self.train_loader:
@@ -287,8 +291,11 @@ class AlacGANTrainModel(BaseTrainModel):
         self._set_requires_grad(self.net_G, False)
         self.net_D.zero_grad()
 
-        mask = _mask_gen(self.opt, self.X)
-        hint = torch.cat((real_vim * mask, mask), 1)
+        if self.opt.use_hint:
+            mask = _mask_gen(self.opt, self.X)
+            hint = torch.cat((real_vim * mask, mask), 1)
+        else:
+            hint = None
 
         with torch.no_grad():
             # train with fake

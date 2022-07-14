@@ -4,9 +4,9 @@ from ml.options import create_train_options
 
 
 def main():
-    opt = create_train_options('pix2pix')
+    opt = create_train_options('alac_gan')
     train_loader, test_loader = create_train_dataloaders(opt, 'sketch_simp')
-    model = create_train_model(opt, train_loader, test_loader, 'pix2pix')
+    model = create_train_model(opt, train_loader, test_loader, 'alac_gan')
     model.train()
 
 

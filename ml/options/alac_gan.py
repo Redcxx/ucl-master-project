@@ -25,10 +25,13 @@ class AlacGANTrainOptions(BaseTrainOptions):
 
     @property
     def tag(self):
-        return 'alacGAN-train'
+        return 'alacGAN-train-sketch'
 
     def __init__(self):
         super().__init__()
+
+        # Model
+        self.use_hint = False
 
         # Training
         self.batch_size = 8
@@ -42,7 +45,7 @@ class AlacGANTrainOptions(BaseTrainOptions):
 
         # Dataset
         self.image_size = 512
-        self.dataset_root = './colorization'
+        self.dataset_root = './sketch_simplification'
         self.a_to_b = True
 
         # Optimizer

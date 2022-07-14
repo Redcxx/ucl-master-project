@@ -5,6 +5,8 @@ import torch.nn.functional as F
 import torchvision.models as M
 from torch import nn
 
+from ml.options.alac_gan import AlacGANTrainOptions
+
 
 class ResNeXtBottleneck(nn.Module):
     def __init__(self, in_channels=256, out_channels=256, stride=1, cardinality=32, dilate=1):
@@ -32,20 +34,24 @@ class ResNeXtBottleneck(nn.Module):
 
 
 class NetG(nn.Module):
-    def __init__(self, opt, ngf=64):
+    def __init__(self, opt: AlacGANTrainOptions, ngf=64):
         super(NetG, self).__init__()
+        self.opt = opt
 
         def conv_block(in_channels, out_channels, k_size, stride, padding):
             return nn.Sequential(
                 nn.Conv2d(in_channels, out_channels, k_size, stride, padding),
                 nn.LeakyReLU(0.2, True)
             )
-
-        self.toH = conv_block(4, ngf, k_size=7, stride=1, padding=3)
+        if opt.use_hint:
+            self.toH = conv_block(4, ngf, k_size=7, stride=1, padding=3)
         self.to0 = conv_block(1, ngf // 2, k_size=3, stride=1, padding=1)
         self.to1 = conv_block(ngf // 2, ngf, k_size=4, stride=2, padding=1)
         self.to2 = conv_block(ngf, ngf * 2, k_size=4, stride=2, padding=1)
-        self.to3 = conv_block(ngf * 3, ngf * 4, k_size=4, stride=2, padding=1)
+        if opt.use_hint:
+            self.to3 = conv_block(ngf * 3, ngf * 4, k_size=4, stride=2, padding=1)
+        else:
+            self.to3 = conv_block(ngf * 2, ngf * 4, k_size=4, stride=2, padding=1)
         self.to4 = conv_block(ngf * 4, ngf * 8, k_size=4, stride=2, padding=1)
 
         tunnel4 = nn.Sequential(*[ResNeXtBottleneck(ngf * 8, ngf * 8, cardinality=32) for _ in range(20)])
@@ -106,12 +112,18 @@ class NetG(nn.Module):
         self.exit = nn.Conv2d(ngf, 3, kernel_size=3, stride=1, padding=1)
 
     def forward(self, sketch, hint, sketch_feat):
-        hint = self.toH(hint)
+        use_hint = self.opt.use_hint
+
+        if use_hint:
+            hint = self.toH(hint)
 
         x0 = self.to0(sketch)
         x1 = self.to1(x0)
         x2 = self.to2(x1)
-        x3 = self.to3(torch.cat([x2, hint], 1))  # !
+        if use_hint:
+            x3 = self.to3(torch.cat([x2, hint], 1))  # !
+        else:
+            x3 = self.to3(x2)  # !
         x4 = self.to4(x3)
 
         x = self.tunnel4(torch.cat([x4, sketch_feat], 1))

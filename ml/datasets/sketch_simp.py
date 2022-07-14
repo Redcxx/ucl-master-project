@@ -13,6 +13,7 @@ from ml.options.sketch_simp import SketchSimpInferenceOptions, SketchSimpTrainOp
 class SketchSimpDataset(BaseDataset):
     def __init__(self, opt, root):
         super().__init__(opt)
+        self.opt = opt
         self.paths = sorted(get_all_image_paths(root))
         self.a_to_b = opt.a_to_b
         self.transform = transforms.Compose([
@@ -28,7 +29,11 @@ class SketchSimpDataset(BaseDataset):
         A, B = self._split_image_cv(self._read_im_cv(self.paths[i]))
         A, B = cv.cvtColor(A, cv.COLOR_RGB2GRAY), cv.cvtColor(B, cv.COLOR_RGB2GRAY)
         A, B = self.transform(A), self.transform(B)
-        return (A, B) if self.a_to_b else (B, A)
+
+        if self.opt.make_fake_hint:
+            return (A, -1, B) if self.a_to_b else (B, -1, A)
+        else:
+            return (A, B) if self.a_to_b else (B, A)
 
 
 class SketchSimpInferenceDataset(SketchSimpDataset):

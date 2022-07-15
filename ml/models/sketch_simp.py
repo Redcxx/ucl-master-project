@@ -121,6 +121,7 @@ class SketchSimpTrainModel(BaseTrainModel):
 
     def train_batch(self, batch, batch_data):
         self.network = self.network.to(self.opt.device).train()
+        self.net_D = self.net_D.to(self.opt.device).train()
 
         inp, real = batch_data
         inp, real = inp.to(self.opt.device), real.to(self.opt.device)

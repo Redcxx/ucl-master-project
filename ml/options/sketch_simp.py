@@ -7,7 +7,7 @@ class SketchSimpTrainOptions(BaseTrainOptions):
     def __init__(self):
         super().__init__()
         # Training
-        self.batch_size = 16
+        self.batch_size = 8
         self.start_epoch = 1
         self.end_epoch = 3000
         self.eval_freq = 100

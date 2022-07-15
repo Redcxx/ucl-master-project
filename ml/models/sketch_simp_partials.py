@@ -1,3 +1,4 @@
+import torch
 from torch import nn
 
 
@@ -70,14 +71,21 @@ class SketchSimpNetD(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.model = nn.Sequential(
-            conv5(1, 48, 2),
-            conv5(48, 128),
-            conv5(128, 128),
-            conv5(128, 256, 2),
-            conv5(256, 256),
-            conv5(256, 256),
+        self.conv = nn.Sequential(
+            conv5(2, 64),
+            conv3(64, 128, 4),
+            conv3(128, 256, 4),
+            conv3(256, 256, 4),
+            conv3(256, 256, 4),
+            conv3(256, 256, 2),
         )
 
-    def forward(self, x):
-        return self.model(x)
+        self.linear = nn.Linear(256, 32)
+
+    def forward(self, inp, gen):
+        x = torch.cat((inp, gen), dim=1)
+        x = self.conv(x)
+        x = x.view(x.shape[0], -1)
+        x = self.linear(x)
+
+        return x

@@ -64,3 +64,20 @@ class SketchSimpModel(nn.Module):
 
     def forward(self, x):
         return self.model(x)
+
+
+class SketchSimpNetD(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.model = nn.Sequential(
+            conv5(1, 48, 2),
+            conv5(48, 128),
+            conv5(128, 128),
+            conv5(128, 256, 2),
+            conv5(256, 256),
+            conv5(256, 256),
+        )
+
+    def forward(self, x):
+        return self.model(x)

@@ -53,6 +53,7 @@ class SketchSimpTrainModel(BaseTrainModel):
         self.crt_l1 = None
 
         self.l1_losses = []
+        self.l2_losses = []
         self.content_losses = []
 
         self.setup()
@@ -99,6 +100,7 @@ class SketchSimpTrainModel(BaseTrainModel):
     def pre_epoch(self):
         super().pre_epoch()
         self.l1_losses = []
+        self.l2_losses = []
         self.content_losses = []
 
     def pre_batch(self, epoch, batch):
@@ -114,8 +116,11 @@ class SketchSimpTrainModel(BaseTrainModel):
         self.optimizer.zero_grad()
 
         fake = self.network(inp)
+        log(fake.shape)
         # l1 loss
         l1_loss = self.crt_l1(fake, real)
+        # l2 loss
+        l2_loss = self.crt_mse(fake, real)
 
         # content loss
         fake_feat = self.net_F(fake)
@@ -123,17 +128,18 @@ class SketchSimpTrainModel(BaseTrainModel):
             real_feat = self.net_F(real)
         content_loss = self.crt_mse(fake_feat, real_feat)
 
-        loss = content_loss
+        loss = content_loss + l1_loss + l2_loss
         loss.backward()
 
         self.optimizer.step()
 
-        return -1, content_loss.item()
+        return l1_loss.item(), l2_loss.item(), content_loss.item()
 
     def post_batch(self, epoch, batch, batch_out):
         super().post_batch(epoch, batch, batch_out)
         self.l1_losses.append(batch_out[0])
-        self.content_losses.append(batch_out[1])
+        self.l2_losses.append(batch_out[1])
+        self.content_losses.append(batch_out[2])
 
     def evaluate_batch(self, i, batch_data) -> Tuple[float, Tensor, Tensor, Tensor]:
         self.network = self.network.eval().to(self.opt.device)
@@ -164,10 +170,12 @@ class SketchSimpTrainModel(BaseTrainModel):
         return super().log_epoch(epoch) + \
                f'[lr={self._get_lr(self.optimizer):.6f}] ' + \
                f'[l1_loss={np.mean(self.l1_losses):.4f}] ' + \
+               f'[l2_loss={np.mean(self.l2_losses):.4f}] ' + \
                f'[content_loss={np.mean(self.content_losses):.4f}] '
 
     def log_batch(self, batch):
         from_batch = self._get_last_batch(batch)
         return super().log_batch(batch) + \
-               f'[loss={np.mean(self.l1_losses[from_batch - 1:batch]):.4f}] ' + \
-               f'[loss={np.mean(self.content_losses[from_batch - 1:batch]):.4f}] '
+               f'[l1_loss={np.mean(self.l1_losses[from_batch - 1:batch]):.4f}] ' + \
+               f'[l2_loss={np.mean(self.l2_losses[from_batch - 1:batch]):.4f}] ' + \
+               f'[ct_loss={np.mean(self.content_losses[from_batch - 1:batch]):.4f}] '

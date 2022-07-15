@@ -24,6 +24,7 @@ class SketchSimpTrainOptions(BaseTrainOptions):
         self.dataset_root = 'sketch_simplification'
         self.a_to_b = True
         self.image_size = 512
+        self.make_fake_hint = False
 
     @property
     def tag(self):

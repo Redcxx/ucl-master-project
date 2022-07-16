@@ -135,7 +135,7 @@ class SketchSimpTrainModel(BaseTrainModel):
         # real
         real_loss = self.crt_D(self.net_D(inp, real), True)
         # fake
-        fake_loss = self.crt_D(self.net_D(inp, fake), False)
+        fake_loss = self.crt_D(self.net_D(inp, fake.detach()), False)
         d_d_loss = (real_loss + fake_loss) * 0.5
         d_d_loss.backward()
         self.opt_D.step()
@@ -144,6 +144,7 @@ class SketchSimpTrainModel(BaseTrainModel):
         self._set_requires_grad(self.network, True)
         self._set_requires_grad(self.net_D, False)
         self.optimizer.zero_grad()
+        self.net_F.zero_grad()
 
         fake = self.network(inp)
         # l1 loss
@@ -159,9 +160,8 @@ class SketchSimpTrainModel(BaseTrainModel):
             real_feat = self.net_F(real)
         content_loss = self.crt_mse(fake_feat, real_feat)
 
-        loss = content_loss + l1_loss + l2_loss + g_d_loss
+        loss = (content_loss + l1_loss + l2_loss + g_d_loss) * 0.25
         loss.backward()
-
         self.optimizer.step()
 
         return l1_loss.item(), l2_loss.item(), content_loss.item(), g_d_loss.item(), d_d_loss.item()

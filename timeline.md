@@ -107,3 +107,9 @@
 
 - done finetuning
 
+### 19 Jul
+
+- Report Requirements
+  - most useful: pros and cons
+  - research side: newest papers, directions, SOTA
+  - abilities to make edits

@@ -2,9 +2,12 @@ import random
 from typing import Dict, Tuple
 
 import numpy as np
+import torch
 from torch import Tensor, nn, optim
 from torch.utils.data import DataLoader
+from torchsummaryX import summary
 
+from ml.logger import log
 from ml.models import BaseTrainModel
 from ml.models.base import BaseInferenceModel
 from ml.models.waifu2x_partials import Net
@@ -12,6 +15,7 @@ from ml.models.warmup_lr import WarmupLRScheduler
 from ml.options.base import BaseInferenceOptions
 from ml.options.default import DefaultTrainOptions
 from ml.options.waifu2x import Waifu2xTrainOptions
+from ml.plot_utils import plt_input_target
 
 
 class Waifu2xInferenceModel(BaseInferenceModel):
@@ -83,6 +87,25 @@ class Waifu2xTrainModel(BaseTrainModel):
 
     def pre_batch(self, epoch, batch):
         super().pre_batch(epoch, batch)
+
+    def _sanity_check(self):
+        log('Generating Sanity Checks')
+        # see if model architecture is alright
+        summary(
+            self.network,
+            torch.rand(self.opt.batch_size, 3, self.opt.patch_size, self.opt.patch_size).to(self.opt.device),
+        )
+        # get some data and see if it looks good
+        i = 1
+        for real_cim, _, real_sim in self.train_loader:
+            for inp, tar in zip(real_sim, real_cim):
+                plt_input_target(inp, tar, save_file=f'sanity-check-im-{i}.jpg')
+                i += 1
+                if i > 5:
+                    break
+            if i > 5:
+                break
+        log('Sanity Checks Generated')
 
     def train_batch(self, batch, batch_data):
         self.network = self.network.to(self.opt.device).train()

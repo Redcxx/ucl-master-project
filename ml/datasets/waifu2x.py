@@ -19,7 +19,6 @@ class Waifu2xDataset(BaseDataset):
         h5f = h5py.File(root, "r")
 
         self.hr = [v[:] for v in h5f["X2"].values()]
-        print(self.hr)
 
         if scale == 0:
             self.scale = [2, 3, 4]
@@ -44,7 +43,9 @@ class Waifu2xDataset(BaseDataset):
         item = [random_crop(hr, lr, size, self.scale[i]) for i, (hr, lr) in enumerate(item)]
         item = [random_flip_and_rotate(hr, lr) for hr, lr in item]
 
-        return [(self.transform(hr), self.transform(lr)) for hr, lr in item]
+        item = [(self.transform(hr), self.transform(lr)) for hr, lr in item]
+        print(list(item))
+        return item
 
 
 class Waifu2xInferenceDataset(Waifu2xDataset):

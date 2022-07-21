@@ -80,6 +80,7 @@ class Waifu2xTrainModel(BaseTrainModel):
 
     def pre_train(self):
         super().pre_train()
+        self._sanity_check()
 
     def pre_epoch(self):
         super().pre_epoch()

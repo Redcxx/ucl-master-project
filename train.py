@@ -4,9 +4,9 @@ from ml.options import create_train_options
 
 
 def main():
-    opt = create_train_options('sketch_simp')
-    train_loader, test_loader = create_train_dataloaders(opt, 'sketch_simp')
-    model = create_train_model(opt, train_loader, test_loader, 'sketch_simp')
+    opt = create_train_options('waifu2x')
+    train_loader, test_loader = create_train_dataloaders(opt, 'waifu2x')
+    model = create_train_model(opt, train_loader, test_loader, 'waifu2x')
     model.train()
 
 

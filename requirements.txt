@@ -7,4 +7,3 @@ tqdm
 scipy
 torchsummaryX
 matplotlib
-cv2

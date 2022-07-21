@@ -19,6 +19,7 @@ class Waifu2xDataset(BaseDataset):
         h5f = h5py.File(root, "r")
 
         self.hr = [v[:] for v in h5f["X2"].values()]
+        print(self.hr)
 
         if scale == 0:
             self.scale = [2, 3, 4]

@@ -95,6 +95,7 @@ class Waifu2xTrainModel(BaseTrainModel):
         summary(
             self.network,
             torch.rand(self.opt.batch_size, 3, self.opt.patch_size, self.opt.patch_size).to(self.opt.device),
+            scale=self.opt.scale
         )
         # get some data and see if it looks good
         i = 1

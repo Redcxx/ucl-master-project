@@ -24,7 +24,7 @@ class Waifu2xTrainOptions(BaseTrainOptions):
 
         self.multi_scale = self.scale == 0
         self.train_dataset_root = './DIV2K_train.h5'
-        self.test_dataset_root = './DIV2K_test.h5'
+        self.test_dataset_root = './DIV2K_valid.h5'
         self.eval_images_save_folder = self.tag + '-eval-images'
 
     @property

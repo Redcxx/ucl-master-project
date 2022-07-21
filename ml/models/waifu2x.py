@@ -99,8 +99,9 @@ class Waifu2xTrainModel(BaseTrainModel):
         )
         # get some data and see if it looks good
         i = 1
-        for real_cim, _, real_sim in self.train_loader:
-            for inp, tar in zip(real_sim, real_cim):
+        for inputs in self.train_loader:
+            tars, inps = inputs[-1][0], inputs[-1][1]
+            for inp, tar in zip(inps, tars):
                 plt_input_target(inp, tar, save_file=f'sanity-check-im-{i}.jpg')
                 i += 1
                 if i > 5:

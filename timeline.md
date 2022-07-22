@@ -107,9 +107,32 @@
 
 - done finetuning
 
+### 8 Jul
+
+- Read about some paper on sketch simplification
+- implemented Sketch Simplification
+
+### 10 Jul
+
+- Result does not look fine
+
+### 13 Jul
+
+- Read some super resolution paper
+
+### 16 Jul
+
+- attempted multiple approach, hard to finetune high level details
+- probably because it is essentially a blurring processing
+
 ### 19 Jul
 
 - Report Requirements
   - most useful: pros and cons
   - research side: newest papers, directions, SOTA
   - abilities to make edits
+
+### 22 Jul
+
+- Implemented carn-m model
+- result looks fine

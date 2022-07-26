@@ -14,8 +14,6 @@
 
 
 
-
-
 - for employer
   - simple story
   - hand drawn cartoon

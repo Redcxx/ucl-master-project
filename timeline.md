@@ -136,3 +136,14 @@
 
 - Implemented carn-m model
 - result looks fine
+- disconnected remote
+
+### 24 Jul
+
+- setup latex template
+
+### 26 Jul
+
+- reconnect remote
+- where my training? 
+- retrain

@@ -1,3 +1,5 @@
+### Tobias Suggestion
+
 - start now
 
 
@@ -26,8 +28,6 @@
 
 
 
-
-
 - setup stuff in latex, nice layout title name
 - write some chapters about what i am trying to do without saying what did I do
   - explain settings, 
@@ -37,3 +37,7 @@
   - input output, how to quantify, table, numbers
   - outcomes, measurement of success
 - architectures are for later
+
+### NoGhost Suggestion
+
+- 

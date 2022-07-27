@@ -7,7 +7,7 @@ class Waifu2xTrainOptions(BaseTrainOptions):
     def __init__(self):
         super().__init__()
 
-        self.batch_size = 8
+        self.batch_size = 16
         self.start_epoch = 1
         self.end_epoch = 800
         self.decay = 200

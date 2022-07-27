@@ -25,10 +25,10 @@ def create_train_dataloaders(opt: BaseTrainOptions, name):
     )(opt)
     log(f'done: [{test_dataset.__class__.__name__}] was created')
 
-    train_dataloader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=opt.shuffle,
+    train_dataloader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=opt.shuffle, persistent_workers=True,
                                   num_workers=opt.num_workers, pin_memory=opt.pin_memory, drop_last=True)
-    test_dataloader = DataLoader(test_dataset, batch_size=opt.batch_size, shuffle=False, num_workers=opt.num_workers,
-                                 pin_memory=opt.pin_memory, drop_last=True)
+    test_dataloader = DataLoader(test_dataset, batch_size=opt.batch_size, shuffle=False, persistent_workers=True,
+                                 num_workers=opt.num_workers, pin_memory=opt.pin_memory, drop_last=True)
 
     return train_dataloader, test_dataloader
 

@@ -131,7 +131,7 @@ class Waifu2xTrainModel(BaseTrainModel):
 
         self.optimizer.zero_grad()
         loss.backward()
-        nn.utils.clip_grad_norm(self.network.parameters(), self.opt.clip)
+        # nn.utils.clip_grad_norm(self.network.parameters(), self.opt.clip)
         self.optimizer.step()
 
         return loss.item()
@@ -162,7 +162,7 @@ class Waifu2xTrainModel(BaseTrainModel):
         return loss.item(), lr, hr, out
 
     def post_epoch(self, epoch):
-        super().post_epoch(epoch)
+        super().post_epoch()
 
     def post_train(self):
         super().post_train()

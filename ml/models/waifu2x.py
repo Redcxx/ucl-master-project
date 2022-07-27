@@ -98,16 +98,16 @@ class Waifu2xTrainModel(BaseTrainModel):
             scale=self.opt.scale
         )
         # get some data and see if it looks good
-        i = 1
-        for inputs in self.train_loader:
-            tars, inps = inputs[-1][0], inputs[-1][1]
-            for inp, tar in zip(inps, tars):
-                plt_input_target(inp, tar, save_file=f'sanity-check-im-{i}.jpg')
-                i += 1
-                if i > 5:
-                    break
-            if i > 5:
-                break
+        # i = 1
+        # for inputs in self.train_loader:
+        #     tars, inps = inputs[-1][0], inputs[-1][1]
+        #     for inp, tar in zip(inps, tars):
+        #         plt_input_target(inp, tar, save_file=f'sanity-check-im-{i}.jpg')
+        #         i += 1
+        #         if i > 5:
+        #             break
+        #     if i > 5:
+        #         break
         log('Sanity Checks Generated')
 
     def train_batch(self, batch, batch_data):

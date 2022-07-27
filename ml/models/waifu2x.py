@@ -139,7 +139,7 @@ class Waifu2xTrainModel(BaseTrainModel):
     def post_batch(self, epoch, batch, batch_out):
         super().post_batch(epoch, batch, batch_out)
         self.losses.append(batch_out)
-        self.scheduler.step(epoch)
+        self.scheduler.step()
 
     def evaluate_batch(self, i, batch_data) -> Tuple[float, Tensor, Tensor, Tensor]:
         self.network = self.network.eval().to(self.opt.device)
@@ -162,7 +162,7 @@ class Waifu2xTrainModel(BaseTrainModel):
         return loss.item(), lr, hr, out
 
     def post_epoch(self, epoch):
-        super().post_epoch()
+        super().post_epoch(epoch)
 
     def post_train(self):
         super().post_train()

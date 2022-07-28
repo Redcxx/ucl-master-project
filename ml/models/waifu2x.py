@@ -69,7 +69,7 @@ class Waifu2xTrainModel(BaseTrainModel):
 
     def setup_from_opt(self, opt):
         self.network = Net(scale=opt.scale, multi_scale=opt.multi_scale, group=1).to(self.opt.device)
-        self.optimizer = optim.Adam(filter(lambda p: p.requires_grad, self.network.parameters()), lr=opt.lr)
+        self.optimizer = optim.Adam(self.network.parameters(), lr=opt.lr)
 
         self.criterion = nn.L1Loss()
 

@@ -9,11 +9,11 @@ class Waifu2xTrainOptions(BaseTrainOptions):
 
         self.batch_size = 16
         self.start_epoch = 1
-        self.end_epoch = 800
-        self.decay = 200
+        self.end_epoch = 5000
+        self.decay = 1000
         self.log_freq = 10
-        self.eval_freq = 10
-        self.save_freq = 10
+        self.eval_freq = 100
+        self.save_freq = 100
         self.batch_log_freq = 0
 
         self.scale = 2

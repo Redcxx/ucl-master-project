@@ -98,16 +98,16 @@ class Waifu2xTrainModel(BaseTrainModel):
             scale=self.opt.scale
         )
         # get some data and see if it looks good
-        # i = 1
-        # for inputs in self.train_loader:
-        #     tars, inps = inputs[-1][0], inputs[-1][1]
-        #     for inp, tar in zip(inps, tars):
-        #         plt_input_target(inp, tar, save_file=f'sanity-check-im-{i}.jpg')
-        #         i += 1
-        #         if i > 5:
-        #             break
-        #     if i > 5:
-        #         break
+        i = 1
+        for inputs in self.train_loader:
+            tars, inps = inputs[-1][0], inputs[-1][1]
+            for inp, tar in zip(inps, tars):
+                plt_input_target(inp, tar, save_file=f'sanity-check-im-{i}.jpg')
+                i += 1
+                if i > 5:
+                    break
+            if i > 5:
+                break
         log('Sanity Checks Generated')
 
     def train_batch(self, batch, batch_data):
@@ -131,7 +131,7 @@ class Waifu2xTrainModel(BaseTrainModel):
 
         self.optimizer.zero_grad()
         loss.backward()
-        # nn.utils.clip_grad_norm(self.network.parameters(), self.opt.clip)
+        nn.utils.clip_grad_norm(self.network.parameters(), self.opt.clip)
         self.optimizer.step()
 
         return loss.item()
@@ -139,7 +139,6 @@ class Waifu2xTrainModel(BaseTrainModel):
     def post_batch(self, epoch, batch, batch_out):
         super().post_batch(epoch, batch, batch_out)
         self.losses.append(batch_out)
-        self.scheduler.step()
 
     def evaluate_batch(self, i, batch_data) -> Tuple[float, Tensor, Tensor, Tensor]:
         self.network = self.network.eval().to(self.opt.device)
@@ -163,6 +162,7 @@ class Waifu2xTrainModel(BaseTrainModel):
 
     def post_epoch(self, epoch):
         super().post_epoch(epoch)
+        self.scheduler.step()
 
     def post_train(self):
         super().post_train()

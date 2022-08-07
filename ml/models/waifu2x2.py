@@ -18,7 +18,7 @@ from ml.options.waifu2x import Waifu2xTrainOptions
 from ml.plot_utils import plt_input_target
 
 
-class Waifu2xInferenceModel(BaseInferenceModel):
+class Waifu2x2InferenceModel(BaseInferenceModel):
 
     def __init__(self, opt: BaseInferenceOptions, inference_loader: DataLoader):
         super().__init__(opt, inference_loader)
@@ -43,7 +43,7 @@ class Waifu2xInferenceModel(BaseInferenceModel):
         return inp, tar, out
 
 
-class Waifu2xTrainModel(BaseTrainModel):
+class Waifu2x2TrainModel(BaseTrainModel):
 
     def __init__(self, opt: Waifu2xTrainOptions, train_loader, test_loader):
         super().__init__(opt, train_loader, test_loader)

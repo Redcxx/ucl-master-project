@@ -5,7 +5,7 @@ from ml.options import create_train_options
 
 def main():
     opt = create_train_options('waifu2x2')
-    train_loader, test_loader = create_train_dataloaders(opt, 'waifu2x')
+    train_loader, test_loader = create_train_dataloaders(opt, 'waifu2x2')
     model = create_train_model(opt, train_loader, test_loader, 'waifu2x2')
     model.train()
 

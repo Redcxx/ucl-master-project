@@ -29,7 +29,7 @@ class Waifu2xTrainOptions(BaseTrainOptions):
 
     @property
     def tag(self):
-        return 'waifu2x-train-tag'
+        return 'waifu2x2-train-tag'
 
 
 class Waifu2xInferenceOptions(BaseInferenceOptions):
@@ -38,8 +38,8 @@ class Waifu2xInferenceOptions(BaseInferenceOptions):
 
     @property
     def tag(self):
-        return 'waifu2x-inference-tag'
+        return 'waifu2x2-inference-tag'
 
     @property
     def inference_run_id(self):
-        return 'waifu2x-inference-run-id'
+        return 'waifu2x2-inference-run-id'

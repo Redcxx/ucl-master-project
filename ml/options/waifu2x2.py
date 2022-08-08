@@ -7,10 +7,12 @@ class Waifu2x2TrainOptions(BaseTrainOptions):
     def __init__(self):
         super().__init__()
 
+        self.resume_ckpt_file = 'waifu2x2-train-tag-2022-08-08-Monday-08h-04m-03s_1000.ckpt'
+
         self.batch_size = 16
-        self.start_epoch = 1
-        self.end_epoch = 2500
-        self.decay = 500
+        self.start_epoch = 1001
+        self.end_epoch = 2000
+        self.decay = 250
         self.log_freq = 10
         self.eval_freq = 100
         self.save_freq = 100
@@ -23,7 +25,7 @@ class Waifu2x2TrainOptions(BaseTrainOptions):
         self.clip = 10.0
 
         self.multi_scale = self.scale == 0
-        self.dataset_root = 'upsample2x'
+        self.dataset_root = 'noghost_upsample/2/'
         self.train_dataset_root = 'train'
         self.test_dataset_root = 'test'
         self.high_res_root = 'hr'
@@ -32,7 +34,7 @@ class Waifu2x2TrainOptions(BaseTrainOptions):
 
     @property
     def tag(self):
-        return 'waifu2x2-train-tag'
+        return 'waifu2x2-noghost-train-tag'
 
 
 class Waifu2x2InferenceOptions(BaseInferenceOptions):

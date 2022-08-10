@@ -121,12 +121,19 @@ class AlacGANInferenceModel(BaseInferenceModel):
 
             inp_batch, tar_batch, out_batch, hint, mask = self.inference_batch(i, batch_data)
 
+            print(f'len(inp_batch)={len(inp_batch)}')
+            print(f'len(tar_batch)={len(tar_batch)}')
+            print(f'len(out_batch)={len(out_batch)}')
+            print(f'len(hint)={len(hint)}')
+            print(f'len(mask)={len(mask)}')
+
             for inp_im, tar_im, out_im, hint_im, mask_im in zip(inp_batch, tar_batch, out_batch, hint, mask):
                 save_filename = os.path.join(self.opt.output_images_path, f'inference-{i}.png')
                 plt_horizontals(
                     [inp_im, hint_im, mask_im, tar_im, out_im],
-                    titles=['input image', 'input hint', 'input mask', 'target', 'output'],
+                    titles=['in image', 'in hint', 'in mask', 'target', 'out'],
                     un_normalize=[True, False, False, True, True],
+                    grayscale=[True, False, False, False, False],
                     figsize=(5, 1),
                     save_file=save_filename
                 )

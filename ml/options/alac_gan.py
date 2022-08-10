@@ -22,6 +22,10 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
         # return 'alacGAN-train-2022-07-02-Saturday-12h-25m-53s'
         return 'alacGAN-train-2022-06-29-Wednesday-17h-23m-26s'
 
+    @property
+    def inference_run_tag(self):
+        return 'final'
+
 
 class AlacGANTrainOptions(BaseTrainOptions):
 

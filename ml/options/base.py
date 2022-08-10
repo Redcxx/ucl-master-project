@@ -73,6 +73,10 @@ class BaseInferenceOptions(BaseOptions, ABC):
     def inference_run_id(self):
         pass
 
+    @property
+    def inference_run_tag(self):
+        return 'latest'
+
 
 class BaseTrainOptions(BaseOptions, ABC):
     def __init__(self):

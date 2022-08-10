@@ -49,7 +49,7 @@ class BaseInferenceModel(BaseModel, ABC):
         self.inference_loader = inference_loader
 
     def setup(self):
-        self.init_from_checkpoint(self.load_checkpoint('latest'))
+        self.init_from_checkpoint(self.load_checkpoint(self.opt.inference_run_tag))
 
     @abstractmethod
     def init_from_checkpoint(self, checkpoint):

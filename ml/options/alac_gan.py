@@ -37,7 +37,7 @@ class AlacGANTrainOptions(BaseTrainOptions):
         super().__init__()
 
         # Model
-        self.use_hint = False
+        self.use_hint = True
 
         # Training
         self.batch_size = 8

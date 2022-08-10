@@ -141,7 +141,7 @@ class NetD(nn.Module):
         super(NetD, self).__init__()
 
         self.feed = nn.Sequential(
-            nn.Conv2d(opt.in_channels, ndf, kernel_size=7, stride=1, padding=3, bias=False),  # 512
+            nn.Conv2d(opt.out_channels, ndf, kernel_size=7, stride=1, padding=3, bias=False),  # 512
             nn.LeakyReLU(0.2, True),
             nn.Conv2d(ndf, ndf, kernel_size=4, stride=2, padding=1, bias=False),  # 256
             nn.LeakyReLU(0.2, True),

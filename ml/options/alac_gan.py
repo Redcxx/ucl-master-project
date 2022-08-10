@@ -12,6 +12,7 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
         self.a_to_b = True
         self.batch_size = 8
         self.hint_mask = True
+        self.hint_multiplier = 1.5
 
     @property
     def tag(self):

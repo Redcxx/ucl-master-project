@@ -100,7 +100,7 @@ class AlacGANInferenceModel(BaseInferenceModel):
             mask = _mask_gen_all(self.opt, self.X)
         else:
             mask = _mask_gen_none(self.opt)
-        hint = torch.cat((real_vim * mask, mask), 1)
+        hint = torch.cat((real_vim * mask, mask), 1) * self.opt.hint_multiplier
         with torch.no_grad():
             # get sketch feature
             feat_sim = self.net_I(real_sim).detach()
@@ -129,7 +129,7 @@ class AlacGANInferenceModel(BaseInferenceModel):
                     [inp_im, hint_im, mask_im, tar_im, out_im],
                     titles=['in image', 'in hint', 'in mask', 'target', 'out'],
                     un_normalize=[True, False, False, True, True],
-                    grayscale=[True, False, False, False, False],
+                    grayscale=[True, False, False, True, False],
                     figsize=(5, 1),
                     save_file=save_filename
                 )

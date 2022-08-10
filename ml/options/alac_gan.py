@@ -11,7 +11,7 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
         self.image_size = 512
         self.a_to_b = True
         self.batch_size = 8
-        self.hint_mask = False
+        self.hint_mask = True
 
     @property
     def tag(self):

@@ -147,3 +147,13 @@
 - reconnect remote
 - where my training? 
 - retrain
+
+### 2 Aug
+
+- Trained super resolution
+
+### 8 Aug
+
+- finetuned super resolution
+- implementing frame interpolation
+

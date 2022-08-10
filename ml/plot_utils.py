@@ -4,12 +4,15 @@ from matplotlib import pyplot as plt
 from torchvision.transforms import transforms
 
 
-def plt_tensor(im, un_normalize=True):
+def plt_tensor(im, un_normalize=True, grayscale=False):
     if un_normalize:
         im = unnormalize_im(im)
     im = im.cpu().detach().numpy()
     im = im.transpose(1, 2, 0).squeeze()
-    plt.imshow(im)
+    if grayscale:
+        plt.imshow(im, cmap='gray')
+    else:
+        plt.imshow(im)
 
 
 def unnormalize_im(im):
@@ -19,14 +22,17 @@ def unnormalize_im(im):
     return transforms.Normalize((-mean / std).tolist(), (1.0 / std).tolist())(im)
 
 
-def plt_horizontals(images, titles=None, figsize=(10, 10), dpi=512, un_normalize=True, save_file=None):
+def plt_horizontals(images, titles=None, figsize=(10, 10), dpi=512, un_normalize=True, save_file=None, grayscale=False):
     fig = plt.figure(figsize=figsize, dpi=dpi)
     if type(un_normalize) == bool:
         un_normalize = [un_normalize for _ in range(len(images))]
 
+    if type(grayscale) == bool:
+        grayscale = [grayscale for _ in range(len(images))]
+
     for i, im in enumerate(images):
         plt.subplot(1, len(images), i + 1)
-        plt_tensor(im, un_normalize=un_normalize[i])
+        plt_tensor(im, un_normalize=un_normalize[i], grayscale=grayscale[i])
         if titles:
             plt.title(titles[i])
 

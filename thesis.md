@@ -41,3 +41,14 @@
 ### NoGhost Suggestion
 
 - 
+
+
+
+
+
+
+
+## Outlines
+
+- colorization
+  - anime sketch colorization is a difficult problem because neither depth or semantic information is presented in the sketches, there are infinite number of ways to produce feasible result, and there often lack of authentic pair of training data.

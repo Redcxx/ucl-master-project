@@ -25,15 +25,19 @@ def unnormalize_im(im):
     return transforms.Normalize((-mean / std).tolist(), (1.0 / std).tolist())(im)
 
 
-def save_raw_im(im: torch.tensor, filename, dpi=512, un_normalize=True):
+def save_raw_im(im: torch.tensor, filename, dpi=512, un_normalize=True, grayscale=False):
     im = preprocess_im(im, un_normalize=un_normalize)
-    # w, h = im.shape[:2]
-    fig = plt.figure(frameon=False, dpi=dpi)
+    w, h = im.shape[:2]
+    print(im.shape)
+    fig = plt.figure(frameon=False, dpi=dpi, figsize=(1, 1))
     # fig.set_size_inches(w, h)
     ax = plt.Axes(fig, [0., 0., 1., 1.])
     ax.set_axis_off()
     fig.add_axes(ax)
-    ax.imshow(im, aspect='auto')
+    if grayscale:
+        ax.imshow(im, aspect='auto', cmap='gray')
+    else:
+        ax.imshow(im, aspect='auto')
     fig.savefig(filename)
 
 def plt_horizontals(images, titles=None, figsize=(10, 10), dpi=512, un_normalize=True, save_file=None, grayscale=False):

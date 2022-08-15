@@ -34,7 +34,7 @@ def save_raw_im(im: torch.tensor, filename, dpi=512, un_normalize=True):
     ax.set_axis_off()
     fig.add_axes(ax)
     ax.imshow(im, aspect='auto')
-    fig.savefig(filename, dpi)
+    fig.savefig(filename, dpi=dpi)
 
 def plt_horizontals(images, titles=None, figsize=(10, 10), dpi=512, un_normalize=True, save_file=None, grayscale=False):
     fig = plt.figure(figsize=figsize, dpi=dpi)

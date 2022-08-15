@@ -133,10 +133,10 @@ class AlacGANInferenceModel(BaseInferenceModel):
                     figsize=(5, 1),
                     save_file=save_filename
                 )
-                save_raw_im(inp_im, f'inference-{im_index}-in.png')
-                save_raw_im(hint_im, f'inference-{im_index}-hint.png')
-                save_raw_im(tar_im, f'inference-{im_index}-tar.png')
-                save_raw_im(out_im, f'inference-{im_index}-out.png')
+                save_raw_im(inp_im, os.path.join(self.opt.output_images_path, f'inference-{im_index}-in.png'))
+                save_raw_im(hint_im, os.path.join(self.opt.output_images_path, f'inference-{im_index}-hint.png'))
+                save_raw_im(tar_im, os.path.join(self.opt.output_images_path, f'inference-{im_index}-tar.png'))
+                save_raw_im(out_im, os.path.join(self.opt.output_images_path, f'inference-{im_index}-out.png'))
 
 
 class AlacGANTrainModel(BaseTrainModel):

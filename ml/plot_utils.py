@@ -27,7 +27,7 @@ def unnormalize_im(im):
 
 def save_raw_im(im: torch.tensor, filename, dpi=512, un_normalize=True):
     im = preprocess_im(im, un_normalize=un_normalize)
-    w, h = im.shape[:2]
+    # w, h = im.shape[:2]
     fig = plt.figure(frameon=False, dpi=dpi)
     # fig.set_size_inches(w, h)
     ax = plt.Axes(fig, [0., 0., 1., 1.])

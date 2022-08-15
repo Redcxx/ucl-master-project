@@ -10,9 +10,10 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
         self.output_images_path = 'output_alacgan_test_images'
         self.image_size = 512
         self.a_to_b = True
-        self.batch_size = 8
+        self.batch_size = 1
+        self.num_workers = 1
         self.hint_mask = True
-        self.hint_multiplier = 0.25
+        self.hint_multiplier = 1
 
     @property
     def tag(self):

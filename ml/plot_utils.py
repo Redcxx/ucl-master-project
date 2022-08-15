@@ -3,12 +3,15 @@ import torch
 from matplotlib import pyplot as plt
 from torchvision.transforms import transforms
 
-
-def plt_tensor(im, un_normalize=True, grayscale=False):
+def preprocess_im(im, un_normalize=True):
     if un_normalize:
         im = unnormalize_im(im)
     im = im.cpu().detach().numpy()
     im = im.transpose(1, 2, 0).squeeze()
+    return im
+
+def plt_tensor(im, un_normalize=True, grayscale=False):
+    im = preprocess_im(im, un_normalize=un_normalize)
     if grayscale:
         plt.imshow(im, cmap='gray')
     else:
@@ -21,6 +24,17 @@ def unnormalize_im(im):
     std = torch.tensor([0.5 for _ in range(num_dims)], dtype=torch.float32)
     return transforms.Normalize((-mean / std).tolist(), (1.0 / std).tolist())(im)
 
+
+def save_raw_im(im: torch.tensor, filename, dpi=512, un_normalize=True):
+    im = preprocess_im(im, un_normalize=un_normalize)
+    w, h = im.shape[:2]
+    fig = plt.figure(frameon=False)
+    fig.set_size_inches(w, h)
+    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    ax.set_axis_off()
+    fig.add_axes(ax)
+    ax.imshow(im, aspect='auto')
+    fig.savefig(filename, dpi)
 
 def plt_horizontals(images, titles=None, figsize=(10, 10), dpi=512, un_normalize=True, save_file=None, grayscale=False):
     fig = plt.figure(figsize=figsize, dpi=dpi)

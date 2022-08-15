@@ -15,7 +15,7 @@ from ml.models.criterion.GANBCELoss import GANBCELoss
 from .alac_gan_partials import NetG, NetD, NetF, NetI
 from ..logger import log
 from ..options.alac_gan import AlacGANTrainOptions, AlacGANInferenceOptions
-from ..plot_utils import plt_input_target, plt_horizontals
+from ..plot_utils import plt_input_target, plt_horizontals, save_raw_im
 
 
 def _mask_gen(opt, X):
@@ -133,6 +133,10 @@ class AlacGANInferenceModel(BaseInferenceModel):
                     figsize=(5, 1),
                     save_file=save_filename
                 )
+                save_raw_im(inp_im, f'inference-{im_index}-in.png')
+                save_raw_im(hint_im, f'inference-{im_index}-hint.png')
+                save_raw_im(tar_im, f'inference-{im_index}-tar.png')
+                save_raw_im(out_im, f'inference-{im_index}-out.png')
 
 
 class AlacGANTrainModel(BaseTrainModel):

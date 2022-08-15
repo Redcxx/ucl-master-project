@@ -45,6 +45,6 @@ def create_inference_dataloaders(opt: BaseInferenceOptions, name):
 
     inference_dataloader = DataLoader(inference_dataset,
                                       batch_size=opt.batch_size, shuffle=False, num_workers=opt.num_workers,
-                                      pin_memory=opt.pin_memory, drop_last=True)
+                                      pin_memory=opt.pin_memory, drop_last=False)
 
     return inference_dataloader

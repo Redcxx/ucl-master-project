@@ -157,3 +157,9 @@
 - finetuned super resolution
 - implementing frame interpolation
 
+### 16  Aug
+
+- explored colorization
+- written approach for colorization
+- still implementing frame interpolation
+

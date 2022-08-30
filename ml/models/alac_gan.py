@@ -90,17 +90,19 @@ class AlacGANInferenceModel(BaseInferenceModel):
         self.net_D.load_state_dict(checkpoint['net_D_state_dict'])
 
     def inference_batch(self, i, batch_data) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor]:
-        real_cim, real_vim, real_sim = batch_data
+        real_cim, real_vim, real_sim, hint_cim = batch_data
 
         real_cim = real_cim.to(self.opt.device)
         real_vim = real_vim.to(self.opt.device)
         real_sim = real_sim.to(self.opt.device)
+        hint_cim = hint_cim.to(self.opt.device)
 
         if self.opt.hint_mask:
             mask = _mask_gen_all(self.opt, self.X)
         else:
             mask = _mask_gen_none(self.opt)
-        hint = torch.cat((real_vim * mask, mask), 1) * self.opt.hint_multiplier
+
+        hint = torch.cat((hint_cim * mask, mask), 1) * self.opt.hint_multiplier
         with torch.no_grad():
             # get sketch feature
             feat_sim = self.net_I(real_sim).detach()

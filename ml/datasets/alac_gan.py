@@ -3,6 +3,7 @@ import numbers
 import os
 import random
 
+import torch
 from PIL import Image
 from torchvision.transforms import transforms, InterpolationMode
 
@@ -214,6 +215,12 @@ class AlacGANInferenceDataset(BaseDataset):
             transforms.Normalize(0.5, 0.5)
         ])
 
+        if opt.custom_color is None:
+            self.custom_color = None
+        else:
+            self.custom_color = Image.new('RGB', (opt.image_size, opt.image_size), opt.custom_color)
+            self.custom_color = self.v_trans(self.custom_color)
+
     def __len__(self):
         return self.size
 
@@ -229,4 +236,6 @@ class AlacGANInferenceDataset(BaseDataset):
         s_im = s_im.convert('L')
         c_im, v_im, s_im = self.c_trans(c_im), self.v_trans(c_im), self.s_trans(s_im)
 
-        return c_im, v_im, s_im
+        h_im = v_im if self.custom_color is None else self.custom_color
+
+        return c_im, v_im, s_im, h_im

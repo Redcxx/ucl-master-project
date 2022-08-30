@@ -7,13 +7,14 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
         super().__init__()
         # self.input_images_path = r'./colorization/test'
         self.input_images_path = r'alacgan_colorization_data/test'
-        self.output_images_path = 'pretrain_colorization_output_dark'
+        self.output_images_path = 'pretrain_colorization_output_maskless'
         self.image_size = 512
         self.a_to_b = True
         self.batch_size = 1
         self.num_workers = 1
-        self.hint_mask = True
-        self.hint_multiplier = 4
+        self.hint_mask = False
+        self.hint_multiplier = 1
+        self.custom_color = None  # (235, 64, 52)
         self.limit = 100
 
     @property
@@ -22,8 +23,8 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
 
     @property
     def inference_run_id(self):
-        return 'alacGAN-train-2022-07-02-Saturday-12h-25m-53s'  # finetuned
-        # return 'alacGAN-train-2022-06-29-Wednesday-17h-23m-26s'  # pretrained
+        # return 'alacGAN-train-2022-07-02-Saturday-12h-25m-53s'  # finetuned
+        return 'alacGAN-train-2022-06-29-Wednesday-17h-23m-26s'  # pretrained
 
     @property
     def inference_run_tag(self):

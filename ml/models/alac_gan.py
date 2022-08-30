@@ -18,21 +18,21 @@ from ..options.alac_gan import AlacGANTrainOptions, AlacGANInferenceOptions
 from ..plot_utils import plt_input_target, plt_horizontals, save_raw_im
 
 
-def _mask_gen(opt, X):
+def _mask_gen(opt, X, batch_size):
     maskS = opt.image_size // 4
 
     mask1 = torch.cat(
-        [torch.rand(1, 1, maskS, maskS).ge(X.rvs(1)[0]).float() for _ in range(opt.batch_size // 2)], 0)
-    mask2 = torch.cat([torch.zeros(1, 1, maskS, maskS).float() for _ in range(opt.batch_size // 2)], 0)
+        [torch.rand(1, 1, maskS, maskS).ge(X.rvs(1)[0]).float() for _ in range(batch_size // 2)], 0)
+    mask2 = torch.cat([torch.zeros(1, 1, maskS, maskS).float() for _ in range(batch_size // 2)], 0)
     mask = torch.cat([mask1, mask2], 0)
 
     return mask.to(opt.device)
 
 
-def _mask_gen_all(opt, X):
+def _mask_gen_all(opt, X, batch_size):
     maskS = opt.image_size // 4
 
-    mask = torch.cat([torch.rand(1, 1, maskS, maskS).ge(X.rvs(1)[0]).float() for _ in range(opt.batch_size)], 0)
+    mask = torch.cat([torch.rand(1, 1, maskS, maskS).ge(X.rvs(1)[0]).float() for _ in range(batch_size)], 0)
 
     return mask.to(opt.device)
 
@@ -97,10 +97,12 @@ class AlacGANInferenceModel(BaseInferenceModel):
         real_sim = real_sim.to(self.opt.device)
         hint_cim = hint_cim.to(self.opt.device)
 
+        batch_size = real_cim.shape[0]
+
         if self.opt.hint_mask:
-            mask = _mask_gen_all(self.opt, self.X)
+            mask = _mask_gen_all(self.opt, self.X, batch_size)
         else:
-            mask = _mask_gen_none(self.opt)
+            mask = _mask_gen_none(self.opt, batch_size)
 
         hint = torch.cat((hint_cim * mask, mask), 1) * self.opt.hint_multiplier
         with torch.no_grad():
@@ -224,15 +226,17 @@ class AlacGANTrainModel(BaseTrainModel):
         self.sch_D = optim.lr_scheduler.StepLR(self.opt_D, step_size=opt.scheduler_step_size, gamma=opt.scheduler_gamma)
 
     def evaluate_batch(self, i, batch_data) -> Tuple[float, Tensor, Tensor, Tensor]:
-        real_cim, real_vim, real_sim = batch_data
+        real_cim, real_vim, real_sim, hint_cim = batch_data
 
         real_cim = real_cim.to(self.opt.device)
         real_vim = real_vim.to(self.opt.device)
         real_sim = real_sim.to(self.opt.device)
+        hint_cim = hint_cim.to(self.opt.device)
+        batch_size = real_cim.shape[0]
 
         if self.opt.use_hint:
-            mask = _mask_gen(self.opt, self.X)
-            hint = torch.cat((real_vim * mask, mask), 1)
+            mask = _mask_gen(self.opt, self.X, batch_size)
+            hint = torch.cat((hint_cim * mask, mask), 1)
         else:
             hint = None
         with torch.no_grad():
@@ -260,7 +264,7 @@ class AlacGANTrainModel(BaseTrainModel):
         )
         # get some data and see if it looks good
         i = 1
-        for real_cim, _, real_sim in self.train_loader:
+        for real_cim, _, real_sim, _ in self.train_loader:
             for inp, tar in zip(real_sim, real_cim):
                 plt_input_target(inp, tar, save_file=f'sanity-check-im-{i}.jpg')
                 i += 1
@@ -287,11 +291,14 @@ class AlacGANTrainModel(BaseTrainModel):
         self.net_G.train()
         self.net_D.train()
 
-        real_cim, real_vim, real_sim = batch_data
+        real_cim, real_vim, real_sim, hint_cim = batch_data
 
         real_cim = real_cim.to(self.opt.device)
         real_vim = real_vim.to(self.opt.device)
         real_sim = real_sim.to(self.opt.device)
+        hint_cim = hint_cim.to(self.opt.device)
+
+        batch_size = real_cim.shape[0]
 
         ############################
         # (1) Update D network
@@ -301,8 +308,8 @@ class AlacGANTrainModel(BaseTrainModel):
         self.net_D.zero_grad()
 
         if self.opt.use_hint:
-            mask = _mask_gen(self.opt, self.X)
-            hint = torch.cat((real_vim * mask, mask), 1)
+            mask = _mask_gen(self.opt, self.X, batch_size)
+            hint = torch.cat((hint_cim * mask, mask), 1)
         else:
             hint = None
 

@@ -10,7 +10,7 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
         self.output_images_path = 'pretrain_colorization_output_darker'
         self.image_size = 512
         self.a_to_b = True
-        self.batch_size = 16
+        self.batch_size = 8
         self.num_workers = 4
         self.hint_mask = True
         self.hint_multiplier = 3

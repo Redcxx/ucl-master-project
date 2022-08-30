@@ -194,6 +194,7 @@ class AlacGANInferenceDataset(BaseDataset):
         root = os.path.join(opt.input_images_path)
         self.paths = sorted(get_all_image_paths(root))
         self.a_to_b = opt.a_to_b
+        self.size = len(self.paths) if opt.limit is None else int(opt.limit)
 
         self.c_trans = transforms.Compose([
             transforms.Resize(opt.image_size, InterpolationMode.BICUBIC),
@@ -214,9 +215,11 @@ class AlacGANInferenceDataset(BaseDataset):
         ])
 
     def __len__(self):
-        return len(self.paths)
+        return self.size
 
     def __getitem__(self, i):
+        if i >= self.size:
+            raise IndexError(f'InferenceDatasetLoader out of range: {i}')
         _, B = self._split_image_cv(self._read_im_cv(self.paths[i]))
         A = extract_edges_cv(B, sigma=0.4)
         A, B = self._cv2pil_im(A), self._cv2pil_im(B)

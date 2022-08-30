@@ -7,12 +7,12 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
         super().__init__()
         # self.input_images_path = r'./colorization/test'
         self.input_images_path = r'colorization/test'
-        self.output_images_path = 'output_noghost_colorization'
+        self.output_images_path = 'pretrain_colorization_output_maskless'
         self.image_size = 512
         self.a_to_b = True
         self.batch_size = 1
         self.num_workers = 1
-        self.hint_mask = True
+        self.hint_mask = False
         self.hint_multiplier = 1
 
     @property

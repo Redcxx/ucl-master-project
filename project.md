@@ -29,37 +29,37 @@ Currently, lead artist gives front-loaded creative input followed by labor inten
 ```mermaid
 flowchart LR
 
-lead["Artist"]
-keyframes["Keyframes"]
-roughframes["Rough Frames"]
-genframes["Generate Frames\n(RNN, AE, MV)"]
-cleanup_matting["Clean Up & Matting\n(GAN, CNN, VQVAE)\nUpsampling"]
-finaloutput["Output Frames"]
-timingnotes["Timing Notes"] 
-linestyle["Overall Line Style"]
-tag["Optional Tags"]
+lead["<font size=6>Artist"]
+keyframes["<font size=6>Keyframes"]
+roughframes["<font size=6>Rough Frames"]
+genframes["<font size=6>Generate Frames\n(RNN, AE, MV)"]
+cleanup_matting["<font size=6>Clean Up & Matting\n(GAN, CNN, VQVAE)\nUpsampling"]
+finaloutput["<font size=6>Output Frames"]
+timingnotes["<font size=6>Timing Notes"] 
+linestyle["<font size=6>Overall Line Style"]
+tag["<font size=6>Optional Tags"]
 
-lead -->|interactive edit| roughframes
-lead -->|draw| keyframes --> genframes
-lead  -->|select| tag & linestyle & timingnotes
+lead -->|<font size=6>interactive edit| roughframes
+lead -->|<font size=6>draw| keyframes --> genframes
+lead  -->|<font size=6>select| tag & linestyle & timingnotes
 roughframes --> cleanup_matting
 timingnotes --> genframes
 genframes <--> roughframes
 tag & linestyle --> cleanup_matting --> finaloutput
 
 
-subgraph  Layout
+subgraph  <font size=6>Layout
  keyframes
 end
 
-subgraph ML Techniques
+subgraph <font size=6>ML Techniques
 	
 
-     subgraph In-betweening
+     subgraph <font size=6>In-betweening
      genframes
      end
 
-     subgraph CleanUp & Matting
+     subgraph <font size=6>CleanUp & Matting
      cleanup_matting
      end
      
@@ -139,3 +139,43 @@ pix2pix, unet, rife
 ## Miscellaneous
 
 - **Annesah** organizing relations to external partners of UCL, such as the company No Ghost.
+
+### preprocessing
+
+```mermaid
+flowchart LR
+
+
+process_unit["<font size=6>Parallizable\nFunctions"]
+input["<font size=6>Input"]
+functions["<font size=6>Process Functions"]
+programmer["<font size=6>Programmer"]
+process_thread["<font size=6>Worker\nProcesses & Threads"]
+output["<font size=6>Output"]
+config["<font size=6>Configurations"]
+
+subgraph defines [" "]
+	direction LR
+    input
+    functions
+end
+
+subgraph pipeline_management ["<font size=6>Pipeline"]
+	direction LR
+	process_thread
+	config
+	process_unit
+end
+
+
+
+process_unit-->process_thread
+config-->process_thread
+
+programmer-->|<font size=6>defines|defines-->|<font size=6>auto conversion|process_unit
+
+process_thread --> output
+
+
+```
+

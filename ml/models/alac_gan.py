@@ -90,12 +90,11 @@ class AlacGANInferenceModel(BaseInferenceModel):
         self.net_D.load_state_dict(checkpoint['net_D_state_dict'])
 
     def inference_batch(self, i, batch_data) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor]:
-        real_cim, real_vim, real_sim, hint_cim = batch_data
+        real_cim, real_vim, real_sim = batch_data
 
         real_cim = real_cim.to(self.opt.device)
         real_vim = real_vim.to(self.opt.device)
         real_sim = real_sim.to(self.opt.device)
-        hint_cim = hint_cim.to(self.opt.device)
 
         batch_size = real_cim.shape[0]
 
@@ -104,14 +103,14 @@ class AlacGANInferenceModel(BaseInferenceModel):
         else:
             mask = _mask_gen_none(self.opt, batch_size)
 
-        hint = torch.cat((hint_cim * mask, mask), 1) * self.opt.hint_multiplier
+        hint = torch.cat((real_vim * mask, mask), 1) * self.opt.hint_multiplier
         with torch.no_grad():
             # get sketch feature
             feat_sim = self.net_I(real_sim).detach()
 
         fake_cim = self.net_G(real_sim, hint, feat_sim)
 
-        return real_sim, real_cim, fake_cim, hint_cim * mask, mask
+        return real_sim, real_cim, fake_cim, real_vim * mask, mask
 
     def inference(self):
         # create output directory, delete existing one
@@ -226,17 +225,17 @@ class AlacGANTrainModel(BaseTrainModel):
         self.sch_D = optim.lr_scheduler.StepLR(self.opt_D, step_size=opt.scheduler_step_size, gamma=opt.scheduler_gamma)
 
     def evaluate_batch(self, i, batch_data) -> Tuple[float, Tensor, Tensor, Tensor]:
-        real_cim, real_vim, real_sim, hint_cim = batch_data
+        real_cim, real_vim, real_sim = batch_data
 
         real_cim = real_cim.to(self.opt.device)
         real_vim = real_vim.to(self.opt.device)
         real_sim = real_sim.to(self.opt.device)
-        hint_cim = hint_cim.to(self.opt.device)
+
         batch_size = real_cim.shape[0]
 
         if self.opt.use_hint:
             mask = _mask_gen(self.opt, self.X, batch_size)
-            hint = torch.cat((hint_cim * mask, mask), 1)
+            hint = torch.cat((real_vim * mask, mask), 1)
         else:
             hint = None
         with torch.no_grad():

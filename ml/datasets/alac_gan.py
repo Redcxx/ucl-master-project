@@ -3,9 +3,11 @@ import numbers
 import os
 import random
 
+import numpy as np
 import torch
 from PIL import Image
 from torchvision.transforms import transforms, InterpolationMode
+import cv2 as cv
 
 from ml.algorithms.xdog import extract_edges_cv
 from ml.datasets import BaseDataset
@@ -218,8 +220,7 @@ class AlacGANInferenceDataset(BaseDataset):
         if opt.custom_color is None:
             self.custom_color = None
         else:
-            self.custom_color = Image.new('RGB', (opt.image_size, opt.image_size), opt.custom_color)
-            self.custom_color = self.v_trans(self.custom_color)
+            self.custom_color = np.array(list(opt.custom_color))
 
     def __len__(self):
         return self.size
@@ -229,13 +230,16 @@ class AlacGANInferenceDataset(BaseDataset):
             raise IndexError(f'InferenceDatasetLoader out of range: {i}')
         _, B = self._split_image_cv(self._read_im_cv(self.paths[i]))
         A = extract_edges_cv(B, sigma=0.4)
-        A, B = self._cv2pil_im(A), self._cv2pil_im(B)
+        A, B = (A, B) if self.a_to_b else (B, A)
 
-        s_im, c_im = (A, B) if self.a_to_b else (B, A)
+        s_im, c_im = self._cv2pil_im(A), self._cv2pil_im(B)
 
         s_im = s_im.convert('L')
         c_im, v_im, s_im = self.c_trans(c_im), self.v_trans(c_im), self.s_trans(s_im)
 
-        h_im = v_im if self.custom_color is None else self.custom_color
+        if self.custom_color is not None:
+            gray = cv.cvtColor(B, cv.COLOR_RGB2GRAY)
+            gray = gray.astype(float) / 255
+            v_im = gray * self.custom_color
 
-        return c_im, v_im, s_im, h_im
+        return c_im, v_im, s_im

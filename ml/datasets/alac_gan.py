@@ -242,7 +242,7 @@ class AlacGANInferenceDataset(BaseDataset):
             gray = gray.astype(float) / 255
             gray = np.repeat(gray[np.newaxis, ...], 3, 0)  # add rgb channels
             color = self.custom_color[..., np.newaxis, np.newaxis]  # add image size channels
-            v_im = self.v_trans(gray * color)
+            v_im = self.v_trans(self._cv2pil_im(gray * color))
         else:
             v_im = self.v_trans(c_im)
 

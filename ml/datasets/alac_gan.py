@@ -235,13 +235,15 @@ class AlacGANInferenceDataset(BaseDataset):
         s_im, c_im = self._cv2pil_im(A), self._cv2pil_im(B)
 
         s_im = s_im.convert('L')
-        c_im, v_im, s_im = self.c_trans(c_im), self.v_trans(c_im), self.s_trans(s_im)
+        c_im, s_im = self.c_trans(c_im), self.s_trans(s_im)
 
         if self.custom_color is not None:
             gray = cv.cvtColor(B, cv.COLOR_RGB2GRAY)
             gray = gray.astype(float) / 255
             gray = np.repeat(gray[np.newaxis, ...], 3, 0)  # add rgb channels
             color = self.custom_color[..., np.newaxis, np.newaxis]  # add image size channels
-            v_im = gray * color
+            v_im = self.v_trans(gray * color)
+        else:
+            v_im = self.v_trans(c_im)
 
         return c_im, v_im, s_im

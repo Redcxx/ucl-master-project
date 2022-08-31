@@ -220,7 +220,7 @@ class AlacGANInferenceDataset(BaseDataset):
         if opt.custom_color is None:
             self.custom_color = None
         else:
-            self.custom_color = np.array(list(opt.custom_color))
+            self.custom_color = np.array(list(opt.custom_color), dtype=float)
 
     def __len__(self):
         return self.size
@@ -242,8 +242,7 @@ class AlacGANInferenceDataset(BaseDataset):
             gray = gray.astype(float) / 255
             gray = np.repeat(gray[np.newaxis, ...], 3, 0)  # add rgb channels
             color = self.custom_color[..., np.newaxis, np.newaxis]  # add image size channels
-            im = (gray * color.astype(float)).astype(np.uint8)
-            print(im.dtype)
+            im = (gray * color).astype(int)
             v_im = self.v_trans(self._cv2pil_im(im))
         else:
             v_im = self.v_trans(c_im)

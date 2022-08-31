@@ -37,10 +37,10 @@ def _mask_gen_all(opt, X, batch_size):
     return mask.to(opt.device)
 
 
-def _mask_gen_none(opt):
+def _mask_gen_none(opt, batch_size):
     maskS = opt.image_size // 4
 
-    mask = torch.cat([torch.zeros(1, 1, maskS, maskS).float() for _ in range(opt.batch_size)], 0)
+    mask = torch.cat([torch.zeros(1, 1, maskS, maskS).float() for _ in range(batch_size)], 0)
 
     return mask.to(opt.device)
 
@@ -111,7 +111,7 @@ class AlacGANInferenceModel(BaseInferenceModel):
 
         fake_cim = self.net_G(real_sim, hint, feat_sim)
 
-        return real_sim, real_cim, fake_cim, real_vim * mask, mask
+        return real_sim, real_cim, fake_cim, hint_cim * mask, mask
 
     def inference(self):
         # create output directory, delete existing one

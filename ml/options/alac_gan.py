@@ -7,14 +7,14 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
         super().__init__()
         # self.input_images_path = r'./colorization/test'
         self.input_images_path = r'alacgan_colorization_data/test'
-        self.output_images_path = 'pretrain_colorization_output_red'
+        self.output_images_path = 'pretrain_colorization_output_yellow'
         self.image_size = 512
         self.a_to_b = True
         self.batch_size = 8
         self.num_workers = 4
         self.hint_mask = True
         self.hint_multiplier = 1
-        self.custom_color = (235, 64, 52)
+        self.custom_color = (252, 186, 3)  # red: (235, 64, 52), yellow: (252, 186, 3)
         self.limit = 100
 
     @property

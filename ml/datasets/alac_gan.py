@@ -240,6 +240,8 @@ class AlacGANInferenceDataset(BaseDataset):
         if self.custom_color is not None:
             gray = cv.cvtColor(B, cv.COLOR_RGB2GRAY)
             gray = gray.astype(float) / 255
-            v_im = gray * self.custom_color
+            gray = np.repeat(gray[np.newaxis, ...], 3, 0)  # add rgb channels
+            color = self.custom_color[..., np.newaxis, np.newaxis]  # add image size channels
+            v_im = gray * color
 
         return c_im, v_im, s_im

@@ -19,6 +19,7 @@ def plt_tensor(im, un_normalize=True, grayscale=False):
 
 
 def unnormalize_im(im):
+    print(im.shape)
     num_dims = im.shape[0]
     mean = torch.tensor([0.5 for _ in range(num_dims)], dtype=torch.float32)
     std = torch.tensor([0.5 for _ in range(num_dims)], dtype=torch.float32)

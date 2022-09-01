@@ -56,7 +56,7 @@ class AlacGANTrainOptions(BaseTrainOptions):
         # Dataset
         self.image_size = 512
         self.dataset_root = './colorization'
-        self.a_to_b = False
+        self.a_to_b = True
         self.make_fake_hint = True
         self.in_channels = 1
         self.out_channels = 3

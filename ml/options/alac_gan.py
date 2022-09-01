@@ -6,16 +6,16 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
     def __init__(self):
         super().__init__()
         # self.input_images_path = r'./colorization/test'
-        self.input_images_path = r'alacgan_colorization_data/test'
-        self.output_images_path = 'pretrain_colorization_output_blue'
+        self.input_images_path = r'colorization/test'
+        self.output_images_path = 'noghost_colorization_output'
         self.image_size = 512
         self.a_to_b = True
         self.batch_size = 8
         self.num_workers = 4
         self.hint_mask = True
         self.hint_multiplier = 1
-        self.custom_color = (66, 135, 245)  # red: (235, 64, 52), yellow: (252, 186, 3), blue: (66, 135, 245)
-        self.limit = 100
+        self.custom_color = None  # red: (235, 64, 52), yellow: (252, 186, 3), blue: (66, 135, 245)
+        self.limit = None  # limit on the inference dataset
 
     @property
     def tag(self):
@@ -23,8 +23,8 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
 
     @property
     def inference_run_id(self):
-        # return 'alacGAN-train-2022-07-02-Saturday-12h-25m-53s'  # finetuned
-        return 'alacGAN-train-2022-06-29-Wednesday-17h-23m-26s'  # pretrained
+        return 'alacGAN-train-2022-07-02-Saturday-12h-25m-53s'  # finetuned
+        # return 'alacGAN-train-2022-06-29-Wednesday-17h-23m-26s'  # pretrained
 
     @property
     def inference_run_tag(self):

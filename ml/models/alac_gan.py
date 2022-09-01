@@ -258,12 +258,12 @@ class AlacGANTrainModel(BaseTrainModel):
         )
         summary(
             self.net_D,
-            torch.rand(self.opt.batch_size, 3, self.opt.image_size, self.opt.image_size).to(self.opt.device),
+            torch.rand(self.opt.batch_size, 1, self.opt.image_size, self.opt.image_size).to(self.opt.device),
             torch.rand(self.opt.batch_size, 512, 32, 32).to(self.opt.device),
         )
         # get some data and see if it looks good
         i = 1
-        for real_cim, _, real_sim, _ in self.train_loader:
+        for real_cim, _, real_sim in self.train_loader:
             for inp, tar in zip(real_sim, real_cim):
                 plt_input_target(inp, tar, save_file=f'sanity-check-im-{i}.jpg')
                 i += 1

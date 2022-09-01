@@ -35,7 +35,7 @@ class AlacGANTrainOptions(BaseTrainOptions):
 
     @property
     def tag(self):
-        return 'alacGAN-noghost-colorization-train'
+        return 'alacGAN-noghost-colorization-train-from-scratch'
 
     def __init__(self):
         super().__init__()
@@ -46,12 +46,12 @@ class AlacGANTrainOptions(BaseTrainOptions):
         # Training
         self.batch_size = 8
         self.start_epoch = 1
-        self.end_epoch = 100
-        self.eval_freq = 10
+        self.end_epoch = 1000
+        self.eval_freq = 50
         self.log_freq = 1
         self.save_freq = 50
         self.batch_log_freq = 0
-        self.resume_ckpt_file = 'alacGAN-train-2022-06-29-Wednesday-17h-23m-26s_final.ckpt'
+        # self.resume_ckpt_file = 'alacGAN-train-2022-06-29-Wednesday-17h-23m-26s_final.ckpt'
 
         # Dataset
         self.image_size = 512

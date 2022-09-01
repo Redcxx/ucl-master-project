@@ -170,6 +170,8 @@ class AlacGANTrainModel(BaseTrainModel):
         # housekeeping
         self.net_G_losses = []
         self.net_D_losses = []
+        self.content_losses = []
+        self.l1_losses = []
         # self.grad_penalties = []
         self.epoch_eval_loss = None
 
@@ -290,6 +292,8 @@ class AlacGANTrainModel(BaseTrainModel):
         super().pre_epoch()
         self.net_G_losses = []
         self.net_D_losses = []
+        self.content_losses = []
+        self.l1_losses = []
 
     def pre_batch(self, epoch, batch):
         super().pre_batch(epoch, batch)
@@ -370,13 +374,14 @@ class AlacGANTrainModel(BaseTrainModel):
 
         self.opt_G.step()
 
-        return errG.item(), errD.item()
+        return errG.item(), errd.item(), content_loss.item(), l1_loss.item()
 
     def post_batch(self, epoch, batch, batch_out):
         super().post_batch(epoch, batch, batch_out)
 
         self.net_G_losses.append(batch_out[0])
         self.net_D_losses.append(batch_out[1])
+
         # self.grad_penalties.append(batch_out[2])
 
     def post_epoch(self, epoch):

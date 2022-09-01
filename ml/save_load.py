@@ -91,12 +91,16 @@ def load_file(opt, file_name):
     if os.path.isfile(file_name):
         log(f'"{file_name}" already exists, not downloading')
         return True
+    else:
+        log(f'{file_name} not found locally, looking for it on drive')
     files = drive.ListFile({
         'q': f"'{folder['id']}' in parents"
     }).GetList()
     for file in files:
         if file['title'] == file_name:
             # download
+            log('Downloading file requested ... ', end='')
             drive.CreateFile({'id': file['id']}).GetContentFile(file_name)
+            log('done')
             return True
     return False  # no match file

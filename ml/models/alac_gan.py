@@ -250,6 +250,8 @@ class AlacGANTrainModel(BaseTrainModel):
     def _sanity_check(self):
         log('Generating Sanity Checks')
         # see if model architecture is alright
+        self.net_G.eval()
+        self.net_D.eval()
         summary(
             self.net_G,
             torch.rand(self.opt.batch_size, 1, self.opt.image_size, self.opt.image_size).to(self.opt.device),

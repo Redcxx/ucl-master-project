@@ -103,4 +103,5 @@ def load_file(opt, file_name):
             drive.CreateFile({'id': file['id']}).GetContentFile(file_name)
             log('done')
             return True
+    log('File not found')
     return False  # no match file

@@ -96,6 +96,7 @@ def load_file(opt, file_name):
     files = drive.ListFile({
         'q': f"'{folder['id']}' in parents"
     }).GetList()
+    log(files)
     for file in files:
         if file['title'] == file_name:
             # download

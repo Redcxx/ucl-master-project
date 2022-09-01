@@ -23,7 +23,7 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
 
     @property
     def inference_run_id(self):
-        return 'alacGAN-train-2022-07-02-Saturday-12h-25m-53s'  # finetuned
+        return 'alacGAN-train-2022-07-02-Saturday-12h-25m-53s'  # fine tuned
         # return 'alacGAN-train-2022-06-29-Wednesday-17h-23m-26s'  # pretrained
 
     @property

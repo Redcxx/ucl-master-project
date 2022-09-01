@@ -176,7 +176,7 @@ class RandomSizedCrop(object):
             if random.random() < 0.5:
                 w, h = h, w
 
-            if w <= img.size[0] and h <= img.size[1]:
+            if w <= img.size()[0] and h <= img.size()[1]:
                 x1 = random.randint(0, img.size[0] - w)
                 y1 = random.randint(0, img.size[1] - h)
 

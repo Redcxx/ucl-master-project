@@ -358,14 +358,15 @@ class AlacGANTrainModel(BaseTrainModel):
 
         # discriminator loss
         errd = self.net_D(fake, feat_sim)
-        errG = errd.mean() * 0.0001 * -1
-        errG.backward(retain_graph=True)
+        errd = errd.mean() * 0.0001 * -1
         feat1 = self.net_F(fake)
         with torch.no_grad():
             feat2 = self.net_F(real_cim)
 
-        contentLoss = self.crt_mse(feat1, feat2)
-        contentLoss.backward()
+        l1_loss = self.crt_l1(fake, real_cim)
+        content_loss = self.crt_mse(feat1, feat2)
+        errG = (errd + content_loss + l1_loss) / 3
+        errG.backward()
 
         self.opt_G.step()
 

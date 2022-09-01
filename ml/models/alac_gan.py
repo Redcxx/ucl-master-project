@@ -250,8 +250,8 @@ class AlacGANTrainModel(BaseTrainModel):
     def _sanity_check(self):
         log('Generating Sanity Checks')
         # see if model architecture is alright
-        self.net_G.eval()
-        self.net_D.eval()
+        self.net_G.to(self.opt.device).eval()
+        self.net_D.to(self.opt.device).eval()
         summary(
             self.net_G,
             torch.rand(self.opt.batch_size, 1, self.opt.image_size, self.opt.image_size).to(self.opt.device),
@@ -270,7 +270,7 @@ class AlacGANTrainModel(BaseTrainModel):
                 plt_horizontals(
                     [inp, tar],
                     titles=['in image', 'target'],
-                    un_normalize=[True, True],
+                    un_normalize=True,
                     grayscale=[True, False],
                     figsize=(2, 1),
                     save_file=f'sanity-check-im-{i}.jpg'
@@ -284,13 +284,12 @@ class AlacGANTrainModel(BaseTrainModel):
 
     def pre_train(self):
         super().pre_train()
-        self._sanity_check()
+        # self._sanity_check()
 
     def pre_epoch(self):
         super().pre_epoch()
         self.net_G_losses = []
         self.net_D_losses = []
-        # self.grad_penalties = []
 
     def pre_batch(self, epoch, batch):
         super().pre_batch(epoch, batch)

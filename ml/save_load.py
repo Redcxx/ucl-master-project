@@ -94,9 +94,8 @@ def load_file(opt, file_name):
     else:
         log(f'{file_name} not found locally, looking for it on drive')
     files = drive.ListFile({
-        'q': f"'{folder['id']}' in parents"
+        'q': '' #f"'{folder['id']}' in parents"
     }).GetList()
-    log(f"'{folder['id']}' in parents")
     log(files)
     for file in files:
         if file['title'] == file_name:

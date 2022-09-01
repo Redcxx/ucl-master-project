@@ -265,11 +265,18 @@ class AlacGANTrainModel(BaseTrainModel):
         i = 1
         for real_cim, _, real_sim in self.train_loader:
             for inp, tar in zip(real_sim, real_cim):
-                plt_input_target(inp, tar, save_file=f'sanity-check-im-{i}.jpg')
+                plt_horizontals(
+                    [inp, tar],
+                    titles=['in image', 'target'],
+                    un_normalize=[True, True],
+                    grayscale=[True, False],
+                    figsize=(5, 1),
+                    save_file=f'sanity-check-im-{i}.jpg'
+                )
                 i += 1
-                if i > 5:
+                if i > 10:
                     break
-            if i > 5:
+            if i > 10:
                 break
         log('Sanity Checks Generated')
 

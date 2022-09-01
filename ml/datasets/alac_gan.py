@@ -69,7 +69,7 @@ class AlacGANTrainDataset(BaseDataset):
         s_im = s_im.convert('L')
         if random.random() < 0.5:
             c_im, s_im = c_im.transpose(Image.FLIP_LEFT_RIGHT), s_im.transpose(Image.FLIP_LEFT_RIGHT)
-        print(c_im.size, s_im.size)
+        print(c_im.getbands(), s_im.getbands())
         c_im, v_im, s_im = self.c_trans(c_im), self.v_trans(c_im), self.s_trans(s_im)
 
         return c_im, v_im, s_im

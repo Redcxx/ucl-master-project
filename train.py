@@ -4,9 +4,9 @@ from ml.options import create_train_options
 
 
 def main():
-    opt = create_train_options('alacgan')
-    train_loader, test_loader = create_train_dataloaders(opt, 'alacgan')
-    model = create_train_model(opt, train_loader, test_loader, 'alacgan')
+    opt = create_train_options('alac_gan')
+    train_loader, test_loader = create_train_dataloaders(opt, 'alac_gan')
+    model = create_train_model(opt, train_loader, test_loader, 'alac_gan')
     model.train()
 
 

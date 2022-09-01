@@ -270,7 +270,7 @@ class AlacGANTrainModel(BaseTrainModel):
                     titles=['in image', 'target'],
                     un_normalize=[True, True],
                     grayscale=[True, False],
-                    figsize=(5, 1),
+                    figsize=(2, 1),
                     save_file=f'sanity-check-im-{i}.jpg'
                 )
                 i += 1
@@ -297,12 +297,11 @@ class AlacGANTrainModel(BaseTrainModel):
         self.net_G.train()
         self.net_D.train()
 
-        real_cim, real_vim, real_sim, hint_cim = batch_data
+        real_cim, real_vim, real_sim = batch_data
 
         real_cim = real_cim.to(self.opt.device)
         real_vim = real_vim.to(self.opt.device)
         real_sim = real_sim.to(self.opt.device)
-        hint_cim = hint_cim.to(self.opt.device)
 
         batch_size = real_cim.shape[0]
 
@@ -315,7 +314,7 @@ class AlacGANTrainModel(BaseTrainModel):
 
         if self.opt.use_hint:
             mask = _mask_gen(self.opt, self.X, batch_size)
-            hint = torch.cat((hint_cim * mask, mask), 1)
+            hint = torch.cat((real_vim * mask, mask), 1)
         else:
             hint = None
 

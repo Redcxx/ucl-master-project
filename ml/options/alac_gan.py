@@ -62,11 +62,11 @@ class AlacGANTrainOptions(BaseTrainOptions):
         self.out_channels = 3
 
         # Optimizer
-        self.lr = 0.00001
+        self.lr = 0.000001
 
         # Scheduler
         self.scheduler_step_size = 150
-        self.scheduler_gamma = 0.2
+        self.scheduler_gamma = 0.5
 
         # Backbones checkpoint
         self.VGG16_PATH = 'vgg16-397923af.pth'

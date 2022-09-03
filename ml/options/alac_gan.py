@@ -46,10 +46,10 @@ class AlacGANTrainOptions(BaseTrainOptions):
         # Training
         self.batch_size = 8
         self.start_epoch = 1
-        self.end_epoch = 300
-        self.eval_freq = 20
+        self.end_epoch = 200
+        self.eval_freq = 10
         self.log_freq = 1
-        self.save_freq = 20
+        self.save_freq = 10
         self.batch_log_freq = 0
         self.resume_ckpt_file = 'alacGAN-train-2022-06-29-Wednesday-17h-23m-26s_final.ckpt'
 
@@ -62,10 +62,10 @@ class AlacGANTrainOptions(BaseTrainOptions):
         self.out_channels = 3
 
         # Optimizer
-        self.lr = 0.00002
+        self.lr = 0.00001
 
         # Scheduler
-        self.scheduler_step_size = 100
+        self.scheduler_step_size = 200
         self.scheduler_gamma = 0.5
 
         # Backbones checkpoint

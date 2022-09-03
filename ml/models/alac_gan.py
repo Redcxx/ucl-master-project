@@ -15,7 +15,7 @@ from ml.models.criterion.GANBCELoss import GANBCELoss
 from .alac_gan_partials import NetG, NetD, NetF, NetI
 from ..logger import log
 from ..options.alac_gan import AlacGANTrainOptions, AlacGANInferenceOptions
-from ..plot_utils import plt_input_target, plt_horizontals, save_raw_im
+from ..plot_utils import plt_input_target, plt_horizontals, save_raw_im, plt_model_sample
 
 
 def _mask_gen(opt, X, batch_size):
@@ -226,7 +226,57 @@ class AlacGANTrainModel(BaseTrainModel):
         self.sch_G = optim.lr_scheduler.StepLR(self.opt_G, step_size=opt.scheduler_step_size, gamma=opt.scheduler_gamma)
         self.sch_D = optim.lr_scheduler.StepLR(self.opt_D, step_size=opt.scheduler_step_size, gamma=opt.scheduler_gamma)
 
-    def evaluate_batch(self, i, batch_data) -> Tuple[float, Tensor, Tensor, Tensor]:
+    def evaluate(self, epoch):
+        if self.opt.eval_n_save_samples > 0:
+            # create directory, delete existing one
+            Path(self.opt.eval_images_save_folder).mkdir(exist_ok=True, parents=True)
+
+        eval_losses = []
+        displayed_images = 0
+        saved_images = 0
+
+        iterator = enumerate(self.test_loader)
+        if self.opt.eval_show_progress:
+            iterator = tqdm(iterator, total=len(self.test_loader), desc='Evaluate')
+        for i, batch_data in iterator:
+
+            eval_loss, inp_batch, tar_batch, out_batch, hints = self.evaluate_batch(i, batch_data)
+            eval_losses.append(eval_loss)
+
+            for inp_im, tar_im, out_im, hint in zip(inp_batch, tar_batch, out_batch, hints):
+                if displayed_images < self.opt.eval_n_display_samples:
+                    plt_model_sample(inp_im, tar_im, out_im, save_file=None)
+
+                    plt_horizontals(
+                        [inp_im, hint, tar_im, out_im],
+                        titles=['in image', 'in hint', 'target', 'output'],
+                        figsize=(4, 1),
+                        dpi=512,
+                        un_normalize=[True, False, True, True],
+                        grayscale=[True, False, True, False],
+                        save_file=None
+                    )
+                    displayed_images += 1
+
+                if saved_images < self.opt.eval_n_save_samples:
+                    save_filename = os.path.join(
+                        self.opt.eval_images_save_folder,
+                        f'epoch-{epoch}-eval-{saved_images}.png'
+                    )
+                    plt_horizontals(
+                        [inp_im, hint, tar_im, out_im],
+                        titles=['in image', 'in hint', 'target', 'output'],
+                        figsize=(4, 1),
+                        dpi=512,
+                        un_normalize=[True, False, True, True],
+                        grayscale=[True, False, True, False],
+                        save_file=save_filename
+                    )
+                    saved_images += 1
+
+        return np.mean(eval_losses)
+
+    def evaluate_batch(self, i, batch_data) -> Tuple[float, Tensor, Tensor, Tensor, Tensor]:
         real_cim, real_vim, real_sim = batch_data
 
         real_cim = real_cim.to(self.opt.device)
@@ -247,7 +297,7 @@ class AlacGANTrainModel(BaseTrainModel):
         fake_cim = self.net_G(real_sim, hint, feat_sim)
         loss = self.crt_l1(fake_cim, real_cim)
 
-        return loss.item(), real_sim, real_cim, fake_cim
+        return loss.item(), real_sim, real_cim, fake_cim, hint
 
     def _sanity_check(self):
         log('Generating Sanity Checks')

@@ -42,6 +42,7 @@ class AlacGANTrainOptions(BaseTrainOptions):
 
         # Model
         self.use_hint = True
+        self.mask_all = True
 
         # Training
         self.batch_size = 4

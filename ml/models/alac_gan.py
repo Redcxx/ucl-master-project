@@ -286,7 +286,10 @@ class AlacGANTrainModel(BaseTrainModel):
         batch_size = real_cim.shape[0]
 
         if self.opt.use_hint:
-            mask = _mask_gen(self.opt, self.X, batch_size)
+            if self.opt.mask_all:
+                mask = _mask_gen_all(self.opt, self.X, batch_size)
+            else:
+                mask = _mask_gen(self.opt, self.X, batch_size)
             hint = torch.cat((real_vim * mask, mask), 1)
         else:
             hint = None
@@ -368,7 +371,10 @@ class AlacGANTrainModel(BaseTrainModel):
         self.net_D.zero_grad()
 
         if self.opt.use_hint:
-            mask = _mask_gen(self.opt, self.X, batch_size)
+            if self.opt.mask_all:
+                mask = _mask_gen_all(self.opt, self.X, batch_size)
+            else:
+                mask = _mask_gen(self.opt, self.X, batch_size)
             hint = torch.cat((real_vim * mask, mask), 1)
         else:
             hint = None

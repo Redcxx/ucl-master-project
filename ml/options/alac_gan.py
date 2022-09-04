@@ -47,7 +47,7 @@ class AlacGANTrainOptions(BaseTrainOptions):
         # Training
         self.batch_size = 4
         self.start_epoch = 1
-        self.end_epoch = 200
+        self.end_epoch = 100
         self.eval_freq = 10
         self.log_freq = 1
         self.save_freq = 10
@@ -66,8 +66,8 @@ class AlacGANTrainOptions(BaseTrainOptions):
         self.lr = 0.00002
 
         # Scheduler
-        self.scheduler_step_size = 100
-        self.scheduler_gamma = 0.5
+        self.scheduler_step_size = 200
+        self.scheduler_gamma = 1.0
 
         # Backbones checkpoint
         self.VGG16_PATH = 'vgg16-397923af.pth'

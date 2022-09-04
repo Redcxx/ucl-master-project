@@ -48,10 +48,10 @@ class AlacGANTrainOptions(BaseTrainOptions):
         # Training
         self.batch_size = 4
         self.start_epoch = 1
-        self.end_epoch = 100
-        self.eval_freq = 10
+        self.end_epoch = 10
+        self.eval_freq = 5
         self.log_freq = 1
-        self.save_freq = 10
+        self.save_freq = 5
         self.batch_log_freq = 0
         self.resume_ckpt_file = 'alacGAN-train-2022-06-29-Wednesday-17h-23m-26s_final.ckpt'
 

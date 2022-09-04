@@ -165,7 +165,6 @@ class BaseTrainModel(BaseModel, ABC):
         eval_path = Path(self.opt.eval_images_save_folder)
         if eval_path.is_dir():
             shutil.rmtree(str(eval_path))
-        log('end pretrain')
 
     @abstractmethod
     def pre_epoch(self):

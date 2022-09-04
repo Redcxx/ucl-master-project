@@ -11,7 +11,7 @@ def main():
     inference_loader = create_inference_dataloaders(opt, name)
     model = create_inference_model(opt, inference_loader, name)
 
-    pprint(opt)
+    print(str(opt))
     print('Inference started')
     model.inference()
     print('Inference finished')

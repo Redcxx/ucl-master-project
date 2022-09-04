@@ -71,7 +71,7 @@ class AlacGANInferenceModel(BaseInferenceModel):
         self.net_F = None
         self.opt = opt
 
-        mu, sigma = 1, 0.02  # 1, 0.005
+        mu, sigma = 1, 0.01  # 1, 0.005
         self.X = stats.truncnorm((0 - mu) / sigma, (1 - mu) / sigma, loc=mu, scale=sigma)
 
         self.setup()
@@ -176,7 +176,7 @@ class AlacGANTrainModel(BaseTrainModel):
         self.epoch_eval_loss = None
 
         # for generating mask
-        mu, sigma = 1, 0.02  # 1, 0.005
+        mu, sigma = 1, 0.01  # 1, 0.005
         self.X = stats.truncnorm((0 - mu) / sigma, (1 - mu) / sigma, loc=mu, scale=sigma)
 
         self.setup()

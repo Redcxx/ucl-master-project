@@ -352,6 +352,8 @@ class AlacGANTrainModel(BaseTrainModel):
         super().pre_batch(epoch, batch)
 
     def train_batch(self, batch, batch_data):
+        log(f'batch={batch}')
+
         self.net_G.train()
         self.net_D.train()
 

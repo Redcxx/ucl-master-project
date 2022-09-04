@@ -7,7 +7,7 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
         super().__init__()
         # self.input_images_path = r'./colorization/test'
         self.input_images_path = r'colorization/test'
-        self.output_images_path = 'noghost_colorization_output'
+        self.output_images_path = 'noghost_colorization_output-new'
         self.image_size = 512
         self.a_to_b = True
         self.batch_size = 8
@@ -23,7 +23,8 @@ class AlacGANInferenceOptions(BaseInferenceOptions):
 
     @property
     def inference_run_id(self):
-        return 'alacGAN-train-2022-07-02-Saturday-12h-25m-53s'  # fine tuned
+        # return 'alacGAN-train-2022-07-02-Saturday-12h-25m-53s'  # fine tuned
+        return 'alacGAN-noghost-colorization-train-2022-09-04-Sunday-09h-33m-06s'  # new fine-tuned
         # return 'alacGAN-train-2022-06-29-Wednesday-17h-23m-26s'  # pretrained
 
     @property

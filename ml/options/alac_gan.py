@@ -36,7 +36,7 @@ class AlacGANTrainOptions(BaseTrainOptions):
 
     @property
     def tag(self):
-        return 'alacGAN-noghost-colorization-train'
+        return 'alacGAN-noghost-colorization-finetune'
 
     def __init__(self):
         super().__init__()
@@ -49,9 +49,9 @@ class AlacGANTrainOptions(BaseTrainOptions):
         self.batch_size = 8
         self.start_epoch = 1
         self.end_epoch = 10
-        self.eval_freq = 10
+        self.eval_freq = 5
         self.log_freq = 1
-        self.save_freq = 10
+        self.save_freq = 5
         self.batch_log_freq = 0
         self.resume_ckpt_file = 'alacGAN-train-2022-06-29-Wednesday-17h-23m-26s_final.ckpt'
 
@@ -67,7 +67,7 @@ class AlacGANTrainOptions(BaseTrainOptions):
         self.lr = 0.00002
 
         # Scheduler
-        self.scheduler_step_size = 100
+        self.scheduler_step_size = 20
         self.scheduler_gamma = 1.0
 
         # Backbones checkpoint

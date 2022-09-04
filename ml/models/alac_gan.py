@@ -338,10 +338,12 @@ class AlacGANTrainModel(BaseTrainModel):
         log('Sanity Checks Generated')
 
     def pre_train(self):
+        log('pre train')
         super().pre_train()
         # self._sanity_check()
 
     def pre_epoch(self):
+        log('pre epoch')
         super().pre_epoch()
         self.net_G_losses = []
         self.net_D_losses = []
@@ -349,6 +351,7 @@ class AlacGANTrainModel(BaseTrainModel):
         self.l1_losses = []
 
     def pre_batch(self, epoch, batch):
+        log('pre batch')
         super().pre_batch(epoch, batch)
 
     def train_batch(self, batch, batch_data):

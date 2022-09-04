@@ -46,7 +46,7 @@ class AlacGANTrainOptions(BaseTrainOptions):
         self.mask_all = True
 
         # Training
-        self.batch_size = 4
+        self.batch_size = 8
         self.start_epoch = 1
         self.end_epoch = 10
         self.eval_freq = 5

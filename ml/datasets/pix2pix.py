@@ -7,17 +7,11 @@ from torchvision.transforms import InterpolationMode
 
 from ml.datasets.augmentation import pil_rotate_crop_max, FixedRandomResizedCrop
 from ml.datasets.base import BaseDataset
-from ml.datasets.default import DefaultTestDataset
 from ml.file_utils import get_all_image_paths
 from ml.options.pix2pix import Pix2pixTrainOptions
 
 
-class Pix2pixTestDataset(DefaultTestDataset):
-    def __init__(self, opt: Pix2pixTrainOptions):
-        super().__init__(opt)
-
-
-class Pix2pixTrainDataset(BaseDataset):
+class Pix2pixDataset(BaseDataset):
 
     def __init__(self, opt: Pix2pixTrainOptions):
         super().__init__(opt)
@@ -92,3 +86,13 @@ class Pix2pixTrainDataset(BaseDataset):
     @staticmethod
     def _crop(im, pos, size):
         return im.crop((pos[0], pos[1], pos[0] + size[0], pos[1] + size[1]))
+
+
+class Pix2pixTestDataset(Pix2pixDataset):
+    def __init__(self, opt: Pix2pixTrainOptions):
+        super().__init__(opt)
+
+
+class Pix2pixTrainDataset(Pix2pixDataset):
+    def __init__(self, opt: Pix2pixTrainOptions):
+        super().__init__(opt)

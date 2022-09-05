@@ -4,9 +4,10 @@ from ml.options import create_train_options
 
 
 def main():
-    opt = create_train_options('alac_gan')
-    train_loader, test_loader = create_train_dataloaders(opt, 'alac_gan')
-    model = create_train_model(opt, train_loader, test_loader, 'alac_gan')
+    name = 'pix2pix'
+    opt = create_train_options(name)
+    train_loader, test_loader = create_train_dataloaders(opt, name)
+    model = create_train_model(opt, train_loader, test_loader, name)
     model.train()
 
 

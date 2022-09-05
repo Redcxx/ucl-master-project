@@ -22,7 +22,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.start_epoch = 1
         self.end_epoch = 500
         self.eval_freq = 50
-        self.log_freq = 10
+        self.log_freq = 5
         self.save_freq = 50
         self.batch_log_freq = 0
 

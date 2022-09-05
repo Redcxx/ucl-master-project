@@ -94,6 +94,7 @@ class Generator(nn.Module):
         leaky_relu = functools.partial(nn.LeakyReLU, inplace=True, negative_slope=0.2)
         dropout = functools.partial(nn.Dropout, p=0.5)
         tahn = nn.Tanh
+        sigmoid = nn.Sigmoid
 
         # build model recursively inside-out
         blocks = config['blocks'][::-1]
@@ -146,7 +147,7 @@ class Generator(nn.Module):
             skip_connection=blocks[-1]['skip_connection'],
             dropout=None,
             in_norm=None, out_norm=None,
-            in_act=leaky_relu, out_act=tahn
+            in_act=leaky_relu, out_act=sigmoid  # tanh
         )
 
     def forward(self, x):

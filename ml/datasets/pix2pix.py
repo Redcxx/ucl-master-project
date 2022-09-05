@@ -70,8 +70,8 @@ class Pix2pixTrainDataset(BaseDataset):
 
         in_channels = self.opt.generator_config['in_channels']
         return transforms.Compose([
-            transforms.Resize(self.opt.image_size, interpolation=InterpolationMode.BICUBIC, antialias=True),
             *additional_transforms,
+            transforms.Resize(self.opt.image_size, interpolation=InterpolationMode.BICUBIC, antialias=True),
             transforms.ToTensor(),
             transforms.Normalize([0.5] * in_channels, [0.5] * in_channels)  # ndims
         ])

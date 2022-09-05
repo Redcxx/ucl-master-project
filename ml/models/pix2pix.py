@@ -228,7 +228,7 @@ class Pix2pixTrainModel(BaseTrainModel):
                         f'epoch-{epoch}-eval-{saved_images}.png'
                     )
                     plt_horizontals(
-                        [inp_im, threshold, tar_im, out_im],
+                        [inp_im, tar_im, out_im, threshold],
                         titles=['input', 'target', 'output', 'threshold'],
                         figsize=(4, 1),
                         dpi=512,

@@ -1,7 +1,11 @@
+import os
+from pathlib import Path
+
 import numpy as np
 import torch
 from torch import optim, nn
 from torchsummaryX import summary
+from tqdm import tqdm
 
 from ml.models.base import BaseTrainModel
 from .alac_gan_partials import NetF
@@ -9,7 +13,7 @@ from .pix2pix_partials import Generator, Discriminator
 from ml.models.criterion.GANBCELoss import GANBCELoss
 from ..logger import log
 from ..options.pix2pix import Pix2pixTrainOptions
-from ..plot_utils import plt_input_target
+from ..plot_utils import plt_input_target, plt_model_sample, plt_horizontals
 
 
 class Pix2pixTrainModel(BaseTrainModel):
@@ -184,7 +188,57 @@ class Pix2pixTrainModel(BaseTrainModel):
         out = self.net_G(inp)
         loss = self.crt_l1(out, tar)
 
-        return loss.item(), inp, tar, out
+        return loss.item(), inp, tar, out, (out > 0.5) * 1.0
+
+    def evaluate(self, epoch):
+        if self.opt.eval_n_save_samples > 0:
+            # create directory, delete existing one
+            Path(self.opt.eval_images_save_folder).mkdir(exist_ok=True, parents=True)
+
+        eval_losses = []
+        displayed_images = 0
+        saved_images = 0
+
+        iterator = enumerate(self.test_loader)
+        if self.opt.eval_show_progress:
+            iterator = tqdm(iterator, total=len(self.test_loader), desc='Evaluate')
+        for i, batch_data in iterator:
+
+            eval_loss, inp_batch, tar_batch, out_batch, thresholds = self.evaluate_batch(i, batch_data)
+            eval_losses.append(eval_loss)
+
+            for inp_im, tar_im, out_im, threshold in zip(inp_batch, tar_batch, out_batch, thresholds):
+                if displayed_images < self.opt.eval_n_display_samples:
+                    plt_model_sample(inp_im, tar_im, out_im, save_file=None)
+
+                    plt_horizontals(
+                        [inp_im, tar_im, out_im, threshold],
+                        titles=['input', 'target', 'output', 'threshold'],
+                        figsize=(4, 1),
+                        dpi=512,
+                        un_normalize=True,
+                        grayscale=True,
+                        save_file=None
+                    )
+                    displayed_images += 1
+
+                if saved_images < self.opt.eval_n_save_samples:
+                    save_filename = os.path.join(
+                        self.opt.eval_images_save_folder,
+                        f'epoch-{epoch}-eval-{saved_images}.png'
+                    )
+                    plt_horizontals(
+                        [inp_im, threshold, tar_im, out_im],
+                        titles=['input', 'target', 'output', 'threshold'],
+                        figsize=(4, 1),
+                        dpi=512,
+                        un_normalize=True,
+                        grayscale=True,
+                        save_file=save_filename
+                    )
+                    saved_images += 1
+
+        return np.mean(eval_losses)
 
     def log_epoch(self, epoch):
         return super().log_epoch(epoch) + \

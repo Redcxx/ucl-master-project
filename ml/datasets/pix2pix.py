@@ -5,7 +5,7 @@ from PIL import Image
 from torchvision import transforms
 from torchvision.transforms import InterpolationMode
 
-from ml.datasets.augmentation import pil_rotate_crop_max
+from ml.datasets.augmentation import pil_rotate_crop_max, FixedRandomResizedCrop
 from ml.datasets.base import BaseDataset
 from ml.datasets.default import DefaultTestDataset
 from ml.file_utils import get_all_image_paths
@@ -35,25 +35,26 @@ class Pix2pixTrainDataset(BaseDataset):
     def __getitem__(self, i):
         A, B = self._split_image_pil(self._read_im_pil(self.paths[i]))
 
-        transform = self._generate_transform()
+        transform = self._generate_transform(A.size[0], A.size[1])
 
         A, B = transform(A), transform(B)  # apply same transform to both A and B
 
         return (A, B) if self.a_to_b else (B, A)
 
-    def _generate_transform(self):
+    def _generate_transform(self, w, h):
         additional_transforms = []
 
         if self.random_jitter and random.random() > 0.1:
-            old_size = self.opt.image_size
-            new_size = int(old_size * 1.2)
+            # old_size = self.opt.image_size
+            # new_size = int(old_size * 1.2)
 
-            rand_x = random.randint(0, new_size - old_size)
-            rand_y = random.randint(0, new_size - old_size)
+            # rand_x = random.randint(0, new_size - old_size)
+            # rand_y = random.randint(0, new_size - old_size)
 
             additional_transforms += [
-                transforms.Resize((new_size, new_size), interpolation=InterpolationMode.BICUBIC, antialias=True),
-                transforms.Lambda(lambda im: self._crop(im, (rand_x, rand_y), (old_size, old_size)))
+                # transforms.Resize((new_size, new_size), interpolation=InterpolationMode.BICUBIC, antialias=True),
+                # transforms.Lambda(lambda im: self._crop(im, (rand_x, rand_y), (old_size, old_size)))
+                FixedRandomResizedCrop(w, h, self.opt.image_size, scale=(0.6, 1.0), ratio=(1, 1)),
             ]
 
         if self.random_rotate and random.random() > 0.2:

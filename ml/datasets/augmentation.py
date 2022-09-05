@@ -39,10 +39,23 @@ def cv_rotate_crop_max(im: np.array, rotate_deg):
     rotated = rotate_cv(im, rotate_deg)
 
     # crop to remove black background
-    new_width, new_height = rotated_crop_dims(im.shape[1], im.shape[0], rotate_deg)
-    left, top, right, bottom = center_crop_coord(im.shape[1], im.shape[0], new_width, new_height)
+    w, h = im.shape[1], im.shape[0]
+    new_width, new_height = rotated_crop_dims(w, h, rotate_deg)
+    left, top, right, bottom = center_crop_coord(w, h, new_width, new_height)
     left, top, right, bottom = round(left), round(top), round(right), round(bottom)
     cropped = rotated[top:bottom, left:right]
+
+    return cropped
+
+
+def pil_rotate_crop_max(im: Image, rotate_deg):
+    rotated = im.rotate(rotate_deg)
+
+    w, h = im.size
+    new_width, new_height = rotated_crop_dims(w, h, rotate_deg)
+    left, top, right, bottom = center_crop_coord(w, h, new_width, new_height)
+    left, top, right, bottom = round(left), round(top), round(right), round(bottom)
+    cropped = rotated.crop((left, top, right, bottom))
 
     return cropped
 

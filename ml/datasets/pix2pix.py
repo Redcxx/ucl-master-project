@@ -5,6 +5,7 @@ from PIL import Image
 from torchvision import transforms
 from torchvision.transforms import InterpolationMode
 
+from ml.datasets.augmentation import pil_rotate_crop_max
 from ml.datasets.base import BaseDataset
 from ml.datasets.default import DefaultTestDataset
 from ml.file_utils import get_all_image_paths
@@ -21,11 +22,12 @@ class Pix2pixTrainDataset(BaseDataset):
     def __init__(self, opt: Pix2pixTrainOptions):
         super().__init__(opt)
         self.opt = opt
-        root = os.path.join(opt.dataset_dir, opt.dataset_train_folder)
+        root = os.path.join(opt.dataset_root, opt.dataset_train_folder)
         self.paths = sorted(get_all_image_paths(root))
         self.a_to_b = opt.a_to_b
         self.random_jitter = opt.random_jitter
         self.random_mirror = opt.random_mirror
+        self.random_rotate = opt.random_rotate
 
     def __len__(self):
         return len(self.paths)
@@ -42,7 +44,7 @@ class Pix2pixTrainDataset(BaseDataset):
     def _generate_transform(self):
         additional_transforms = []
 
-        if self.random_jitter:
+        if self.random_jitter and random.random() > 0.1:
             old_size = self.opt.image_size
             new_size = int(old_size * 1.2)
 
@@ -52,6 +54,12 @@ class Pix2pixTrainDataset(BaseDataset):
             additional_transforms += [
                 transforms.Resize((new_size, new_size), interpolation=InterpolationMode.BICUBIC, antialias=True),
                 transforms.Lambda(lambda im: self._crop(im, (rand_x, rand_y), (old_size, old_size)))
+            ]
+
+        if self.random_rotate and random.random() > 0.2:
+            rotate_deg = random.randint(0, 180)
+            additional_transforms += [
+                transforms.Lambda(lambda im: pil_rotate_crop_max(im, rotate_deg))
             ]
 
         if self.random_mirror and random.random() > 0.5:

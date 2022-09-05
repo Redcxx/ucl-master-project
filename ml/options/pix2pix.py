@@ -29,6 +29,9 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # Dataset
         self.dataset_root = './sketch_simplification'
         self.a_to_b = True
+        self.random_jitter = True
+        self.random_mirror = True
+        self.random_rotate = True
 
         # Model
         self.generator_config = _generator_config()

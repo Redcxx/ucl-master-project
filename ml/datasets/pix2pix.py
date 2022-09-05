@@ -69,6 +69,11 @@ class Pix2pixTrainDataset(BaseDataset):
             ]
 
         in_channels = self.opt.generator_config['in_channels']
+        if in_channels == 1:
+            additional_transforms += [
+                transforms.Grayscale()
+            ]
+
         return transforms.Compose([
             *additional_transforms,
             transforms.Resize(

@@ -39,12 +39,13 @@ class Pix2pixDataset(BaseDataset):
         return len(self.paths)
 
     def __getitem__(self, i):
-        A, B = self._split_image_pil(self._read_im_pil(self.paths[i]))
+        A, B = self._split_image_cv(self._read_im_cv(self.paths[i]))
 
         transform = self._generate_transform(A.size[0], A.size[1])
 
-        weight_map = B.point(lambda p: 255 if p < 200 else 0)  # threshold
-        weight_map = self._pil2cv_im(weight_map)
+        # weight_map = B.point(lambda p: 255 if p < 200 else 0)  # threshold
+        # weight_map = self._pil2cv_im(weight_map)
+        weight_map = (B < 200) * 1.0
         weight_map = cv.dilate(weight_map, kernel=self.dilate_kernel, iterations=1)
         weight_map = transform(weight_map)
         weight_map = self.normalize(self.to_tensor(weight_map))
@@ -90,6 +91,7 @@ class Pix2pixDataset(BaseDataset):
             ]
 
         return transforms.Compose([
+            transforms.Lambda(lambda im: self._cv2pil_im(im)),
             *additional_transforms,
             transforms.Resize(
                 (self.opt.image_size, self.opt.image_size),

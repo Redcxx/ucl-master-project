@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-weight-map-content-loss'
+        return 'pix2pix-sketch-simplification-weight-map-content-loss-dilate'
 
 
 class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
@@ -30,6 +30,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # additional sigmoid output result: pix2pix-sketch-simplification-sigmoid-2022-09-06-Tuesday-00h-40m-43s
         # weight map * 100: pix2pix-sketch-simplification-weight-map-2022-09-06-Tuesday-03h-04m-14s
         # weight map * 10: pix2pix-sketch-simplification-weight-map-2022-09-06-Tuesday-09h-42m-18s
+        # weight map + content loss: pix2pix-sketch-simplification-weight-map-content-loss-2022-09-06-Tuesday-15h-39m-22s
         self.dataset_root = './sketch_simplification'
         self.a_to_b = True
         self.random_jitter = True
@@ -94,11 +95,11 @@ def _generator_config():
         'in_channels': 1,
         'out_channels': 1,
         'blocks': [
-            # {
-            #     'filters': 32,
-            #     'dropout': False,
-            #     'skip_connection': False
-            # },
+            {
+                'filters': 32,
+                'dropout': False,
+                'skip_connection': False
+            },
             {
                 'filters': 64,
                 'dropout': False,

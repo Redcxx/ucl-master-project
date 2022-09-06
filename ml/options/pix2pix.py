@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-weight-map-new'
+        return 'pix2pix-sketch-simplification-weight-map-content-loss'
 
 
 class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
@@ -28,6 +28,8 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
 
         # Dataset
         # additional sigmoid output result: pix2pix-sketch-simplification-sigmoid-2022-09-06-Tuesday-00h-40m-43s
+        # weight map * 100: pix2pix-sketch-simplification-weight-map-2022-09-06-Tuesday-03h-04m-14s
+        # weight map * 10: pix2pix-sketch-simplification-weight-map-2022-09-06-Tuesday-09h-42m-18s
         self.dataset_root = './sketch_simplification'
         self.a_to_b = True
         self.random_jitter = True

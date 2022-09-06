@@ -163,13 +163,13 @@ class Pix2pixTrainModel(BaseTrainModel):
         loss_G_l1 = torch.mean(pixel_wise_loss * weight_map) * self.opt.l1_lambda
 
         # content loss
-        # fake_feat = self.net_F(fake_AB)
-        # with torch.no_grad():
-        #     real_feat = self.net_F(real_AB)
-        # content_loss = self.crt_l1(fake_feat, real_feat)
+        fake_feat = self.net_F(fake_AB)
+        with torch.no_grad():
+            real_feat = self.net_F(real_AB)
+        content_loss = self.crt_l1(fake_feat, real_feat)
 
         # backward & optimize
-        loss_G = loss_G_fake + loss_G_l1
+        loss_G = loss_G_fake + loss_G_l1 + content_loss
         loss_G.backward()
         self.opt_G.step()
 

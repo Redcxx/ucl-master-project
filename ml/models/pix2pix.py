@@ -85,7 +85,14 @@ class Pix2pixTrainModel(BaseTrainModel):
         i = 0
         for inp_batch, tar_batch, _weight_map in self.train_loader:
             for inp, tar in zip(inp_batch, tar_batch):
-                plt_input_target(inp, tar)
+                plt_horizontals(
+                    [inp, tar],
+                    titles=['input', 'target'],
+                    un_normalize=True,
+                    grayscale=True,
+                    figsize=(2, 1),
+                    save_file=f'sanity-check-im-{i}.jpg'
+                )
                 i += 1
                 if i > 10:
                     break
@@ -192,7 +199,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         inp, tar = inp.to(self.opt.device), tar.to(self.opt.device)
 
         out = self.net_G(inp)
-        loss = self.crt_l1(out, tar)
+        loss = self.crt_l1(out, tar).mean()
 
         return loss.item(), inp, tar, out, (out > 0.5) * 1.0
 

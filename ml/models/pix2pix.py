@@ -44,6 +44,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         self.net_G_gan_losses = []
         self.net_G_l1_losses = []
         self.net_D_losses = []
+        self.content_loss = []
 
         self.setup()
 
@@ -109,6 +110,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         self.net_G_gan_losses = []
         self.net_G_l1_losses = []
         self.net_D_losses = []
+        self.content_loss = []
 
     def pre_batch(self, epoch, batch):
         super().pre_batch(epoch, batch)
@@ -163,9 +165,9 @@ class Pix2pixTrainModel(BaseTrainModel):
         loss_G_l1 = torch.mean(pixel_wise_loss * weight_map) * self.opt.l1_lambda
 
         # content loss
-        fake_feat = self.net_F(fake_AB)
+        fake_feat = self.net_F(fake_B.repeat(1, 3, 1, 1))
         with torch.no_grad():
-            real_feat = self.net_F(real_AB)
+            real_feat = self.net_F(real_A)
         content_loss = self.crt_l1(fake_feat, real_feat)
 
         # backward & optimize
@@ -173,7 +175,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         loss_G.backward()
         self.opt_G.step()
 
-        return loss_G_fake.item(), loss_G_l1.item(), loss_D.item()
+        return loss_G_fake.item(), loss_G_l1.item(), loss_D.item(), content_loss.item()
 
     def post_batch(self, epoch, batch, batch_out):
         super().post_batch(epoch, batch, batch_out)
@@ -181,6 +183,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         self.net_G_gan_losses.append(batch_out[0])
         self.net_G_l1_losses.append(batch_out[1])
         self.net_D_losses.append(batch_out[2])
+        self.content_loss.append(batch_out[3])
 
     def post_epoch(self, epoch):
         super().post_epoch(epoch)
@@ -258,14 +261,16 @@ class Pix2pixTrainModel(BaseTrainModel):
                f'[lr={self._get_lr(self.opt_G):.6f}] ' + \
                f'[G_l1_loss={np.mean(self.net_G_l1_losses):.4f}] ' + \
                f'[G_GAN_loss={np.mean(self.net_G_gan_losses):.4f}] ' + \
-               f'[D_loss={np.mean(self.net_D_losses):.4f}] '
+               f'[D_loss={np.mean(self.net_D_losses):.4f}] ' + \
+               f'[c_loss={np.mean(self.content_loss):.4f}] '
 
     def log_batch(self, batch):
         from_batch = self._get_last_batch(batch)
         return super().log_batch(batch) + \
                f'[G_l1_loss={np.mean(self.net_G_l1_losses[from_batch - 1:batch]):.4f}] ' + \
                f'[G_GAN_loss={np.mean(self.net_G_gan_losses[from_batch - 1:batch]):.4f}] ' + \
-               f'[D_loss={np.mean(self.net_D_losses[from_batch - 1:batch]):.4f}] '
+               f'[D_loss={np.mean(self.net_D_losses[from_batch - 1:batch]):.4f}] ' + \
+               f'[c_loss={np.mean(self.content_loss[from_batch - 1:batch]):.4f}] '
 
     def get_checkpoint(self):
         return {

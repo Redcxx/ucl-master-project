@@ -98,6 +98,11 @@ def _generator_config():
                 'skip_connection': False
             },
             {
+                'filters': 64,
+                'dropout': False,
+                'skip_connection': True
+            },
+            {
                 'filters': 128,
                 'dropout': False,
                 'skip_connection': True
@@ -114,11 +119,6 @@ def _generator_config():
             },
             {
                 'filters': 256,
-                'dropout': False,
-                'skip_connection': True
-            },
-            {
-                'filters': 512,
                 'dropout': False,
                 'skip_connection': True
             },
@@ -128,7 +128,7 @@ def _generator_config():
                 'skip_connection': True
             },
             {
-                'filters': 1024,
+                'filters': 512,
                 'dropout': True,
                 'skip_connection': True
             },

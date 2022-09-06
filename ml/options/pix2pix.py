@@ -27,6 +27,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.batch_log_freq = 0
 
         # Dataset
+        # additional sigmoid output result: pix2pix-sketch-simplification-sigmoid-2022-09-06-Tuesday-00h-40m-43s
         self.dataset_root = './sketch_simplification'
         self.a_to_b = True
         self.random_jitter = True

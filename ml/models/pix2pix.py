@@ -120,7 +120,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         real_A, real_B, weight_map = batch_data
         real_A, real_B = real_A.to(self.opt.device), real_B.to(self.opt.device)
 
-        weight_map = weight_map.to(self.opt.device) * 10 + 1
+        weight_map = weight_map.to(self.opt.device) * 9 + 1
 
         # forward pass
         # generate fake image using generator

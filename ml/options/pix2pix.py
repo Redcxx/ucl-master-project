@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-weight-map'
+        return 'pix2pix-sketch-simplification-weight-map-new'
 
 
 class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
@@ -20,7 +20,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # Training
         self.batch_size = 8
         self.start_epoch = 1
-        self.end_epoch = 500
+        self.end_epoch = 1000
         self.eval_freq = 50
         self.log_freq = 5
         self.save_freq = 50
@@ -44,7 +44,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.optimizer_beta2 = 0.999
         self.init_gain = 0.02
         self.weight_decay = 0
-        self.decay_epochs = 100
+        self.decay_epochs = 200
 
         # Loss
         self.l1_lambda = 100.0  # encourage l1 distance to actual output
@@ -62,9 +62,12 @@ def _discriminator_config():
     return {
         'in_channels': 1 * 2,  # conditionalGAN takes both real and fake image
         'blocks': [
-            # {
-            #     'filters': 512,
-            # },
+            {
+                'filters': 512,
+            },
+            {
+                'filters': 256,
+            },
             {
                 'filters': 128,
             },
@@ -74,15 +77,12 @@ def _discriminator_config():
             {
                 'filters': 32,
             },
-            {
-                'filters': 16,
-            },
-            {
-                'filters': 8,
-            },
-            {
-                'filters': 4,
-            },
+            # {
+            #     'filters': 16,
+            # },
+            # {
+            #     'filters': 4,
+            # },
         ]
     }
 
@@ -93,15 +93,15 @@ def _generator_config():
         'out_channels': 1,
         'blocks': [
             {
-                'filters': 64,
+                'filters': 32,
                 'dropout': False,
                 'skip_connection': False
             },
-            # {
-            #     'filters': 64,
-            #     'dropout': False,
-            #     'skip_connection': True
-            # },
+            {
+                'filters': 64,
+                'dropout': False,
+                'skip_connection': True
+            },
             {
                 'filters': 128,
                 'dropout': False,

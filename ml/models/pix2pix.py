@@ -49,7 +49,7 @@ class Pix2pixTrainModel(BaseTrainModel):
 
     def _init_fixed(self):
         self.crt_gan = GANBCELoss().to(self.opt.device)
-        self.crt_l1 = nn.L1Loss(reduction=None)
+        self.crt_l1 = nn.L1Loss(reduction='none')
         self.sch_G = optim.lr_scheduler.LambdaLR(self.opt_G, lr_lambda=self._decay_rule)
         self.sch_D = optim.lr_scheduler.LambdaLR(self.opt_D, lr_lambda=self._decay_rule)
         self.net_F = NetF(self.opt).to(self.opt.device)

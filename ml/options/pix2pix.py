@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-sigmoid'
+        return 'pix2pix-sketch-simplification-weight-map'
 
 
 class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):

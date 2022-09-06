@@ -31,6 +31,7 @@ class Pix2pixDataset(BaseDataset):
 
         transform = self._generate_transform(A.size[0], A.size[1])
 
+        B = B.point(lambda p: 255 if p > 128 else 0)
         A, B = transform(A), transform(B)  # apply same transform to both A and B
 
         return (A, B) if self.a_to_b else (B, A)

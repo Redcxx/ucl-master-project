@@ -27,6 +27,9 @@ class Pix2pixDataset(BaseDataset):
             transforms.ToTensor()
         ])
 
+        in_channels = self.opt.generator_config['in_channels']
+        self.normalize = transforms.Normalize([0.5] * in_channels, [0.5] * in_channels)  # ndims
+
     def __len__(self):
         return len(self.paths)
 
@@ -38,7 +41,7 @@ class Pix2pixDataset(BaseDataset):
         weight_map = B.point(lambda p: 1 if p < 200 else 0)  # threshold
         weight_map = transform(weight_map)
 
-        A, B = transform(A), transform(B)  # apply same transform to both A and B
+        A, B = self.normalize(transform(A)), self.normalize(transform(B))  # apply same transform to both A and B
 
         A, B = (A, B) if self.a_to_b else (B, A)
 
@@ -85,7 +88,6 @@ class Pix2pixDataset(BaseDataset):
                 antialias=True
             ),
             transforms.ToTensor(),
-            transforms.Normalize([0.5] * in_channels, [0.5] * in_channels)  # ndims
         ])
 
     @staticmethod

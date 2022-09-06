@@ -93,8 +93,8 @@ class Pix2pixDataset(BaseDataset):
                 interpolation=InterpolationMode.BICUBIC,
                 antialias=True
             ),
-            transforms.Normalize([0.5] * in_channels, [0.5] * in_channels),
-            transforms.ToTensor()
+            transforms.ToTensor(),
+            transforms.Normalize([0.5] * in_channels, [0.5] * in_channels)
         ])
 
     @staticmethod

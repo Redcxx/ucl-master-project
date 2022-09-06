@@ -41,7 +41,7 @@ class Pix2pixDataset(BaseDataset):
     def __getitem__(self, i):
         A, B = self._split_image_cv(self._read_im_cv(self.paths[i]))
 
-        transform = self._generate_transform(A.size[0], A.size[1])
+        transform = self._generate_transform(A.shape[1], A.shape[0])
 
         # weight_map = B.point(lambda p: 255 if p < 200 else 0)  # threshold
         # weight_map = self._pil2cv_im(weight_map)

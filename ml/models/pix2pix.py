@@ -110,8 +110,14 @@ class Pix2pixTrainModel(BaseTrainModel):
         self.net_G = self.net_G.train().to(self.opt.device)
         self.net_D = self.net_D.train().to(self.opt.device)
 
-        real_A, real_B = batch_data
+        real_A, real_B, weight_map = batch_data
         real_A, real_B = real_A.to(self.opt.device), real_B.to(self.opt.device)
+
+
+        weight_map = weight_map.to(self.opt.device)
+        print(weight_map.shape, weight_map.min(), weight_map.max())
+
+
         # forward pass
         # generate fake image using generator
         fake_B = self.net_G(real_A)
@@ -150,7 +156,7 @@ class Pix2pixTrainModel(BaseTrainModel):
 
         # l1 loss between generated and real image for more accurate output
         loss_G_l1 = self.crt_l1(fake_B, real_B) * self.opt.l1_lambda
-        print(real_B.min(), real_B.max())
+
         # content loss
         # fake_feat = self.net_F(fake_AB)
         # with torch.no_grad():

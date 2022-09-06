@@ -23,6 +23,10 @@ class Pix2pixDataset(BaseDataset):
         self.random_mirror = opt.random_mirror
         self.random_rotate = opt.random_rotate
 
+        self.weight_transform = transforms.Compose([
+            transforms.ToTensor()
+        ])
+
     def __len__(self):
         return len(self.paths)
 
@@ -31,10 +35,14 @@ class Pix2pixDataset(BaseDataset):
 
         transform = self._generate_transform(A.size[0], A.size[1])
 
-        # B = B.point(lambda p: 255 if p > 128 else 0)  # threshold
+        weight_map = B.point(lambda p: 1 if p < 200 else 0)  # threshold
+        weight_map = self.weight_transform(weight_map)
+
         A, B = transform(A), transform(B)  # apply same transform to both A and B
 
-        return (A, B) if self.a_to_b else (B, A)
+        A, B = (A, B) if self.a_to_b else (B, A)
+
+        return A, B, weight_map
 
     def _generate_transform(self, w, h):
         additional_transforms = []

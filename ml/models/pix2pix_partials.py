@@ -147,7 +147,7 @@ class Generator(nn.Module):
             skip_connection=blocks[-1]['skip_connection'],
             dropout=None,
             in_norm=None, out_norm=None,
-            in_act=leaky_relu, out_act=sigmoid  # tanh
+            in_act=leaky_relu, out_act=None  # tanh
         )
 
     def forward(self, x):

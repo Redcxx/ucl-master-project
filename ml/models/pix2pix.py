@@ -113,10 +113,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         real_A, real_B, weight_map = batch_data
         real_A, real_B = real_A.to(self.opt.device), real_B.to(self.opt.device)
 
-
-        weight_map = weight_map.to(self.opt.device)
-        print(weight_map.shape, weight_map.min(), weight_map.max())
-
+        weight_map = weight_map.to(self.opt.device) * 10 + 1
 
         # forward pass
         # generate fake image using generator
@@ -131,12 +128,12 @@ class Pix2pixTrainModel(BaseTrainModel):
         # discriminate fake image
         fake_AB = torch.cat((real_A, fake_B), dim=1)  # conditionalGAN takes both real and fake image
         pred_fake = self.net_D(fake_AB.detach())
-        loss_D_fake = self.crt_gan(pred_fake, False)
+        loss_D_fake = self.crt_gan(pred_fake, False, weight_map)
 
         # discriminate real image
         real_AB = torch.cat((real_A, real_B), dim=1)
         pred_real = self.net_D(real_AB)
-        loss_D_real = self.crt_gan(pred_real, True)
+        loss_D_real = self.crt_gan(pred_real, True, weight_map)
 
         # backward & optimize
         loss_D = (loss_D_fake + loss_D_real) * self.opt.d_loss_factor

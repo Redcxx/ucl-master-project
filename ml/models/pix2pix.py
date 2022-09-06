@@ -72,6 +72,8 @@ class Pix2pixTrainModel(BaseTrainModel):
 
     def _sanity_check(self):
         log('Generating Sanity Checks')
+        self.net_G.to(self.opt.device).eval()
+        self.net_D.to(self.opt.device).eval()
         # see if model architecture is alright
         summary(self.net_G, torch.rand(self.opt.batch_size, self.opt.generator_config['in_channels'],
                                        self.opt.image_size, self.opt.image_size)
@@ -148,7 +150,7 @@ class Pix2pixTrainModel(BaseTrainModel):
 
         # l1 loss between generated and real image for more accurate output
         loss_G_l1 = self.crt_l1(fake_B, real_B) * self.opt.l1_lambda
-
+        print(real_B.min(), real_B.max())
         # content loss
         # fake_feat = self.net_F(fake_AB)
         # with torch.no_grad():

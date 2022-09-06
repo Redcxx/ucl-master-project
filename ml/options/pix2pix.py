@@ -20,7 +20,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # Training
         self.batch_size = 8
         self.start_epoch = 1
-        self.end_epoch = 500
+        self.end_epoch = 1000
         self.eval_freq = 50
         self.log_freq = 5
         self.save_freq = 50
@@ -97,12 +97,12 @@ def _generator_config():
                 'skip_connection': False
             },
             {
-                'filters': 64,
+                'filters': 128,
                 'dropout': False,
                 'skip_connection': True
             },
             {
-                'filters': 128,
+                'filters': 256,
                 'dropout': False,
                 'skip_connection': True
             },

@@ -38,7 +38,7 @@ class Pix2pixDataset(BaseDataset):
 
         transform = self._generate_transform(A.size[0], A.size[1])
 
-        weight_map = B.point(lambda p: 1 if p < 200 else 0)  # threshold
+        weight_map = B.point(lambda p: 255 if p < 200 else 0)  # threshold
         weight_map = transform(weight_map)
 
         A, B = self.normalize(transform(A)), self.normalize(transform(B))  # apply same transform to both A and B

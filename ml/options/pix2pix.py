@@ -36,7 +36,6 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.random_jitter = True
         self.random_mirror = True
         self.random_rotate = True
-        self.num_workers = 8
 
         # Model
         self.generator_config = _generator_config()

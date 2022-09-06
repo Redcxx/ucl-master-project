@@ -49,7 +49,7 @@ class Pix2pixTrainModel(BaseTrainModel):
 
     def _init_fixed(self):
         self.crt_gan = GANBCELoss().to(self.opt.device)
-        self.crt_l1 = nn.L1Loss()
+        self.crt_l1 = nn.L1Loss(reduction=None)
         self.sch_G = optim.lr_scheduler.LambdaLR(self.opt_G, lr_lambda=self._decay_rule)
         self.sch_D = optim.lr_scheduler.LambdaLR(self.opt_D, lr_lambda=self._decay_rule)
         self.net_F = NetF(self.opt).to(self.opt.device)
@@ -128,12 +128,12 @@ class Pix2pixTrainModel(BaseTrainModel):
         # discriminate fake image
         fake_AB = torch.cat((real_A, fake_B), dim=1)  # conditionalGAN takes both real and fake image
         pred_fake = self.net_D(fake_AB.detach())
-        loss_D_fake = self.crt_gan(pred_fake, False, weight_map)
+        loss_D_fake = self.crt_gan(pred_fake, False)
 
         # discriminate real image
         real_AB = torch.cat((real_A, real_B), dim=1)
         pred_real = self.net_D(real_AB)
-        loss_D_real = self.crt_gan(pred_real, True, weight_map)
+        loss_D_real = self.crt_gan(pred_real, True)
 
         # backward & optimize
         loss_D = (loss_D_fake + loss_D_real) * self.opt.d_loss_factor
@@ -153,6 +153,7 @@ class Pix2pixTrainModel(BaseTrainModel):
 
         # l1 loss between generated and real image for more accurate output
         loss_G_l1 = self.crt_l1(fake_B, real_B) * self.opt.l1_lambda
+        print(loss_G_l1.shape)
 
         # content loss
         # fake_feat = self.net_F(fake_AB)

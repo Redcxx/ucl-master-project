@@ -12,10 +12,8 @@ class GANBCELoss(nn.Module):
 
         self.loss = nn.BCEWithLogitsLoss()  # nn.MSELoss()
 
-    def __call__(self, model_output, target_is_real, weight_map=None):
-        if weight_map is not None:
-            self.loss = nn.BCEWithLogitsLoss(weight_map)
+    def __call__(self, model_output, target_is_real):
         label = self.real_label if target_is_real else self.fake_label
         label = label.expand_as(model_output)
-        print(model_output.shape, weight_map.shape)
+
         return self.loss(model_output, label)

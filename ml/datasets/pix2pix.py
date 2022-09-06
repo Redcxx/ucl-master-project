@@ -33,7 +33,7 @@ class Pix2pixDataset(BaseDataset):
         in_channels = self.opt.generator_config['in_channels']
         self.normalize = transforms.Normalize([0.5] * in_channels, [0.5] * in_channels)  # ndims
         self.to_tensor = transforms.ToTensor()
-        self.dilate_kernel = np.ones((5, 5), np.uint8)
+        self.dilate_kernel = np.ones((3, 3), np.uint8)
 
     def __len__(self):
         return len(self.paths)
@@ -43,7 +43,7 @@ class Pix2pixDataset(BaseDataset):
 
         transform = self._generate_transform(A.size[0], A.size[1])
 
-        weight_map = B.point(lambda p: 255 - p if p < 200 else 0)  # threshold
+        weight_map = B.point(lambda p: 255 if p < 200 else 0)  # threshold
         weight_map = self._pil2cv_im(transform(weight_map))
         weight_map = cv.dilate(weight_map, kernel=self.dilate_kernel, iterations=1)
         weight_map = self.normalize(self.to_tensor(weight_map))

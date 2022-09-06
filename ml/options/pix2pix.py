@@ -97,38 +97,38 @@ def _generator_config():
                 'dropout': False,
                 'skip_connection': False
             },
-            {
-                'filters': 64,
-                'dropout': False,
-                'skip_connection': True
-            },
-            {
-                'filters': 128,
-                'dropout': False,
-                'skip_connection': True
-            },
+            # {
+            #     'filters': 64,
+            #     'dropout': False,
+            #     'skip_connection': True
+            # },
             {
                 'filters': 128,
                 'dropout': False,
                 'skip_connection': True
             },
+            # {
+            #     'filters': 128,
+            #     'dropout': False,
+            #     'skip_connection': True
+            # },
             {
                 'filters': 256,
                 'dropout': False,
                 'skip_connection': True
             },
-            {
-                'filters': 256,
-                'dropout': False,
-                'skip_connection': True
-            },
+            # {
+            #     'filters': 256,
+            #     'dropout': False,
+            #     'skip_connection': True
+            # },
             {
                 'filters': 512,
                 'dropout': True,
                 'skip_connection': True
             },
             {
-                'filters': 512,
+                'filters': 1024,
                 'dropout': True,
                 'skip_connection': True
             },

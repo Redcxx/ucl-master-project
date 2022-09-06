@@ -69,19 +69,19 @@ def _discriminator_config():
                 'filters': 128,
             },
             {
-                'filters': 128,
-            },
-            {
-                'filters': 64,
-            },
-            {
                 'filters': 64,
             },
             {
                 'filters': 32,
             },
             {
-                'filters': 32,
+                'filters': 16,
+            },
+            {
+                'filters': 8,
+            },
+            {
+                'filters': 4,
             },
         ]
     }

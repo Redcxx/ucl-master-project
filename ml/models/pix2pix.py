@@ -160,7 +160,7 @@ class Pix2pixTrainModel(BaseTrainModel):
 
         # l1 loss between generated and real image for more accurate output
         pixel_wise_loss = self.crt_l1(fake_B, real_B) * self.opt.l1_lambda
-        loss_G_l1 = torch.mean(pixel_wise_loss * (weight_map * 10 + 1) * self.opt.l1_lambda)
+        loss_G_l1 = torch.mean(pixel_wise_loss * weight_map) * self.opt.l1_lambda
 
         # content loss
         # fake_feat = self.net_F(fake_AB)

@@ -122,7 +122,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         real_A, real_B, weight_map = batch_data
         real_A, real_B = real_A.to(self.opt.device), real_B.to(self.opt.device)
 
-        extra_weight = 4
+        extra_weight = 10
         weight_map = weight_map.to(self.opt.device) * (extra_weight - 1) + 1
 
         # forward pass

@@ -131,10 +131,10 @@ def _generator_config():
                 'dropout': True,
                 'skip_connection': True
             },
-            # {
-            #     'filters': 1024,
-            #     'dropout': True,
-            #     'skip_connection': True
-            # },
+            {
+                'filters': 1024,
+                'dropout': True,
+                'skip_connection': True
+            },
         ]
     }

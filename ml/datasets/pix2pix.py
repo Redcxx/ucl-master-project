@@ -1,6 +1,7 @@
 import os
 import random
 
+import numpy as np
 from PIL import Image
 from torchvision import transforms
 from torchvision.transforms import InterpolationMode
@@ -9,6 +10,8 @@ from ml.datasets.augmentation import pil_rotate_crop_max, FixedRandomResizedCrop
 from ml.datasets.base import BaseDataset
 from ml.file_utils import get_all_image_paths
 from ml.options.pix2pix import Pix2pixTrainOptions
+
+import cv2 as cv
 
 
 class Pix2pixDataset(BaseDataset):
@@ -29,6 +32,8 @@ class Pix2pixDataset(BaseDataset):
 
         in_channels = self.opt.generator_config['in_channels']
         self.normalize = transforms.Normalize([0.5] * in_channels, [0.5] * in_channels)  # ndims
+        self.to_tensor = transforms.ToTensor()
+        self.dilate_kernel = np.ones((5, 5), np.uint8)
 
     def __len__(self):
         return len(self.paths)
@@ -39,9 +44,10 @@ class Pix2pixDataset(BaseDataset):
         transform = self._generate_transform(A.size[0], A.size[1])
 
         weight_map = B.point(lambda p: 255 - p if p < 200 else 0)  # threshold
-        weight_map = transform(weight_map)
+        weight_map = self._pil2cv_im(transform(weight_map))
+        weight_map = cv.dilate(weight_map, kernel=self.dilate_kernel, iterations=1)
 
-        A, B = self.normalize(transform(A)), self.normalize(transform(B))  # apply same transform to both A and B
+        A, B = self.to_tensor(self.normalize(transform(A))), self.to_tensor(self.normalize(transform(B)))
 
         A, B = (A, B) if self.a_to_b else (B, A)
 
@@ -87,7 +93,7 @@ class Pix2pixDataset(BaseDataset):
                 interpolation=InterpolationMode.BICUBIC,
                 antialias=True
             ),
-            transforms.ToTensor(),
+
         ])
 
     @staticmethod

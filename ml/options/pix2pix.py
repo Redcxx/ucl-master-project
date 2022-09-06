@@ -94,11 +94,11 @@ def _generator_config():
         'in_channels': 1,
         'out_channels': 1,
         'blocks': [
-            {
-                'filters': 32,
-                'dropout': False,
-                'skip_connection': False
-            },
+            # {
+            #     'filters': 32,
+            #     'dropout': False,
+            #     'skip_connection': False
+            # },
             {
                 'filters': 64,
                 'dropout': False,

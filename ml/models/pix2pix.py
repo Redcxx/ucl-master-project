@@ -83,7 +83,7 @@ class Pix2pixTrainModel(BaseTrainModel):
                 .to(self.opt.device))
         # get some data and see if it looks good
         i = 0
-        for inp_batch, tar_batch in self.train_loader:
+        for inp_batch, tar_batch, _weight_map in self.train_loader:
             for inp, tar in zip(inp_batch, tar_batch):
                 plt_input_target(inp, tar)
                 i += 1
@@ -190,7 +190,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         self.net_G = self.net_G.eval().to(self.opt.device)
         self.net_D = self.net_D.eval().to(self.opt.device)
 
-        inp, tar = batch_data
+        inp, tar, _weight_map = batch_data
         inp, tar = inp.to(self.opt.device), tar.to(self.opt.device)
 
         out = self.net_G(inp)

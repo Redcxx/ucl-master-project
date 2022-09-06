@@ -44,10 +44,11 @@ class Pix2pixDataset(BaseDataset):
         transform = self._generate_transform(A.size[0], A.size[1])
 
         weight_map = B.point(lambda p: 255 if p < 200 else 0)  # threshold
-        weight_map = self._pil2cv_im(transform(weight_map))
+        weight_map = self._pil2cv_im(weight_map)
         weight_map = cv.dilate(weight_map, kernel=self.dilate_kernel, iterations=1)
-        weight_map = (weight_map > 0) * 1.0
+        weight_map = transform(weight_map)
         weight_map = self.normalize(self.to_tensor(weight_map))
+        weight_map = (weight_map > 0) * 1.0
 
         A, B = self.normalize(self.to_tensor(transform(A))), self.normalize(self.to_tensor(transform(B)))
 

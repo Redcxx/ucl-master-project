@@ -33,13 +33,14 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # weight map + content loss: pix2pix-sketch-simplification-weight-map-content-loss-2022-09-06-Tuesday-15h-39m-22s
         # weight map + content loss + dilate: pix2pix-sketch-simplification-weight-map-content-loss-dilate-2022-09-06-Tuesday-21h-58m-50s
 
-        # pix2pix-sketch-simplification-NORMAL-2022-09-07-Wednesday-16h-09m-49s_final.ckpt
+        # pix2pix-sketch-simplification-NORMAL-2022-09-07-Wednesday-16h-09m-49s
+        # pix2pix-sketch-simplification-CONTENT_LOSS-2022-09-07-Wednesday-19h-44m-34s
         self.dataset_root = './sketch_simplification'
         self.a_to_b = True
         self.random_jitter = True
         self.random_mirror = True
         self.random_rotate = True
-        self.dilate = False
+        self.dilate = True
         self.content_loss = True
         # self.resume_ckpt_file = 'pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s'
 
@@ -63,7 +64,6 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.VGG16_PATH = 'vgg16-397923af.pth'
         self.a_to_b = True
         self.image_size = 512
-
 
 
 def _discriminator_config():

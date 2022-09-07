@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-NORMAL'
+        return 'pix2pix-sketch-simplification-CONTENT_LOSS'
 
 
 class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
@@ -19,8 +19,8 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
 
         # Training
         self.batch_size = 8
-        self.run_id = 'pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s'
-        self.start_epoch = 151
+        # self.run_id = 'pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s'
+        self.start_epoch = 1
         self.end_epoch = 500
         self.eval_freq = 50
         self.log_freq = 5
@@ -32,13 +32,15 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # weight map * 10: pix2pix-sketch-simplification-weight-map-2022-09-06-Tuesday-09h-42m-18s
         # weight map + content loss: pix2pix-sketch-simplification-weight-map-content-loss-2022-09-06-Tuesday-15h-39m-22s
         # weight map + content loss + dilate: pix2pix-sketch-simplification-weight-map-content-loss-dilate-2022-09-06-Tuesday-21h-58m-50s
+
+        # pix2pix-sketch-simplification-NORMAL-2022-09-07-Wednesday-16h-09m-49s_final.ckpt
         self.dataset_root = './sketch_simplification'
         self.a_to_b = True
         self.random_jitter = True
         self.random_mirror = True
         self.random_rotate = True
-        self.dilate = True
-        self.content_loss = False
+        self.dilate = False
+        self.content_loss = True
         # self.resume_ckpt_file = 'pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s'
 
         # Model

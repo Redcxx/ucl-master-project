@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-good'
+        return 'pix2pix-sketch-simplification'
 
 
 class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
@@ -20,19 +20,18 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # Training
         self.batch_size = 8
         self.start_epoch = 1
-        self.end_epoch = 1000
+        self.end_epoch = 500
         self.eval_freq = 50
         self.log_freq = 5
         self.save_freq = 50
         self.batch_log_freq = 0
 
         # Dataset
-        # additional sigmoid output result: pix2pix-sketch-simplification-sigmoid-2022-09-06-Tuesday-00h-40m-43s
         # weight map * 100: pix2pix-sketch-simplification-weight-map-2022-09-06-Tuesday-03h-04m-14s
         # weight map * 10: pix2pix-sketch-simplification-weight-map-2022-09-06-Tuesday-09h-42m-18s
         # weight map + content loss: pix2pix-sketch-simplification-weight-map-content-loss-2022-09-06-Tuesday-15h-39m-22s
         # weight map + content loss + dilate: pix2pix-sketch-simplification-weight-map-content-loss-dilate-2022-09-06-Tuesday-21h-58m-50s
-        self.dataset_root = './sketch_simplification_good'
+        self.dataset_root = './sketch_simplification'
         self.a_to_b = True
         self.random_jitter = True
         self.random_mirror = True
@@ -50,7 +49,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.optimizer_beta2 = 0.999
         self.init_gain = 0.02
         self.weight_decay = 0
-        self.decay_epochs = 200
+        self.decay_epochs = 100
 
         # Loss
         self.l1_lambda = 100.0  # encourage l1 distance to actual output

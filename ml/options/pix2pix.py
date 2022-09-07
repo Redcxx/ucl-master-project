@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-small-weight-map-content-loss-dilate'
+        return 'pix2pix-sketch-simplification-good'
 
 
 class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
@@ -37,7 +37,8 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.random_jitter = True
         self.random_mirror = True
         self.random_rotate = True
-        self.dilate = True
+        self.dilate = False
+        self.content_loss = False
 
         # Model
         self.generator_config = _generator_config()

@@ -43,7 +43,8 @@ class Pix2pixDataset(BaseDataset):
         # weight_map = B.point(lambda p: 255 if p < 200 else 0)  # threshold
         # weight_map = self._pil2cv_im(weight_map)
         weight_map = ((B < 200) * 255).astype(np.uint8)
-        # weight_map = cv.dilate(weight_map, kernel=self.dilate_kernel, iterations=1)
+        if self.opt.dilate:
+            weight_map = cv.dilate(weight_map, kernel=self.dilate_kernel, iterations=1)
         weight_map = transform(weight_map)
         weight_map = (weight_map > 0) * 1.0
 

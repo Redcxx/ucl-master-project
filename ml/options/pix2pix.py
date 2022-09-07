@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-CONTENT_LOSS-DILATE'
+        return 'pix2pix-sketch-simplification-DILATE'
 
 
 class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
@@ -19,8 +19,8 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
 
         # Training
         self.batch_size = 8
-        # self.run_id = 'pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s'
-        self.start_epoch = 1
+        self.run_id = 'pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s'
+        self.start_epoch = 351
         self.end_epoch = 500
         self.eval_freq = 50
         self.log_freq = 5
@@ -41,7 +41,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.random_mirror = True
         self.random_rotate = True
         self.dilate = True
-        self.content_loss = True
+        self.content_loss = False
         # self.resume_ckpt_file = 'pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s'
 
         # Model

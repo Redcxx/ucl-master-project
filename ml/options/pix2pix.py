@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-DILATE'
+        return 'pix2pix-sketch-simplification-NORMAL'
 
 
 class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
@@ -36,7 +36,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.random_jitter = True
         self.random_mirror = True
         self.random_rotate = True
-        self.dilate = True
+        self.dilate = False
         self.content_loss = False
 
         # Model
@@ -56,8 +56,6 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.d_loss_factor = 0.5  # slow down discriminator learning
 
         # transforms
-        # self.random_jitter = True
-        # self.random_mirror = True
         self.VGG16_PATH = 'vgg16-397923af.pth'
         self.a_to_b = True
         self.image_size = 512

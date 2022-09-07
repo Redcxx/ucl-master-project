@@ -20,7 +20,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # Training
         self.batch_size = 8
         self.run_id = 'pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s'
-        self.start_epoch = 150
+        self.start_epoch = 151
         self.end_epoch = 500
         self.eval_freq = 50
         self.log_freq = 5

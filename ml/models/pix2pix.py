@@ -172,7 +172,7 @@ class Pix2pixTrainModel(BaseTrainModel):
                 real_feat = self.net_F(real_A)
             content_loss = self.crt_l1(fake_feat, real_feat).mean() / 3.0
         else:
-            content_loss = 0
+            content_loss = torch.zeros_like(loss_G_l1)
 
         # backward & optimize
         loss_G = loss_G_fake + loss_G_l1 + content_loss

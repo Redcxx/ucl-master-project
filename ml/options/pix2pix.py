@@ -20,7 +20,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # Training
         self.batch_size = 8
         self.start_epoch = 1
-        self.end_epoch = 500
+        self.end_epoch = 1000
         self.eval_freq = 50
         self.log_freq = 5
         self.save_freq = 50
@@ -32,7 +32,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # weight map * 10: pix2pix-sketch-simplification-weight-map-2022-09-06-Tuesday-09h-42m-18s
         # weight map + content loss: pix2pix-sketch-simplification-weight-map-content-loss-2022-09-06-Tuesday-15h-39m-22s
         # weight map + content loss + dilate: pix2pix-sketch-simplification-weight-map-content-loss-dilate-2022-09-06-Tuesday-21h-58m-50s
-        self.dataset_root = './sketch_simplification'
+        self.dataset_root = './sketch_simplification_good'
         self.a_to_b = True
         self.random_jitter = True
         self.random_mirror = True

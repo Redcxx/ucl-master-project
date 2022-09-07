@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-CONTENT_LOSS'
+        return 'pix2pix-sketch-simplification-CONTENT_LOSS-DILATE'
 
 
 class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):

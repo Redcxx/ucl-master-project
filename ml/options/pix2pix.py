@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-weight-map-content-loss'
+        return 'pix2pix-sketch-simplification-small-weight-map-content-loss-dilate'
 
 
 class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
@@ -31,12 +31,13 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # weight map * 100: pix2pix-sketch-simplification-weight-map-2022-09-06-Tuesday-03h-04m-14s
         # weight map * 10: pix2pix-sketch-simplification-weight-map-2022-09-06-Tuesday-09h-42m-18s
         # weight map + content loss: pix2pix-sketch-simplification-weight-map-content-loss-2022-09-06-Tuesday-15h-39m-22s
+        # weight map + content loss + dilate: pix2pix-sketch-simplification-weight-map-content-loss-dilate-2022-09-06-Tuesday-21h-58m-50s
         self.dataset_root = './sketch_simplification'
         self.a_to_b = True
         self.random_jitter = True
         self.random_mirror = True
         self.random_rotate = True
-        self.dilate = False
+        self.dilate = True
 
         # Model
         self.generator_config = _generator_config()

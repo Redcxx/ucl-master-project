@@ -205,7 +205,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         out = self.net_G(inp)
         loss = self.crt_l1(out, tar).mean()
 
-        return loss.item(), inp, tar, out, (out > 0.5) * 1.0
+        return loss.item(), inp, tar, out, (torch.sigmoid_(out) > 0.75) * 1.0
 
     def evaluate(self, epoch):
         if self.opt.eval_n_save_samples > 0:

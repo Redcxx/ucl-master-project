@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-MSE-DILATE-CONTENT_LOSS'
+        return 'pix2pix-sketch-simplification-NO_WEIGHT_MAP-CONTENT_LOSS'
 
 
 class Pix2pixInferenceOptions(BaseInferenceOptions):
@@ -57,10 +57,10 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # weight map + content loss: pix2pix-sketch-simplification-weight-map-content-loss-2022-09-06-Tuesday-15h-39m-22s
         # weight map + content loss + dilate: pix2pix-sketch-simplification-weight-map-content-loss-dilate-2022-09-06-Tuesday-21h-58m-50s
 
-        # pix2pix-sketch-simplification-NORMAL-2022-09-07-Wednesday-16h-09m-49s
-        # pix2pix-sketch-simplification-CONTENT_LOSS-2022-09-07-Wednesday-19h-44m-34s
-        # pix2pix-sketch-simplification-CONTENT_LOSS-DILATE-2022-09-07-Wednesday-23h-16m-58s
-        # pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s
+        # pix2pix-sketch-simplification-NORMAL-2022-09-07-Wednesday-16h-09m-49s + weightmap
+        # pix2pix-sketch-simplification-CONTENT_LOSS-2022-09-07-Wednesday-19h-44m-34s + weightmap
+        # pix2pix-sketch-simplification-CONTENT_LOSS-DILATE-2022-09-07-Wednesday-23h-16m-58s + weightmap
+        # pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s + weightmap
         # pix2pix-sketch-simplification-NO-WEIGHT-MAP-2022-09-08-Thursday-10h-16m-21s
         # pix2pix-sketch-simplification-MSE-2022-09-08-Thursday-10h-28m-04s
         self.dataset_root = './sketch_simplification'
@@ -69,10 +69,10 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.random_mirror = True
         self.random_rotate = True
 
-        self.weight_map = True
-        self.dilate = True
+        self.weight_map = False
+        self.dilate = False
         self.content_loss = True
-        self.mse_loss = True
+        self.mse_loss = False
         # self.resume_ckpt_file = 'pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s'
 
         # Model

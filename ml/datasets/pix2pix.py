@@ -1,6 +1,7 @@
 import os
 import random
 
+import cv2 as cv
 import numpy as np
 from PIL import Image
 from torchvision import transforms
@@ -9,9 +10,40 @@ from torchvision.transforms import InterpolationMode
 from ml.datasets.augmentation import pil_rotate_crop_max, FixedRandomResizedCrop
 from ml.datasets.base import BaseDataset
 from ml.file_utils import get_all_image_paths
-from ml.options.pix2pix import Pix2pixTrainOptions
+from ml.options.pix2pix import Pix2pixTrainOptions, Pix2pixInferenceOptions
 
-import cv2 as cv
+
+class Pix2pixInferenceDataset(BaseDataset):
+
+    def __init__(self, opt: Pix2pixInferenceOptions):
+        super().__init__(opt)
+        self.opt = opt
+        self.opt = opt
+        root = os.path.join(opt.input_images_path)
+        self.paths = sorted(get_all_image_paths(root))
+        self.a_to_b = opt.a_to_b
+
+        self.transform = transforms.Compose([
+            transforms.Resize(
+                (self.opt.image_size, self.opt.image_size),
+                interpolation=InterpolationMode.BICUBIC,
+                antialias=True
+            ),
+            transforms.ToTensor(),
+            transforms.Normalize(0.5, 0.5)
+        ])
+
+    def __len__(self):
+        return len(self.paths)
+
+    def __getitem__(self, i):
+        A, B = self._split_image_pil(self._read_im_pil(self.paths[i]))
+
+        A, B = self.transform(A), self.transform(B)
+
+        A, B = (A, B) if self.a_to_b else (B, A)
+
+        return A, B
 
 
 class Pix2pixDataset(BaseDataset):
@@ -25,10 +57,6 @@ class Pix2pixDataset(BaseDataset):
         self.random_jitter = opt.random_jitter
         self.random_mirror = opt.random_mirror
         self.random_rotate = opt.random_rotate
-
-        self.weight_transform = transforms.Compose([
-            transforms.ToTensor()
-        ])
 
         self.dilate_kernel = np.ones((3, 3), np.uint8)
 

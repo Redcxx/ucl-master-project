@@ -1,6 +1,6 @@
 from abc import ABC
 
-from ml.options.base import BaseTrainOptions
+from ml.options.base import BaseTrainOptions, BaseInferenceOptions
 
 
 class Pix2pixOptions(ABC):
@@ -9,7 +9,31 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-MSE'
+        return 'pix2pix-sketch-simplification-NO_WEIGHT_MAP-CONTENT_LOSS'
+
+
+class Pix2pixInferenceOptions(BaseInferenceOptions):
+
+    def __init__(self):
+        super().__init__()
+        self.input_images_path = r'sketch_simplification/test'
+        self.output_images_path = 'noghost_sketch_simplification'
+        self.image_size = 512
+        self.a_to_b = True
+        self.batch_size = 8
+        self.num_workers = 4
+
+    @property
+    def tag(self):
+        return 'pix2pix-noghost-inference-sketch-simplification'
+
+    @property
+    def inference_run_id(self):
+        return 'INFERENCE_RUN_ID'
+
+    @property
+    def inference_run_tag(self):
+        return 'final'
 
 
 class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
@@ -37,6 +61,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # pix2pix-sketch-simplification-CONTENT_LOSS-2022-09-07-Wednesday-19h-44m-34s
         # pix2pix-sketch-simplification-CONTENT_LOSS-DILATE-2022-09-07-Wednesday-23h-16m-58s
         # pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s
+        # pix2pix-sketch-simplification-NO-WEIGHT-MAP-2022-09-08-Thursday-10h-16m-21s
         self.dataset_root = './sketch_simplification'
         self.a_to_b = True
         self.random_jitter = True
@@ -45,8 +70,8 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
 
         self.weight_map = False
         self.dilate = False
-        self.content_loss = False
-        self.mse_loss = True
+        self.content_loss = True
+        self.mse_loss = False
         # self.resume_ckpt_file = 'pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s'
 
         # Model

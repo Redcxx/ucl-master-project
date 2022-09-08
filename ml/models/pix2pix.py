@@ -1,19 +1,77 @@
 import os
 from pathlib import Path
+from typing import Tuple
 
 import numpy as np
 import torch
-from torch import optim, nn
+from torch import optim, nn, Tensor
 from torchsummaryX import summary
 from tqdm import tqdm
 
-from ml.models.base import BaseTrainModel
+from ml.models.base import BaseTrainModel, BaseInferenceModel
 from .alac_gan_partials import NetF
 from .pix2pix_partials import Generator, Discriminator
 from ml.models.criterion.GANBCELoss import GANBCELoss
 from ..logger import log
-from ..options.pix2pix import Pix2pixTrainOptions
-from ..plot_utils import plt_input_target, plt_model_sample, plt_horizontals
+from ..options.pix2pix import Pix2pixTrainOptions, Pix2pixInferenceOptions
+from ..plot_utils import plt_input_target, plt_model_sample, plt_horizontals, save_raw_im
+
+
+class Pix2pixInferenceModel(BaseInferenceModel):
+
+    def __init__(self, opt: Pix2pixInferenceOptions, inference_loader):
+        super().__init__(opt, inference_loader)
+        self.opt = opt
+        self.net_G = None
+        self.net_D = None
+
+    def init_from_checkpoint(self, checkpoint):
+        loaded_opt = Pix2pixTrainOptions()
+        loaded_opt.load_saved_dict(checkpoint['opt'])
+
+        self.net_G = Generator(loaded_opt).to(self.opt.device).eval()
+        self.net_D = Discriminator(loaded_opt).to(self.opt.device).eval()
+
+        self.net_G.load_state_dict(checkpoint['net_G_state_dict'])
+        self.net_D.load_state_dict(checkpoint['net_D_state_dict'])
+
+    def inference_batch(self, i, batch_data) -> Tuple[Tensor, Tensor, Tensor]:
+
+        real_A, real_B = batch_data
+        real_A, real_B = real_A.to(self.opt.device), real_B.to(self.opt.device)
+
+        fake_B = self.net_G(real_A)
+
+        return real_A, real_B, fake_B
+
+    def inference(self):
+        # create output directory, delete existing one
+        save_path = Path(self.opt.output_images_path)
+        save_path.mkdir(exist_ok=True, parents=True)
+
+        iterator = enumerate(self.inference_loader)
+        if self.opt.show_progress:
+            iterator = tqdm(iterator, total=len(self.inference_loader), desc='Inference')
+        im_index = 0
+        for i, batch_data in iterator:
+
+            inp_batch, tar_batch, out_batch = self.inference_batch(i, batch_data)
+
+            for inp_im, tar_im, out_im in zip(inp_batch, tar_batch, out_batch):
+                save_filename = os.path.join(self.opt.output_images_path, f'inference-{im_index}.png')
+                im_index += 1
+                plt_horizontals(
+                    [inp_im, tar_im, out_im],
+                    titles=['input', 'target', 'output'],
+                    un_normalize=True,
+                    grayscale=False,
+                    figsize=(3, 1),
+                    save_file=save_filename
+                )
+                save_raw_im(inp_im, os.path.join(self.opt.output_images_path, f'inference-{im_index}-in.png'),
+                            grayscale=True)
+                save_raw_im(tar_im, os.path.join(self.opt.output_images_path, f'inference-{im_index}-tar.png'))
+                save_raw_im(out_im, os.path.join(self.opt.output_images_path, f'inference-{im_index}-out.png'))
 
 
 class Pix2pixTrainModel(BaseTrainModel):

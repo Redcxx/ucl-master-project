@@ -24,6 +24,7 @@ class Pix2pixInferenceModel(BaseInferenceModel):
         self.opt = opt
         self.net_G = None
         self.net_D = None
+        self.setup()
 
     def init_from_checkpoint(self, checkpoint):
         loaded_opt = Pix2pixTrainOptions()

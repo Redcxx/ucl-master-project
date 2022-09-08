@@ -35,13 +35,16 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
 
         # pix2pix-sketch-simplification-NORMAL-2022-09-07-Wednesday-16h-09m-49s
         # pix2pix-sketch-simplification-CONTENT_LOSS-2022-09-07-Wednesday-19h-44m-34s
+        # pix2pix-sketch-simplification-CONTENT_LOSS-DILATE-2022-09-07-Wednesday-23h-16m-58s
         self.dataset_root = './sketch_simplification'
         self.a_to_b = True
         self.random_jitter = True
         self.random_mirror = True
         self.random_rotate = True
-        self.dilate = True
+        self.weight_map = False
+        self.dilate = False
         self.content_loss = False
+        self.mse_loss = True
         # self.resume_ckpt_file = 'pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s'
 
         # Model

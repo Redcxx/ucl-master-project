@@ -39,6 +39,7 @@ class Pix2pixTrainModel(BaseTrainModel):
         # loss
         self.crt_gan = None
         self.crt_l1 = None
+        self.crt_mse = None
 
         # housekeeping
         self.net_G_gan_losses = []
@@ -51,6 +52,7 @@ class Pix2pixTrainModel(BaseTrainModel):
     def _init_fixed(self):
         self.crt_gan = GANBCELoss().to(self.opt.device)
         self.crt_l1 = nn.L1Loss(reduction='none')
+        self.crt_mse = nn.MSELoss(reduction='none')
         self.sch_G = optim.lr_scheduler.LambdaLR(self.opt_G, lr_lambda=self._decay_rule)
         self.sch_D = optim.lr_scheduler.LambdaLR(self.opt_D, lr_lambda=self._decay_rule)
         self.net_F = NetF(self.opt).to(self.opt.device)
@@ -162,8 +164,14 @@ class Pix2pixTrainModel(BaseTrainModel):
         loss_G_fake = self.crt_gan(pred_fake, True)
 
         # l1 loss between generated and real image for more accurate output
-        pixel_wise_loss = self.crt_l1(fake_B, real_B) * self.opt.l1_lambda
-        loss_G_l1 = torch.mean(pixel_wise_loss * weight_map) * self.opt.l1_lambda
+        if self.opt.mse_loss:
+            pixel_wise_loss = self.crt_mse(fake_B, real_B) * self.opt.l1_lambda
+        else:
+            pixel_wise_loss = self.crt_l1(fake_B, real_B) * self.opt.l1_lambda
+        if self.opt.weight_map:
+            loss_G_l1 = torch.mean(pixel_wise_loss * weight_map) * self.opt.l1_lambda
+        else:
+            loss_G_l1 = torch.mean(pixel_wise_loss) * self.opt.l1_lambda
 
         # content loss
         if self.opt.content_loss:

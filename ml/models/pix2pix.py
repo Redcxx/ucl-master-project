@@ -36,14 +36,15 @@ class Pix2pixInferenceModel(BaseInferenceModel):
         self.net_G.load_state_dict(checkpoint['net_G_state_dict'])
         self.net_D.load_state_dict(checkpoint['net_D_state_dict'])
 
-    def inference_batch(self, i, batch_data) -> Tuple[Tensor, Tensor, Tensor]:
+    def inference_batch(self, i, batch_data) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
 
         real_A, real_B = batch_data
         real_A, real_B = real_A.to(self.opt.device), real_B.to(self.opt.device)
 
         fake_B = self.net_G(real_A)
+        threshold = (fake_B > 0.5) * 1.0
 
-        return real_A, real_B, fake_B
+        return real_A, real_B, fake_B, threshold
 
     def inference(self):
         # create output directory, delete existing one
@@ -56,16 +57,16 @@ class Pix2pixInferenceModel(BaseInferenceModel):
         im_index = 0
         for i, batch_data in iterator:
 
-            inp_batch, tar_batch, out_batch = self.inference_batch(i, batch_data)
+            inp_batch, tar_batch, out_batch, thresh_batch = self.inference_batch(i, batch_data)
 
-            for inp_im, tar_im, out_im in zip(inp_batch, tar_batch, out_batch):
+            for inp_im, tar_im, out_im, threshold in zip(inp_batch, tar_batch, out_batch, thresh_batch):
                 save_filename = os.path.join(self.opt.output_images_path, f'inference-{im_index}.png')
                 im_index += 1
                 plt_horizontals(
                     [inp_im, tar_im, out_im],
-                    titles=['input', 'target', 'output'],
+                    titles=['input', 'target', 'output', 'threshold'],
                     un_normalize=True,
-                    grayscale=False,
+                    grayscale=True,
                     figsize=(3, 1),
                     save_file=save_filename
                 )
@@ -73,6 +74,7 @@ class Pix2pixInferenceModel(BaseInferenceModel):
                             grayscale=True)
                 save_raw_im(tar_im, os.path.join(self.opt.output_images_path, f'inference-{im_index}-tar.png'))
                 save_raw_im(out_im, os.path.join(self.opt.output_images_path, f'inference-{im_index}-out.png'))
+                save_raw_im(threshold, os.path.join(self.opt.output_images_path, f'inference-{im_index}-threshold.png'))
 
 
 class Pix2pixTrainModel(BaseTrainModel):

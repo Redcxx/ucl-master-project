@@ -23,6 +23,9 @@ class Pix2pixInferenceOptions(BaseInferenceOptions):
         self.batch_size = 8
         self.num_workers = 4
 
+        self.generator_config = _generator_config()
+        self.discriminator_config = _discriminator_config()
+
     @property
     def tag(self):
         return 'pix2pix-noghost-inference-sketch-simplification'

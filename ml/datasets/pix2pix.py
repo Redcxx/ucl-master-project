@@ -23,12 +23,15 @@ class Pix2pixInferenceDataset(BaseDataset):
         self.paths = sorted(get_all_image_paths(root))
         self.a_to_b = opt.a_to_b
 
+        in_channels = self.opt.generator_config['in_channels']
+
         self.transform = transforms.Compose([
             transforms.Resize(
                 (self.opt.image_size, self.opt.image_size),
                 interpolation=InterpolationMode.BICUBIC,
                 antialias=True
             ),
+            transforms.Lambda(lambda im: im) if in_channels != 1 else transforms.Grayscale(),
             transforms.ToTensor(),
             transforms.Normalize(0.5, 0.5)
         ])

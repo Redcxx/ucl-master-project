@@ -43,8 +43,8 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
 
         # Training
         self.batch_size = 8
-        # self.run_id = 'pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s'
-        self.start_epoch = 1
+        self.run_id = 'pix2pix-sketch-simplification-MSE-DILATE-CONTENT_LOSS-2022-09-08-Thursday-14h-26m-24s'
+        self.start_epoch = 401
         self.end_epoch = 500
         self.eval_freq = 50
         self.log_freq = 5
@@ -69,10 +69,10 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.random_mirror = True
         self.random_rotate = True
 
-        self.weight_map = False
-        self.dilate = False
+        self.weight_map = True
+        self.dilate = True
         self.content_loss = True
-        self.mse_loss = False
+        self.mse_loss = True
         # self.resume_ckpt_file = 'pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s'
 
         # Model

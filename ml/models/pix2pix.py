@@ -70,11 +70,26 @@ class Pix2pixInferenceModel(BaseInferenceModel):
                     figsize=(3, 1),
                     save_file=save_filename
                 )
-                save_raw_im(inp_im, os.path.join(self.opt.output_images_path, f'inference-{im_index}-in.png'),
-                            grayscale=True)
-                save_raw_im(tar_im, os.path.join(self.opt.output_images_path, f'inference-{im_index}-tar.png'))
-                save_raw_im(out_im, os.path.join(self.opt.output_images_path, f'inference-{im_index}-out.png'))
-                save_raw_im(threshold, os.path.join(self.opt.output_images_path, f'inference-{im_index}-threshold.png'))
+                save_raw_im(inp_im, os.path.join(
+                    self.opt.output_images_path,
+                    f'inference-{im_index}-in.png'),
+                    grayscale=True
+                )
+                save_raw_im(tar_im, os.path.join(
+                    self.opt.output_images_path,
+                    f'inference-{im_index}-tar.png'),
+                    grayscale=True
+                )
+                save_raw_im(out_im, os.path.join(
+                    self.opt.output_images_path,
+                    f'inference-{im_index}-out.png'),
+                    grayscale=True
+                )
+                save_raw_im(threshold, os.path.join(
+                    self.opt.output_images_path,
+                    f'inference-{im_index}-threshold.png'),
+                    grayscale=True
+                )
 
 
 class Pix2pixTrainModel(BaseTrainModel):

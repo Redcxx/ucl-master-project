@@ -17,7 +17,7 @@ class Pix2pixInferenceOptions(BaseInferenceOptions):
     def __init__(self):
         super().__init__()
         self.input_images_path = r'sketch_simplification/test'
-        self.output_images_path = 'noghost_sketch_simplification-WEIGHT_MAP'
+        self.output_images_path = 'noghost_sketch_simplification_WEIGHT_MAP'
         self.image_size = 512
         self.a_to_b = True
         self.batch_size = 8

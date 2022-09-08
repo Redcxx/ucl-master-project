@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-NO_WEIGHT_MAP-CONTENT_LOSS'
+        return 'pix2pix-sketch-simplification-MSE-DILATE-CONTENT_LOSS'
 
 
 class Pix2pixInferenceOptions(BaseInferenceOptions):
@@ -62,16 +62,17 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # pix2pix-sketch-simplification-CONTENT_LOSS-DILATE-2022-09-07-Wednesday-23h-16m-58s
         # pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s
         # pix2pix-sketch-simplification-NO-WEIGHT-MAP-2022-09-08-Thursday-10h-16m-21s
+        # pix2pix-sketch-simplification-MSE-2022-09-08-Thursday-10h-28m-04s
         self.dataset_root = './sketch_simplification'
         self.a_to_b = True
         self.random_jitter = True
         self.random_mirror = True
         self.random_rotate = True
 
-        self.weight_map = False
-        self.dilate = False
+        self.weight_map = True
+        self.dilate = True
         self.content_loss = True
-        self.mse_loss = False
+        self.mse_loss = True
         # self.resume_ckpt_file = 'pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s'
 
         # Model

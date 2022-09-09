@@ -28,11 +28,11 @@ class Pix2pixInferenceOptions(BaseInferenceOptions):
 
     @property
     def tag(self):
-        return 'pix2pix-noghost-inference-sketch-simplification-'
+        return 'pix2pix-noghost-inference-sketch-simplification-WEIGHT_MAP-DILATE-CONTENT_LOSS'
 
     @property
     def inference_run_id(self):
-        return 'RUN_ID'
+        return ' pix2pix-sketch-simplification-CONTENT_LOSS-DILATE-2022-09-07-Wednesday-23h-16m-58s'
 
     @property
     def inference_run_tag(self):

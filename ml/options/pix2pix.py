@@ -32,7 +32,7 @@ class Pix2pixInferenceOptions(BaseInferenceOptions):
 
     @property
     def inference_run_id(self):
-        return ' pix2pix-sketch-simplification-CONTENT_LOSS-DILATE-2022-09-07-Wednesday-23h-16m-58s'
+        return 'pix2pix-sketch-simplification-CONTENT_LOSS-DILATE-2022-09-07-Wednesday-23h-16m-58s'
 
     @property
     def inference_run_tag(self):
@@ -56,8 +56,8 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
 
         # Dataset
         # # pix2pix-sketch-simplification-NO_WEIGHT_MAP-MSE-2022-09-08-Thursday-10h-28m-04s
+        # # pix2pix-sketch-simplification-CONTENT_LOSS-DILATE-2022-09-07-Wednesday-23h-16m-58s + weightmap
 
-        # pix2pix-sketch-simplification-CONTENT_LOSS-DILATE-2022-09-07-Wednesday-23h-16m-58s + weightmap
         # pix2pix-sketch-simplification-NO_WEIGHT_MAP-MSE-CONTENT_LOSS-2022-09-09-Friday-00h-15m-15s
 
         # pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s + weightmap

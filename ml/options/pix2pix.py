@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-NO_WEIGHT_MAP-MSE-CONTENT_LOSS'
+        return 'pix2pix-sketch-simplification-NO_WEIGHT_MAP-MSE'
 
 
 class Pix2pixInferenceOptions(BaseInferenceOptions):
@@ -28,11 +28,11 @@ class Pix2pixInferenceOptions(BaseInferenceOptions):
 
     @property
     def tag(self):
-        return 'pix2pix-noghost-inference-sketch-simplification-WEIGHT_MAP-DILATE-CONTENT_LOSS'
+        return 'pix2pix-noghost-inference-sketch-simplification-'
 
     @property
     def inference_run_id(self):
-        return 'pix2pix-sketch-simplification-CONTENT_LOSS-DILATE-2022-09-07-Wednesday-23h-16m-58s'
+        return 'RUN_ID'
 
     @property
     def inference_run_tag(self):
@@ -58,12 +58,14 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # # pix2pix-sketch-simplification-NO_WEIGHT_MAP-MSE-2022-09-08-Thursday-10h-28m-04s
 
         # pix2pix-sketch-simplification-CONTENT_LOSS-DILATE-2022-09-07-Wednesday-23h-16m-58s + weightmap
+        # pix2pix-sketch-simplification-NO_WEIGHT_MAP-MSE-CONTENT_LOSS-2022-09-09-Friday-00h-15m-15s
 
         # pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s + weightmap
-        # pix2pix-sketch-simplification-NO_WEIGHT_MAP-CONTENT_LOSS-2022-09-08-Thursday-18h-11m-45s
         # pix2pix-sketch-simplification-CONTENT_LOSS-2022-09-07-Wednesday-19h-44m-34s + weightmap
         # pix2pix-sketch-simplification-NORMAL-2022-09-07-Wednesday-16h-09m-49s + weightmap
         # pix2pix-sketch-simplification-NO-WEIGHT-MAP-2022-09-08-Thursday-10h-16m-21s
+        # pix2pix-sketch-simplification-NO_WEIGHT_MAP-CONTENT_LOSS-2022-09-08-Thursday-18h-11m-45s
+
         self.dataset_root = './sketch_simplification'
         self.a_to_b = True
         self.random_jitter = True
@@ -72,7 +74,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
 
         self.weight_map = False
         self.dilate = False
-        self.content_loss = True
+        self.content_loss = False
         self.mse_loss = True
         # self.resume_ckpt_file = 'pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s'
 

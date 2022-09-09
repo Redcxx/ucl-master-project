@@ -17,7 +17,7 @@ class Pix2pixInferenceOptions(BaseInferenceOptions):
     def __init__(self):
         super().__init__()
         self.input_images_path = r'sketch_simplification/test'
-        self.output_images_path = 'noghost_sketch_simplification_WEIGHT_MAP_DILATE'
+        self.output_images_path = 'noghost_sketch_simplification_WEIGHT_MAP_DILATE_CONTENT_LOSS'
         self.image_size = 512
         self.a_to_b = True
         self.batch_size = 8
@@ -28,11 +28,11 @@ class Pix2pixInferenceOptions(BaseInferenceOptions):
 
     @property
     def tag(self):
-        return 'pix2pix-noghost-inference-sketch-simplification-WEIGHT_MAP-DILATE'
+        return 'pix2pix-noghost-inference-sketch-simplification-WEIGHT_MAP-DILATE-CONTENT_LOSS'
 
     @property
     def inference_run_id(self):
-        return 'pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s'
+        return 'pix2pix-sketch-simplification-CONTENT_LOSS-DILATE-2022-09-07-Wednesday-23h-16m-58s'
 
     @property
     def inference_run_tag(self):
@@ -58,8 +58,8 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # # pix2pix-sketch-simplification-NO_WEIGHT_MAP-MSE-2022-09-08-Thursday-10h-28m-04s
 
         # pix2pix-sketch-simplification-CONTENT_LOSS-DILATE-2022-09-07-Wednesday-23h-16m-58s + weightmap
-        # pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s + weightmap
 
+        # pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s + weightmap
         # pix2pix-sketch-simplification-NO_WEIGHT_MAP-CONTENT_LOSS-2022-09-08-Thursday-18h-11m-45s
         # pix2pix-sketch-simplification-CONTENT_LOSS-2022-09-07-Wednesday-19h-44m-34s + weightmap
         # pix2pix-sketch-simplification-NORMAL-2022-09-07-Wednesday-16h-09m-49s + weightmap

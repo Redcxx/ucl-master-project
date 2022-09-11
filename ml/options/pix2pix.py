@@ -47,7 +47,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # Training
         self.batch_size = 8
         # self.run_id = 'pix2pix-sketch-simplification-NO_WEIGHT_MAP-MSE-2022-09-09-Friday-10h-01m-56s'
-        self.start_epoch = 0
+        self.start_epoch = 1
         self.end_epoch = 500
         self.eval_freq = 50
         self.log_freq = 5

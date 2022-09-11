@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-NO_WEIGHT_MAP-CONTENT_LOSS'
+        return 'pix2pix-sketch-simplification-MSE-DILATE'
 
 
 class Pix2pixInferenceOptions(BaseInferenceOptions):
@@ -46,7 +46,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
 
         # Training
         self.batch_size = 8
-        self.run_id = 'pix2pix-sketch-simplification-NO_WEIGHT_MAP-MSE-2022-09-09-Friday-10h-01m-56s'
+        # self.run_id = 'pix2pix-sketch-simplification-NO_WEIGHT_MAP-MSE-2022-09-09-Friday-10h-01m-56s'
         self.start_epoch = 0
         self.end_epoch = 500
         self.eval_freq = 50
@@ -55,7 +55,6 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.batch_log_freq = 0
 
         # Dataset
-        # pix2pix-sketch-simplification-NO_WEIGHT_MAP-MSE-2022-09-09-Friday-10h-01m-56s
 
         # pix2pix-sketch-simplification-CONTENT_LOSS-DILATE-2022-09-07-Wednesday-23h-16m-58s
         # pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s
@@ -64,6 +63,8 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # pix2pix-sketch-simplification-NO-WEIGHT-MAP-2022-09-08-Thursday-10h-16m-21s
         # pix2pix-sketch-simplification-NO_WEIGHT_MAP-CONTENT_LOSS-2022-09-08-Thursday-18h-11m-45s
         # pix2pix-sketch-simplification-NO_WEIGHT_MAP-MSE-CONTENT_LOSS-2022-09-09-Friday-00h-15m-15s
+        # pix2pix-sketch-simplification-NO_WEIGHT_MAP-MSE-2022-09-09-Friday-10h-01m-56s
+
 
         self.dataset_root = './sketch_simplification'
         self.a_to_b = True
@@ -71,8 +72,8 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.random_mirror = True
         self.random_rotate = True
 
-        self.weight_map = False
-        self.dilate = False
+        self.weight_map = True
+        self.dilate = True
         self.content_loss = False
         self.mse_loss = True
         # self.resume_ckpt_file = 'pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s'

@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-MSE-DILATE'
+        return 'pix2pix-sketch-simplification-MSE-DILATE-3000'
 
 
 class Pix2pixInferenceOptions(BaseInferenceOptions):

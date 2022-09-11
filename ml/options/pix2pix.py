@@ -48,13 +48,14 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.batch_size = 8
         # self.run_id = 'pix2pix-sketch-simplification-NO_WEIGHT_MAP-MSE-2022-09-09-Friday-10h-01m-56s'
         self.start_epoch = 1
-        self.end_epoch = 500
+        self.end_epoch = 3000
         self.eval_freq = 50
         self.log_freq = 5
         self.save_freq = 50
         self.batch_log_freq = 0
 
         # Dataset
+        # pix2pix-sketch-simplification-MSE-DILATE-2022-09-11-Sunday-16h-40m-52s
 
         # pix2pix-sketch-simplification-CONTENT_LOSS-DILATE-2022-09-07-Wednesday-23h-16m-58s
         # pix2pix-sketch-simplification-DILATE-2022-09-07-Wednesday-13h-35m-26s
@@ -88,7 +89,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.optimizer_beta2 = 0.999
         self.init_gain = 0.02
         self.weight_decay = 0
-        self.decay_epochs = 100
+        self.decay_epochs = 500
 
         # Loss
         self.l1_lambda = 100.0  # encourage l1 distance to actual output

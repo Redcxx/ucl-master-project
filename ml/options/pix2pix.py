@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-MSE-DILATE-3000'
+        return 'pix2pix-sketch-simplification-SMALL-MSE-DILATE-70000'
 
 
 class Pix2pixInferenceOptions(BaseInferenceOptions):
@@ -48,10 +48,10 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.batch_size = 8
         # self.run_id = 'pix2pix-sketch-simplification-NO_WEIGHT_MAP-MSE-2022-09-09-Friday-10h-01m-56s'
         self.start_epoch = 1
-        self.end_epoch = 3000
-        self.eval_freq = 100
-        self.log_freq = 5
-        self.save_freq = 100
+        self.end_epoch = 70000
+        self.eval_freq = 500
+        self.log_freq = 100
+        self.save_freq = 500
         self.batch_log_freq = 0
 
         # Dataset
@@ -67,7 +67,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # pix2pix-sketch-simplification-NO_WEIGHT_MAP-MSE-2022-09-09-Friday-10h-01m-56s
 
 
-        self.dataset_root = './sketch_simplification'
+        self.dataset_root = './sketch_simplification_good'
         self.a_to_b = True
         self.random_jitter = True
         self.random_mirror = True

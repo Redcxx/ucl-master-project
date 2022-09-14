@@ -9,7 +9,7 @@ class Pix2pixOptions(ABC):
 
     @property
     def tag(self):
-        return 'pix2pix-sketch-simplification-SMALL-MSE-DILATE-70000'
+        return 'pix2pix-sketch-simplification-SMALL-MSE-DILATE-30000'
 
 
 class Pix2pixInferenceOptions(BaseInferenceOptions):
@@ -46,9 +46,9 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
 
         # Training
         self.batch_size = 8
-        # self.run_id = 'pix2pix-sketch-simplification-NO_WEIGHT_MAP-MSE-2022-09-09-Friday-10h-01m-56s'
-        self.start_epoch = 1
-        self.end_epoch = 70000
+        self.run_id = 'pix2pix-sketch-simplification-SMALL-MSE-DILATE-30000'
+        self.start_epoch = 18000
+        self.end_epoch = 30000
         self.eval_freq = 500
         self.log_freq = 100
         self.save_freq = 500

@@ -47,7 +47,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         # Training
         self.batch_size = 8
         self.run_id = 'pix2pix-sketch-simplification-SMALL-MSE-DILATE-30000'
-        self.start_epoch = 18000
+        self.start_epoch = 18001
         self.end_epoch = 30000
         self.eval_freq = 500
         self.log_freq = 100

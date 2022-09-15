@@ -90,7 +90,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.optimizer_beta2 = 0.999
         self.init_gain = 0.02
         self.weight_decay = 0
-        self.decay_epochs = 500
+        self.decay_epochs = 100
 
         # Loss
         self.l1_lambda = 100.0  # encourage l1 distance to actual output

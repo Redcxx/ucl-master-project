@@ -16,8 +16,8 @@ class Pix2pixInferenceOptions(BaseInferenceOptions):
 
     def __init__(self):
         super().__init__()
-        self.input_images_path = r'sketch_simplification/test'
-        self.output_images_path = 'noghost_sketch_simplification_SMALL_MSE_DILATE'
+        self.input_images_path = r'sketch_simplification_good/test'
+        self.output_images_path = 'noghost_sketch_simplification_SMALL_MSE_DILATE_SMALL'
         self.image_size = 512
         self.a_to_b = True
         self.batch_size = 8
@@ -28,7 +28,7 @@ class Pix2pixInferenceOptions(BaseInferenceOptions):
 
     @property
     def tag(self):
-        return 'pix2pix-noghost-inference-sketch-simplification-NO-WEIGHT_MAP-MSE-DILATE-SMALL-70000'
+        return 'pix2pix-noghost-inference-sketch-simplification-NO-WEIGHT_MAP-MSE-DILATE-SMALL-70000_SMALL'
 
     @property
     def inference_run_id(self):

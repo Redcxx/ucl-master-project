@@ -17,7 +17,7 @@ class Pix2pixInferenceOptions(BaseInferenceOptions):
     def __init__(self):
         super().__init__()
         self.input_images_path = r'sketch_simplification/test'
-        self.output_images_path = 'noghost_sketch_simplification_MSE_DILATE_3000'
+        self.output_images_path = 'noghost_sketch_simplification_SMALL_MSE_DILATE'
         self.image_size = 512
         self.a_to_b = True
         self.batch_size = 8
@@ -28,11 +28,11 @@ class Pix2pixInferenceOptions(BaseInferenceOptions):
 
     @property
     def tag(self):
-        return 'pix2pix-noghost-inference-sketch-simplification-NO-WEIGHT_MAP-MSE-DILATE-3000'
+        return 'pix2pix-noghost-inference-sketch-simplification-NO-WEIGHT_MAP-MSE-DILATE-SMALL-70000'
 
     @property
     def inference_run_id(self):
-        return 'pix2pix-sketch-simplification-MSE-DILATE-3000-2022-09-11-Sunday-20h-03m-08s'
+        return 'pix2pix-sketch-simplification-SMALL-MSE-DILATE-70000-2022-09-13-Tuesday-08h-52m-30s'
 
     @property
     def inference_run_tag(self):
@@ -46,7 +46,7 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
 
         # Training
         self.batch_size = 8
-        self.run_id = 'pix2pix-sketch-simplification-SMALL-MSE-DILATE-70000-2022-09-13-Tuesday-08h-52m-30s'
+        # self.run_id = 'pix2pix-sketch-simplification-SMALL-MSE-DILATE-70000-2022-09-13-Tuesday-08h-52m-30s'
         self.start_epoch = 19001
         self.end_epoch = 20000
         self.eval_freq = 500
@@ -55,7 +55,9 @@ class Pix2pixTrainOptions(Pix2pixOptions, BaseTrainOptions):
         self.batch_log_freq = 0
 
         # Dataset
+        # pix2pix-sketch-simplification-SMALL-MSE-DILATE-70000-2022-09-13-Tuesday-08h-52m-30s
         # pix2pix-sketch-simplification-MSE-DILATE-2022-09-11-Sunday-16h-40m-52s
+        #
 
         # pix2pix-sketch-simplification-MSE-DILATE-3000-2022-09-11-Sunday-20h-03m-08s
 

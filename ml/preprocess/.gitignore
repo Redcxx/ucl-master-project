@@ -1,0 +1,4 @@
+../../gitlab/animation-ml/.idea
+!.gitignore
+
+__pycache__/
